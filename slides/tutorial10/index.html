@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Learning · Tutorial 10</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23fff'/><circle cx='16' cy='18' r='6' fill='%231d6fa5'/><circle cx='12' cy='44' r='6' fill='%231d6fa5'/><circle cx='48' cy='20' r='6' fill='%23d6002b'/><circle cx='52' cy='46' r='6' fill='%23d6002b'/><path d='M8 31L20 31M14 25L14 37' stroke='%231f1f1f' stroke-width='4' stroke-linecap='round'/><path d='M44 33L56 33M50 27L50 39' stroke='%231f1f1f' stroke-width='4' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root { --ink: #1f1f1f; --muted: #666; --red: #d6002b; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #fff; }
+  body {
+    color: var(--ink);
+    font-family: KaTeX_Main, "Latin Modern Roman", "Times New Roman", serif;
+    font-size: clamp(16px, min(1.55vw, 2.6vh), 32px);
+    line-height: 1.4;
+  }
+  main { height: 100%; padding: 5vh 4vw; }
+
+  /* One slide per problem */
+  .slide { display: none; height: 100%; }
+  .slide.current.split { display: grid; grid-template-columns: 40fr 60fr; gap: 4vw; }
+  .slide.current.split.half { grid-template-columns: 1fr 1fr; }
+  .slide.current.title { display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; align-items: center; padding: 0 2vw; }
+  .title .rule { width: 2.6em; height: 4px; background: var(--red); margin-bottom: 1.4em; }
+  .title h1 { font-size: 2em; line-height: 1.25; margin: 0.4em 0 0.7em; }
+  .title .sub { color: var(--muted); }
+
+  .where { color: var(--muted); font-size: 0.7em; }
+  h1 { font-size: 1.25em; margin: 0.15em 0 0.5em; }
+  .setup { margin-bottom: 1.2em; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: inherit; }
+  svg .mi { font-family: KaTeX_Math; font-style: italic; }
+  svg .kept { font-weight: bold; }
+  svg .fade { animation: fade 0.45s ease both; }
+  #fig3 .pt { transform-box: fill-box; transform-origin: center; }
+
+  .part { display: none; }
+  .part.current { display: block; }
+  .q { margin-bottom: 0.8em; }
+  .item { display: none; margin-bottom: 0.4em; }
+  .item.shown { display: block; animation: fade 0.35s ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .katex { font-size: 1.1em; }
+  .katex-display { margin: 0.18em 0; }
+  .nw { white-space: nowrap; }
+  table.w { border-collapse: collapse; margin: 0.4em auto; }
+  table.w td { padding: 0.1em 0.7em; text-align: center; }
+  table.w td:first-child { text-align: right; border-right: 1px solid #999; }
+  table.w tr:first-child td { border-bottom: 1px solid #999; }
+
+  .progress { position: fixed; left: 0; bottom: 0; height: 3px; width: 100%; background: #e5e5e5; }
+  .progress div { height: 100%; width: 0; background: var(--red); transition: width 0.25s; }
+  .nav { position: fixed; bottom: 8px; right: 12px; display: flex; gap: 6px; opacity: 0.3; }
+  .nav:hover { opacity: 1; }
+  .nav button { font: inherit; font-size: 0.7em; padding: 0.1em 0.7em; border: 1px solid #bbb; border-radius: 4px; background: #fff; cursor: pointer; }
+
+  /* Contents panel: hover the top-left corner */
+  #toc { position: fixed; top: 0; left: 0; z-index: 5; }
+  #toc-btn { display: block; color: #999; background: none; border: none; padding: 10px 12px; cursor: pointer; opacity: 0.35; }
+  #toc-btn svg { width: 18px; height: 14px; }
+  #toc.open #toc-btn, #toc-btn:hover { opacity: 1; }
+  #toc-panel {
+    display: none; background: #fff; font-size: 0.8em; padding: 0.2em 1.6em 1em 1em;
+    border: 1px solid #ddd; border-width: 0 1px 1px 0; box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+  #toc.open #toc-panel { display: grid; grid-template-columns: auto auto; gap: 0.4em 2em; align-items: baseline; }
+  #toc-panel a { color: var(--ink); text-decoration: none; cursor: pointer; }
+  #toc-panel a:hover { text-decoration: underline; }
+  #toc-panel .parts a { margin-right: 0.8em; }
+  #toc-panel a.here { font-weight: bold; }
+
+  @media (max-width: 900px) {
+    body { font-size: 17px; }
+    main { height: auto; padding: 16px 16px 48px; }
+    .slide.current.split, .slide.current.split.half { display: block; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.15em 0; }
+    svg { margin-bottom: 1em; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ================================================================ -->
+<section class="slide title" data-slide="0">
+  <div>
+    <div class="rule"></div>
+    <div class="sub">Machine Learning · Tutorial 10</div>
+    <h1>Clustering, <i>k</i>-Means and<br>Mixtures of Gaussians</h1>
+    <div class="sub">Universität Bern · 18.11.2026</div>
+  </div>
+  <svg id="fig0" viewBox="0 0 700 440" role="img" aria-label="A mixture of two Gaussians fitted by EM"></svg>
+</section>
+
+<!-- ================================================================ -->
+<section class="slide split" data-slide="1">
+  <div>
+    <div class="where">Machine Learning · Tutorial 10</div>
+    <h1>1. <i>k</i>-means by hand</h1>
+    <div class="setup">
+      We cluster the four points
+      $$x^{(1)}=(0,0),\quad x^{(2)}=(0,2),\quad x^{(3)}=(4,0),\quad x^{(4)}=(4,2)$$
+      into $k=2$ clusters.
+      The distortion is $J(c,\mu)=\sum_{i=1}^n\|x^{(i)}-\mu_{c^{(i)}}\|^2$.
+    </div>
+    <svg id="fig1" viewBox="0 0 700 450" role="img" aria-label="The four points, the centroids and the assignments"></svg>
+  </div>
+
+  <div>
+    <div class="part" data-part="a">
+      <div class="q">(a) Initialize $\mu_1=x^{(1)}$ and $\mu_2=x^{(3)}$.
+        Run $k$-means until the assignments no longer change. Give the centroids and $J$.</div>
+      <div class="item"><b>Solution.</b> <i>Assignment step.</i> The squared distances $\|x^{(i)}-\mu_j\|^2$ are
+        $$\begin{array}{c|cccc}&x^{(1)}&x^{(2)}&x^{(3)}&x^{(4)}\\\hline\mu_1=(0,0)&0&4&16&20\\ \mu_2=(4,0)&16&20&0&4\end{array}$$
+        so $c=(1,1,2,2)$.</div>
+      <div class="item"><i>Centroid step.</i>
+        $$\mu_1=\tfrac12\big((0,0)+(0,2)\big)=(0,1),\qquad\mu_2=\tfrac12\big((4,0)+(4,2)\big)=(4,1).$$</div>
+      <div class="item"><i>Assignment step.</i> Every point is at squared distance $1$ from its own centroid and $17$ from the other,
+        so $c$ does not change and $k$-means stops with
+        $$\mu_1=(0,1),\qquad\mu_2=(4,1),\qquad J=1+1+1+1=4.$$</div>
+    </div>
+
+    <div class="part" data-part="b">
+      <div class="q">(b) Now initialize $\mu_1=x^{(1)}$ and $\mu_2=x^{(2)}$ and run $k$-means again.</div>
+      <div class="item"><b>Solution.</b> <i>Assignment step.</i>
+        $$\begin{array}{c|cccc}&x^{(1)}&x^{(2)}&x^{(3)}&x^{(4)}\\\hline\mu_1=(0,0)&0&4&16&20\\ \mu_2=(0,2)&4&0&20&16\end{array}$$
+        so $c=(1,2,1,2)$.</div>
+      <div class="item"><i>Centroid step.</i>
+        $$\mu_1=\tfrac12\big((0,0)+(4,0)\big)=(2,0),\qquad\mu_2=\tfrac12\big((0,2)+(4,2)\big)=(2,2).$$</div>
+      <div class="item"><i>Assignment step.</i> Every point is at squared distance $4$ from its own centroid and $8$ from the other,
+        so $c$ does not change and $k$-means stops with
+        $$\mu_1=(2,0),\qquad\mu_2=(2,2),\qquad J=4+4+4+4=16.$$</div>
+    </div>
+
+    <div class="part" data-part="c">
+      <div class="q">(c) Which of the two results would you keep? What does this tell you about $k$-means?</div>
+      <div class="item"><b>Solution.</b> The first one, since $J=4&lt;16$.</div>
+      <div class="item">Both runs stopped, so both results are fixed points of $k$-means.</div>
+      <div class="item">$J$ is not convex, and $k$-means converges to a local minimum that depends on the initialization.</div>
+      <div class="item">In practice we run $k$-means from several initializations and keep the result with the smallest $J$.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="slide split half" data-slide="2">
+  <div>
+    <div class="where">Machine Learning · Tutorial 10</div>
+    <h1>2. Why <i>k</i>-means stops</h1>
+    <svg id="fig2" viewBox="0 0 700 420" role="img" aria-label="The points of Problem 1 with a fixed assignment, and the distortion during a run of k-means"></svg>
+  </div>
+
+  <div>
+    <div class="part" data-part="a">
+      <div class="q">(a) Fix the assignments $c$. Show that the $\mu_j$ that minimizes $\sum_{i:\,c^{(i)}=j}\|x^{(i)}-\mu_j\|^2$
+        is the mean of the points in cluster $j$.</div>
+      <div class="item"><b>Solution.</b> Let $C_j=\{i: c^{(i)}=j\}$.
+        The function is a convex quadratic in $\mu_j$, so it is minimal where its gradient vanishes:
+        $$\nabla_{\mu_j}\sum_{i\in C_j}\|x^{(i)}-\mu_j\|^2=-2\sum_{i\in C_j}\big(x^{(i)}-\mu_j\big).$$</div>
+      <div class="item">It vanishes when
+        $$\sum_{i\in C_j}\big(x^{(i)}-\mu_j\big)=0\quad\Longleftrightarrow\quad\mu_j=\frac{1}{|C_j|}\sum_{i\in C_j}x^{(i)}.$$</div>
+    </div>
+
+    <div class="part" data-part="b">
+      <div class="q">(b) Explain why $J$ never increases, and why $k$-means stops after finitely many iterations.</div>
+      <div class="item"><b>Solution.</b> The assignment step minimizes $J$ over $c$ with $\mu$ fixed: each point picks a nearest centroid.</div>
+      <div class="item">The centroid step minimizes $J$ over $\mu$ with $c$ fixed, by (a).</div>
+      <div class="item">So neither step can increase $J$.</div>
+      <div class="item">If a point changes its cluster, it moves to a strictly nearer centroid (on a tie it keeps its cluster), so $J$ strictly decreases.
+        Hence no assignment $c$ can occur twice.</div>
+      <div class="item">There are at most $k^n$ assignments, so after finitely many iterations $c$ stops changing.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="slide split half" data-slide="3">
+  <div>
+    <div class="where">Machine Learning · Tutorial 10</div>
+    <h1>3. Mixture of Gaussians versus GDA</h1>
+    <svg id="fig3" viewBox="0 0 700 700" role="img" aria-label="Points sampled from one model, then seen as GDA data and as mixture data"></svg>
+  </div>
+
+  <div>
+    <div class="part" data-part="a">
+      <div class="q">(a) What is the main difference between a mixture of Gaussians and Gaussian Discriminant Analysis (GDA)?</div>
+      <div class="item"><b>Solution.</b> Both models generate a point in two steps: a label $j$ with probability $\phi_j$, then $x\sim\mathcal N(\mu_j,\Sigma_j)$.</div>
+      <div class="item">In GDA the label $y^{(i)}$ of every training point is observed: it is a supervised model.</div>
+      <div class="item">In a mixture of Gaussians the label $z^{(i)}$ is latent: it is an unsupervised model, and the parameters have to be estimated without knowing which Gaussian generated each point.</div>
+    </div>
+
+    <div class="part" data-part="b">
+      <div class="q">(b) Suppose the labels $z^{(i)}$ were known. How would you estimate $\phi_j$, $\mu_j$ and $\Sigma_j$?</div>
+      <div class="item"><b>Solution.</b> Then maximum likelihood is the same as for GDA: we fit one Gaussian to the points of each component.
+        $$\phi_j=\frac1n\sum_{i=1}^n\mathbf 1\{z^{(i)}=j\},$$</div>
+      <div class="item">$$\mu_j=\frac{\sum_i\mathbf 1\{z^{(i)}=j\}\,x^{(i)}}{\sum_i\mathbf 1\{z^{(i)}=j\}},$$</div>
+      <div class="item">$$\Sigma_j=\frac{\sum_i\mathbf 1\{z^{(i)}=j\}\,(x^{(i)}-\mu_j)(x^{(i)}-\mu_j)^\top}{\sum_i\mathbf 1\{z^{(i)}=j\}}.$$
+        These are the fraction, the mean and the covariance of the points with $z^{(i)}=j$.</div>
+      <div class="item">EM replaces the unknown indicators $\mathbf 1\{z^{(i)}=j\}$ by the responsibilities $w_j^{(i)}=p(z^{(i)}=j\mid x^{(i)})$ (E-step) and then applies these formulas (M-step).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="slide split" data-slide="4">
+  <div>
+    <div class="where">Machine Learning · Tutorial 10</div>
+    <h1>4. EM in one dimension</h1>
+    <div class="setup">
+      We fit a mixture of two Gaussians to the four points
+      $x^{(1)}=0$, $x^{(2)}=1$, $x^{(3)}=3$, $x^{(4)}=4$.
+      Both Gaussians have variance $\sigma^2=1$, which is kept fixed.
+      We initialize $\phi_1=\phi_2=\tfrac12$, $\mu_1=1$, $\mu_2=3$ and perform one iteration of EM.
+    </div>
+    <svg id="fig4" viewBox="0 0 700 320" role="img" aria-label="The four points and the two Gaussians"></svg>
+  </div>
+
+  <div>
+    <div class="part" data-part="a">
+      <div class="q">(a) <b>E-step.</b> Compute the responsibilities $w_1^{(i)}=p(z^{(i)}=1\mid x^{(i)})$.
+        <i>Hint:</i> show first that here $w_1^{(i)}=\dfrac{1}{1+e^{\,2x^{(i)}-4}}$.</div>
+      <div class="item"><b>Solution.</b> By Bayes' rule,
+        $$w_1^{(i)}=\frac{\phi_1\,\mathcal N(x^{(i)};\mu_1,1)}{\phi_1\,\mathcal N(x^{(i)};\mu_1,1)+\phi_2\,\mathcal N(x^{(i)};\mu_2,1)}.$$</div>
+      <div class="item">Since $\phi_1=\phi_2$, the factors $\phi_j/\sqrt{2\pi}$ cancel:
+        $$w_1^{(i)}=\frac{e^{-(x^{(i)}-1)^2/2}}{e^{-(x^{(i)}-1)^2/2}+e^{-(x^{(i)}-3)^2/2}}.$$</div>
+      <div class="item">Dividing numerator and denominator by $e^{-(x^{(i)}-1)^2/2}$,
+        $$w_1^{(i)}=\frac{1}{1+\exp\!\Big(\tfrac12\big[(x^{(i)}-1)^2-(x^{(i)}-3)^2\big]\Big)}.$$</div>
+      <div class="item">Since $(x-1)^2-(x-3)^2=4x-8$, the exponent is $2x^{(i)}-4$. This gives
+        <table class="w">
+          <tr><td>$x^{(i)}$</td><td>0</td><td>1</td><td>3</td><td>4</td></tr>
+          <tr><td>$w_1^{(i)}$</td><td>0.982</td><td>0.881</td><td>0.119</td><td>0.018</td></tr>
+          <tr><td>$w_2^{(i)}=1-w_1^{(i)}$</td><td>0.018</td><td>0.119</td><td>0.881</td><td>0.982</td></tr>
+        </table>
+        All responsibilities lie strictly between 0 and 1: unlike in $k$-means, the assignments are soft.</div>
+    </div>
+
+    <div class="part" data-part="b">
+      <div class="q">(b) <b>M-step.</b> Compute the updated $\phi_1$, $\mu_1$ and $\mu_2$.</div>
+      <div class="item"><b>Solution.</b> We use the formulas of Problem 3(b), with $\mathbf 1\{z^{(i)}=j\}$ replaced by $w_j^{(i)}$:
+        $$\phi_1=\tfrac14\textstyle\sum_i w_1^{(i)}=\tfrac14(0.982+0.881+0.119+0.018)=\tfrac24=0.5,$$</div>
+      <div class="item">
+        $$\mu_1=\frac{\sum_i w_1^{(i)}x^{(i)}}{\sum_i w_1^{(i)}}=\frac{0+0.881+3\cdot0.119+4\cdot0.018}{2}=\frac{1.310}{2}\approx0.66,$$</div>
+      <div class="item">
+        $$\mu_2=\frac{\sum_i w_2^{(i)}x^{(i)}}{\sum_i w_2^{(i)}}=\frac{0.119+3\cdot0.881+4\cdot0.982}{2}=\frac{6.690}{2}\approx3.34.$$</div>
+    </div>
+
+    <div class="part" data-part="c">
+      <div class="q">(c) How did the means change? Explain the change using the data.</div>
+      <div class="item"><b>Solution.</b> They moved apart, from $1$ and $3$ to $0.66$ and $3.34$.
+        The data form two clusters, $\{0,1\}$ with mean $0.5$ and $\{3,4\}$ with mean $3.5$,
+        and each mean moves towards the cluster whose points have a large responsibility for it.</div>
+      <div class="item">The log-likelihood increases from $-7.16$ to $-6.86$.</div>
+    </div>
+
+    <div class="part" data-part="d">
+      <div class="q">(d) Without computing anything: what is the responsibility $w_1$ of an additional point $x=2$ under the initial parameters?</div>
+      <div class="item"><b>Solution.</b> $w_1=\tfrac12$.
+        The point is equidistant from $\mu_1=1$ and $\mu_2=3$, and both Gaussians have the same weight and variance,
+        so the two terms in Bayes' rule are equal. (Check: $1/(1+e^{0})=\tfrac12$.)</div>
+    </div>
+
+    <div class="part" data-part="e">
+      <div class="q">(e) Run $k$-means on the same four points, starting from $\mu_1=1$ and $\mu_2=3$. Compare its means with those of EM.</div>
+      <div class="item"><b>Solution.</b> The assignment step puts $0,1$ in cluster $1$ and $3,4$ in cluster $2$, so $\mu_1=0.5$ and $\mu_2=3.5$.</div>
+      <div class="item">The next assignment step changes nothing, and $k$-means stops.</div>
+      <div class="item">EM instead converges to $\mu_1\approx0.56$ and $\mu_2\approx3.44$.</div>
+      <div class="item">Its assignments are soft: the points $1$ and $3$ keep a responsibility of about $0.05$ for the other Gaussian
+        and pull the means slightly towards each other.</div>
+      <div class="item">$k$-means is the hard version, in which every $w_j^{(i)}$ is $0$ or $1$.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav id="toc" aria-label="Contents">
+  <button id="toc-btn" aria-label="Contents"><svg viewBox="0 0 18 14"><path d="M1 1h16M1 7h16M1 13h16" stroke="currentColor" stroke-width="1.6"/></svg></button>
+  <div id="toc-panel"></div>
+</nav>
+<div class="progress"><div id="bar"></div></div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+const sum = a => a.reduce((s, v) => s + v, 0);
+
+// ---------- Problems 1 and 2: k-means on four points ----------
+const P4 = [[0, 0], [0, 2], [4, 0], [4, 2]];
+const d2 = (p, m) => (p[0] - m[0]) ** 2 + (p[1] - m[1]) ** 2;
+const assign = mu => P4.map(p => (d2(p, mu[0]) <= d2(p, mu[1]) ? 0 : 1));
+const centroids = c => [0, 1].map(j => { const q = P4.filter((_, i) => c[i] === j); return [0, 1].map(d => sum(q.map(p => p[d])) / q.length); });
+const distortion = (c, mu) => sum(P4.map((p, i) => d2(p, mu[c[i]])));
+function kmeans(mu0) { // phases: the start, then alternating assignment and centroid steps until c stops changing
+  const ph = [{ mu: mu0, c: null }];
+  let mu = mu0, c = null;
+  for (;;) {
+    const c2 = assign(mu);
+    ph.push({ mu, c: c2, J: distortion(c2, mu) });
+    if (c && c2.every((v, i) => v === c[i])) break;
+    c = c2; mu = centroids(c);
+    ph.push({ mu, c, J: distortion(c, mu) });
+  }
+  return ph;
+}
+// (a) and (b) of Problem 1, and a longer run for Problem 2: J = 17, 13.3, 9.8, 4, 4
+const RUN = { a: kmeans([[0, 0], [4, 0]]), b: kmeans([[0, 0], [0, 2]]), s: kmeans([[1, 0], [3, 3]]) };
+
+// ---------- Problem 4: mixture of two 1D Gaussians, variance fixed at 1 ----------
+const XS = [0, 1, 3, 4];
+const INIT = { mu1: 1, mu2: 3, phi: 0.5 };
+const gauss = (x, m) => Math.exp(-((x - m) ** 2) / 2) / Math.sqrt(2 * Math.PI);
+const estep = p => XS.map(x => {
+  const a = p.phi * gauss(x, p.mu1), b = (1 - p.phi) * gauss(x, p.mu2);
+  return a / (a + b);
+});
+const mstep = w => {
+  const s1 = sum(w), s2 = XS.length - s1;
+  return {
+    phi: s1 / XS.length,
+    mu1: w.reduce((s, v, i) => s + v * XS[i], 0) / s1,
+    mu2: w.reduce((s, v, i) => s + (1 - v) * XS[i], 0) / s2,
+  };
+};
+const W0 = estep(INIT), P1 = mstep(W0);
+let PINF = P1;
+for (let k = 0; k < 100; k++) PINF = mstep(estep(PINF));
+const WINF = estep(PINF);
+
+// What the figure of Problem 4 shows
+const START = { p: INIT, w: null };
+const HEIGHTS = { p: INIT, w: null, heights: true };
+const AFTER_E = { p: INIT, w: W0 };
+const MU1 = { p: { ...INIT, mu1: P1.mu1 }, w: W0, ghost: INIT };
+const AFTER_M = { p: P1, w: W0, ghost: INIT };
+const KM0 = { p: INIT, w: null, hard: true };                          // k-means: hard assignments, no Gaussians
+const KM1 = { p: { mu1: 0.5, mu2: 3.5, phi: 0.5 }, w: [1, 1, 0, 0], hard: true };
+const CONV = { p: PINF, w: WINF, kghost: true };                         // EM at convergence, k-means means dashed
+
+// ---------- Steps: [slide, part, number of items shown, figure] ----------
+const reveal = (slide, part, figs) => figs.map((f, k) => [slide, part, k, f]);
+const steps = [
+  [0, null, 0],
+  ...reveal(1, 'a', [0, 1, 2, 3].map(st => ({ run: 'a', st }))),
+  ...reveal(1, 'b', [0, 1, 2, 3].map(st => ({ run: 'b', st }))),
+  ...reveal(1, 'c', [{ both: 1 }, { both: 1, kept: 1 }, { both: 1, kept: 1 }, { both: 1, kept: 1 }, { both: 1, kept: 1 }]),
+  ...reveal(2, 'a', [0, 1, 2].map(a => ({ a }))),
+  ...reveal(2, 'b', [0, 1, 2, 3, 4, 5].map(b => ({ b }))),
+  [3, 'a', 0, { a: 0, n: 0 }],   // the model
+  [3, 'a', 1, { a: 1, n: 1 }],   // one label, then one point
+  [3, 'a', 1, { a: 1, n: 2 }],
+  [3, 'a', 1, { a: 1, n: 24 }],  // the rest, faster
+  [3, 'a', 1, { a: 2, n: 24 }],  // the same data, once for each model
+  [3, 'a', 2, { a: 3, n: 24 }],  // what is observed
+  [3, 'a', 3, { a: 4, n: 24 }],
+  ...reveal(3, 'b', [{ b: 0 }, { b: 1 }, { b: 2 }, { b: 3 }, { b: 4 }]),
+  ...reveal(4, 'a', [START, HEIGHTS, HEIGHTS, HEIGHTS, AFTER_E]),
+  ...reveal(4, 'b', [AFTER_E, AFTER_E, MU1, AFTER_M]),
+  ...reveal(4, 'c', [AFTER_M, AFTER_M, AFTER_M]),
+  ...reveal(4, 'd', [{ ...AFTER_E, extra: 'ask' }, { ...AFTER_E, extra: 'show' }]),
+  ...reveal(4, 'e', [KM0, KM1, KM1, CONV, CONV, CONV]),
+];
+
+// ---------- Palette and labels ----------
+// University of Bern red, with a blue and an ochre that stay distinct under colour-vision deficiency.
+const BLUE = '#1d6fa5', RED = '#d6002b', OCHRE = '#c98a00', COLS = [BLUE, RED, OCHRE];
+const INK = '#1f1f1f', MUTED = '#555555', HAIR = '#d6d6d6', AXIS = '#b3b3b3', GREY = '#8c8c8c';
+
+// Small TeX-like labels in SVG: $…$ is math (letters in KaTeX's math italic), and _x and ^{…} are sub- and superscripts.
+const LETTER = /[A-Za-zα-ωϕ]/;
+function tex(s, fs) {
+  let out = '', math = false, shift = 0, run = '', key = '', dx = 0;
+  const flush = () => {
+    if (!run) return;
+    const [it, size, target] = key.split('|'), dy = +(target - shift).toFixed(2);
+    shift = +target;
+    out += `<tspan${it === '1' ? ' class="mi"' : ''}${+size !== fs ? ` font-size="${size}"` : ''}${dx ? ` dx="${dx.toFixed(2)}"` : ''}${dy ? ` dy="${dy}"` : ''}>${run}</tspan>`;
+    run = ''; dx = 0;
+  };
+  const put = (ch, it, size, target) => {
+    const k = `${it ? 1 : 0}|${size}|${target}`;
+    if (k !== key) { flush(); key = k; }
+    run += ch;
+  };
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '$') { math = !math; continue; }
+    if (math && (c === '_' || c === '^')) {
+      const prev = s[i - 1] || '';
+      let g = s[++i];
+      if (g === '{') { const e = s.indexOf('}', i); g = s.slice(i + 1, e); i = e; }
+      if (c === '^' && LETTER.test(prev)) { flush(); dx = 0.08 * fs; } // room for the slant of an italic letter
+      for (const ch of g) put(ch, LETTER.test(ch), +(0.7 * fs).toFixed(1), +(c === '_' ? 0.22 * fs : -0.42 * fs).toFixed(1));
+    } else put(c, math && LETTER.test(c), fs, 0);
+  }
+  flush();
+  return out;
+}
+const f1 = v => +v.toFixed(1);
+const num = (x, d) => x.toFixed(d).replace('-', '−');
+const jtxt = v => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : num(v, 1));
+const label = (x, y, s, { fs = 24, fill = INK, anchor = 'start', fw = 0, cls = '' } = {}) =>
+  `<text${cls ? ` class="${cls}"` : ''} x="${f1(x)}" y="${f1(y)}" font-size="${fs}" fill="${fill}" text-anchor="${anchor}"${fw ? ' font-weight="bold"' : ''}>${tex(s, fs)}</text>`;
+
+// ---------- Drawing helpers ----------
+// Each figure is drawn as named layers; a layer that was not there before fades in when stepping forward.
+function paint(el, layers, fade) {
+  const born = el._born || new Map(), now = performance.now(), next = new Map();
+  el.innerHTML = layers.map(([k, s]) => {
+    const b = born.has(k) ? born.get(k) : (fade ? now : -1e9), age = now - b;
+    next.set(k, b);
+    return `<g${age < 450 ? ` class="fade" style="animation-delay:${-Math.round(age)}ms"` : ''}>${s}</g>`;
+  }).join('');
+  el._born = next;
+}
+const seg = ([x1, y1, x2, y2], col, w, extra = '') =>
+  `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${extra}/>`;
+function arrow([x1, y1], [x2, y2], col, w = 3, head = 14) {
+  const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+  const bx = x2 - ux * head, by = y2 - uy * head, hw = head * 0.42;
+  return seg([x1, y1, bx + ux, by + uy], col, w, 'stroke-linecap="butt"')
+    + `<path d="M${f1(x2)} ${f1(y2)}L${f1(bx - uy * hw)} ${f1(by + ux * hw)}L${f1(bx + uy * hw)} ${f1(by - ux * hw)}Z" fill="${col}"/>`;
+}
+const ease = t => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+function tweener() { // eases a list of numbers to a target and re-renders on every frame
+  let raf = 0, timer = 0, cur = null;
+  const stop = () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+  return {
+    stop,
+    go(to, animate, render) { // render(values, fade, done)
+      stop();
+      const same = cur && cur.every((c, i) => c === to[i]);
+      if (!animate || !cur || same || document.hidden) { cur = to.slice(); render(cur, animate, true); return; }
+      const from = cur.slice(), t0 = performance.now(), dur = 750;
+      const end = () => { cancelAnimationFrame(raf); clearTimeout(timer); cur = to.slice(); render(cur, false, true); };
+      render(from, true, false);
+      const frame = now => {
+        const t = Math.min(1, (now - t0) / dur), e = ease(t);
+        if (t >= 1) { end(); return; }
+        cur = from.map((f, i) => f + (to[i] - f) * e); render(cur, false, false);
+        raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+      timer = setTimeout(end, dur + 100);
+    },
+  };
+}
+function mapBox(box, x0, y0, w, h, pad) { // data box → the w×h area at (x0, y0), same scale on both axes
+  const s = Math.min((w - 2 * pad) / (box[1] - box[0]), (h - 2 * pad) / (box[3] - box[2]));
+  const cx = x0 + w / 2, cy = y0 + h / 2, mx = (box[0] + box[1]) / 2, my = (box[2] + box[3]) / 2;
+  return { X: x => cx + (x - mx) * s, Y: y => cy - (y - my) * s, s };
+}
+const frameRect = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${HAIR}" stroke-width="1.5"/>`;
+const crossAt = (T, m, c, r = 7, w = 2.5) => {
+  const x = T.X(m[0]), y = T.Y(m[1]), d = `M${f1(x - r)} ${f1(y - r)}L${f1(x + r)} ${f1(y + r)}M${f1(x - r)} ${f1(y + r)}L${f1(x + r)} ${f1(y - r)}`;
+  return `<path d="${d}" stroke="#fff" stroke-width="${w + 2}" stroke-linecap="round"/><path d="${d}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+};
+// A point with responsibilities w: one sector per component, angle 2π·w_j (solid when one w_j is almost 1).
+function pieAt(cx, cy, r, w, ring = 1.5, solid = 0.97) {
+  const top = w.indexOf(Math.max(...w));
+  if (w[top] >= solid) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${COLS[top]}" stroke="#fff" stroke-width="${ring}"/>`;
+  let s = '', a = -Math.PI / 2;
+  w.forEach((v, j) => {
+    if (v < 0.004) return;
+    const b = a + 2 * Math.PI * v, P = t => `${(cx + r * Math.cos(t)).toFixed(2)} ${(cy + r * Math.sin(t)).toFixed(2)}`;
+    s += `<path d="M${cx} ${cy}L${P(a)}A${r} ${r} 0 ${v > 0.5 ? 1 : 0} 1 ${P(b)}Z" fill="${COLS[j]}"/>`;
+    a = b;
+  });
+  return s + `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="${ring}"/>`;
+}
+function ellipseAt(T, m, [a, b, c], k, attrs) { // contour k standard deviations from the mean
+  const t = Math.sqrt(((a - c) / 2) ** 2 + b * b), l1 = (a + c) / 2 + t, l2 = Math.max((a + c) / 2 - t, 1e-9);
+  const ang = 0.5 * Math.atan2(2 * b, a - c) * 180 / Math.PI, cx = T.X(m[0]), cy = T.Y(m[1]);
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${k * Math.sqrt(l1) * T.s}" ry="${k * Math.sqrt(l2) * T.s}" transform="rotate(${-ang} ${cx} ${cy})" ${attrs}/>`;
+}
+const gaussianAt = (T, m, S, col) => // the 1σ and 2σ contours of a Gaussian
+  ellipseAt(T, m, S, 2, `fill="${col}" fill-opacity="0.05" stroke="${col}" stroke-opacity="0.6" stroke-width="1.8"`)
+  + ellipseAt(T, m, S, 1, `fill="${col}" fill-opacity="0.09" stroke="${col}" stroke-width="2.4"`);
+
+// ---------- The four points of Problems 1 and 2 ----------
+const KBOX1 = [-0.9, 4.9, -0.85, 2.85], KBOX2 = [-0.9, 4.9, -0.85, 3.45];
+const FR = { x: 45, y: 1, w: 654 };
+function kmFrame(T, box, x, y, w, h, ticks) { // frame, grid at whole numbers, and the tick labels
+  let s = frameRect(x, y, w, h);
+  for (let t = 0; t <= 4; t++) s += seg([T.X(t), y + 1, T.X(t), y + h - 1], HAIR, 1, 'stroke-linecap="butt"');
+  for (let t = 0; t <= Math.floor(box[3]); t++) s += seg([x + 1, T.Y(t), x + w - 1, T.Y(t)], HAIR, 1, 'stroke-linecap="butt"');
+  if (ticks) {
+    for (let t = 0; t <= 4; t++) s += label(T.X(t), y + h + 28, String(t), { fs: 20, fill: MUTED, anchor: 'middle' });
+    for (let t = 0; t <= Math.floor(box[3]); t++) s += label(x - 12, T.Y(t) + 7, String(t), { fs: 20, fill: MUTED, anchor: 'end' });
+  }
+  return s;
+}
+const PL = [[-16, 34, 'end'], [-16, -16, 'end'], [16, 34, 'start'], [16, -16, 'start']]; // labels point away from the middle
+const kmPointLabels = T => P4.map((p, i) => label(T.X(p[0]) + PL[i][0], T.Y(p[1]) + PL[i][1], `$x^{(${i + 1})}$`, { fs: 24, fill: MUTED, anchor: PL[i][2] })).join('');
+const kmPoints = (T, c, r = 11, faded = -1) => P4.map((p, i) =>
+  `<circle cx="${f1(T.X(p[0]))}" cy="${f1(T.Y(p[1]))}" r="${r}" fill="${c ? COLS[c[i]] : GREY}" stroke="#fff" stroke-width="1.5"${i === faded ? ' opacity="0.3"' : ''}/>`).join('');
+function muLabel(T, m, j) { // next to the centroid, on the side of the middle of the data
+  let ux = 2 - m[0], uy = 3 * (1 - m[1]);
+  const L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
+  return label(T.X(m[0]) + 30 * ux, T.Y(m[1]) - 30 * uy + 9, `$μ_${j + 1}$`, { fs: 26, anchor: ux > 0.35 ? 'start' : ux < -0.35 ? 'end' : 'middle' });
+}
+function kmLines(T, ph, withLabels, w = 2.5) { // each point to its centroid, with the squared distance
+  let s = '';
+  P4.forEach((p, i) => {
+    const m = ph.mu[ph.c[i]], dd = d2(p, m);
+    if (dd < 1e-9) return;
+    s += seg([T.X(p[0]), T.Y(p[1]), T.X(m[0]), T.Y(m[1])], COLS[ph.c[i]], w);
+    if (!withLabels) return;
+    const mx = (p[0] + m[0]) / 2, my = (p[1] + m[1]) / 2;
+    let x = T.X(mx), y = T.Y(my), anchor = 'middle';
+    if (Math.abs(p[1] - m[1]) < 1e-9) y += my < 1 ? 30 : -12;
+    else { anchor = mx < 2 ? 'end' : 'start'; x += mx < 2 ? -14 : 14; y += 8; }
+    s += label(x, y, jtxt(dd), { fs: 22, anchor });
+  });
+  return s;
+}
+
+// ---------- Problem 1: the run from each initialization, then both results ----------
+const fig1 = document.getElementById('fig1'), tw1 = tweener();
+const T1 = mapBox(KBOX1, FR.x, FR.y, FR.w, 408, 0);
+let run1 = null;
+function drawFig1(v, fwd) {
+  if (v.both) { tw1.stop(); run1 = null; return drawBoth(v, fwd); }
+  const R = RUN[v.run], ph = R[v.st], jump = run1 !== v.run;
+  run1 = v.run;
+  tw1.go(ph.mu.flat(), fwd && !jump, (m, fade, done) => {
+    const mu = [[m[0], m[1]], [m[2], m[3]]], L = [];
+    L.push(['frame', kmFrame(T1, KBOX1, FR.x, FR.y, FR.w, 408, true) + kmPointLabels(T1)]);
+    if (ph.c && v.st % 2 === 1 && done) L.push([`lines${v.run}${v.st}`, kmLines(T1, ph, true)]);
+    if (v.st === 2) L.push([`ghost${v.run}`, R[1].mu.map((g, j) => `<g opacity="0.3">${crossAt(T1, g, COLS[j], 10, 3)}</g>`).join('')]);
+    L.push(['pts', kmPoints(T1, ph.c)]);
+    L.push(['mu', mu.map((g, j) => crossAt(T1, g, COLS[j], 10, 3)).join('') + (done ? mu.map((g, j) => muLabel(T1, g, j)).join('') : '')]);
+    if (v.st === 3) L.push([`J${v.run}`, label(T1.X(2), 42, `$J$ = ${jtxt(ph.J)}`, { fs: 28, anchor: 'middle' })]);
+    paint(fig1, L, fade);
+  });
+}
+function drawBoth(v, fwd) {
+  const L = [];
+  ['a', 'b'].forEach((r, k) => {
+    const x0 = k ? 360 : 0, ph = RUN[r][RUN[r].length - 1], T = mapBox(KBOX1, x0, 110, 340, 250, 0);
+    L.push([`mini${r}`, kmFrame(T, KBOX1, x0, 110, 340, 250, false) + kmLines(T, ph, false, 2)
+      + kmPoints(T, ph.c, 8) + ph.mu.map((g, j) => crossAt(T, g, COLS[j], 7, 2.5)).join('')]);
+    L.push([`title${r}${v.kept && !k ? 'k' : ''}`, label(x0, 92, `(${r})   $J$ = ${jtxt(ph.J)}`, { fs: 26, fw: v.kept && !k })]);
+  });
+  paint(fig1, L, fwd);
+}
+
+// ---------- Problem 2: the centroid of a fixed cluster (a), the distortion during a longer run (b) ----------
+const fig2 = document.getElementById('fig2'), tw2 = tweener();
+const H2 = 380, T2 = mapBox(KBOX2, FR.x, FR.y, FR.w, H2, 0), S2 = RUN.s;
+const C2 = S2[1].c;                          // c = (1, 1, 1, 2)
+const IN1 = P4.filter((_, i) => C2[i] === 0);  // the points of cluster 1
+function drawFig2(v, fwd) {
+  if (v.b !== undefined) { tw2.stop(); return drawFig2b(v, fwd); }
+  fig2.setAttribute('viewBox', `0 0 700 ${H2 + 40}`);
+  tw2.go(v.a >= 2 ? S2[2].mu[0] : S2[0].mu[0], fwd, (m, fade, done) => {
+    const L = [['frame', kmFrame(T2, KBOX2, FR.x, FR.y, FR.w, H2, true) + kmPointLabels(T2)]];
+    const f = sum(IN1.map(p => d2(p, m))), sv = [0, 1].map(d => sum(IN1.map(p => p[d] - m[d])));
+    L.push(['c', label(FR.x + 16, 38, '$c$ = (1, 1, 1, 2)', { fs: 23 })]);
+    L.push(['f', label(FR.x + FR.w - 16, 38, `Σ ‖$x^{(i)}$ − $μ_1$‖² = ${jtxt(f)}`, { fs: 23, anchor: 'end' })]);
+    if (v.a >= 1) {
+      const M = [T2.X(m[0]), T2.Y(m[1])];
+      let s = '';
+      IN1.forEach(p => { // from μ₁ to each point of the cluster
+        const P = [T2.X(p[0]), T2.Y(p[1])], d = Math.hypot(P[0] - M[0], P[1] - M[1]), u = [(P[0] - M[0]) / d, (P[1] - M[1]) / d];
+        s += arrow([M[0] + 13 * u[0], M[1] + 13 * u[1]], [P[0] - 14 * u[0], P[1] - 14 * u[1]], BLUE, 2.5, 13);
+      });
+      if (Math.hypot(...sv) > 0.12) {
+        const H = [T2.X(m[0] + sv[0]), T2.Y(m[1] + sv[1])];
+        s += arrow(M, H, INK, 4, 17) + label(H[0], H[1] - 16, '$Σ$ ($x^{(i)}$ − $μ_1$)', { fs: 23, anchor: 'middle' });
+      }
+      L.push(['arrows', s]);
+    }
+    if (v.a >= 2 && done) L.push(['zero', label(T2.X(m[0]) + 24, T2.Y(m[1]) - 14, '$Σ$ ($x^{(i)}$ − $μ_1$) = 0', { fs: 23 })]);
+    L.push(['pts', kmPoints(T2, C2, 11, 3)]);
+    L.push(['mu', crossAt(T2, m, BLUE, 10, 3) + label(T2.X(m[0]), T2.Y(m[1]) + 40, '$μ_1$', { fs: 26, anchor: 'middle' })]);
+    paint(fig2, L, fade);
+  });
+}
+const JX = p => 130 + (p - 1) * 130, JY = j => 660 - j * 10;
+function drawFig2b(v, fwd) {
+  fig2.setAttribute('viewBox', '0 0 700 700');
+  const fin = S2[S2.length - 1], L = [['frame', kmFrame(T2, KBOX2, FR.x, FR.y, FR.w, H2, true) + kmPointLabels(T2)]];
+  let tr = '';
+  [0, 1].forEach(j => { // where each centroid went: start, after the first and after the second centroid step
+    const path = [0, 2, 4].map(k => S2[k].mu[j]);
+    tr += `<polyline points="${path.map(p => `${f1(T2.X(p[0]))},${f1(T2.Y(p[1]))}`).join(' ')}" fill="none" stroke="${COLS[j]}" stroke-width="2" stroke-dasharray="6 5" opacity="0.75"/>`;
+    path.slice(0, -1).forEach(p => { tr += `<circle cx="${f1(T2.X(p[0]))}" cy="${f1(T2.Y(p[1]))}" r="6" fill="#fff" stroke="${COLS[j]}" stroke-width="2.5"/>`; });
+  });
+  L.push(['trail', tr]);
+  L.push(['start', label(FR.x + 16, 38, 'start: $μ_1$ = (1, 0), $μ_2$ = (3, 3)', { fs: 23 })]);
+  L.push(['pts', kmPoints(T2, fin.c)]);
+  L.push(['mu', fin.mu.map((g, j) => crossAt(T2, g, COLS[j], 10, 3) + label(T2.X(g[0]) - 22, T2.Y(g[1]) + 9, `$μ_${j + 1}$`, { fs: 26, anchor: 'end' })).join('')]);
+  if (v.b >= 4) L.push(['ring', `<circle cx="${f1(T2.X(4))}" cy="${f1(T2.Y(0))}" r="19" fill="none" stroke="${INK}" stroke-width="2"/>`]);
+  // the distortion after each step
+  let ax = label(FR.x, 440, '$J$ after each step', { fs: 24 });
+  [0, 5, 10, 15].forEach(t => {
+    ax += seg([110, JY(t), 680, JY(t)], t ? HAIR : AXIS, t ? 1 : 1.6, 'stroke-linecap="butt"') + label(96, JY(t) + 7, String(t), { fs: 20, fill: MUTED, anchor: 'end' });
+  });
+  for (let p = 1; p < S2.length; p++) ax += label(JX(p), 694, p % 2 ? 'assign' : 'centroids', { fs: 20, fill: MUTED, anchor: 'middle' });
+  L.push(['jaxes', ax]);
+  for (let p = 1; p + 1 < S2.length; p++) {
+    const isA = (p + 1) % 2 === 1, hl = isA ? v.b >= 1 : v.b >= 2;
+    L.push([`seg${p}${hl ? 'h' : ''}`, seg([JX(p), JY(S2[p].J), JX(p + 1), JY(S2[p + 1].J)], hl ? (isA ? OCHRE : INK) : AXIS, hl ? 4 : 2.5)]);
+  }
+  let dots = '';
+  for (let p = 1; p < S2.length; p++) dots += `<circle cx="${JX(p)}" cy="${f1(JY(S2[p].J))}" r="7" fill="${INK}" stroke="#fff" stroke-width="2"/>`
+    + label(JX(p), JY(S2[p].J) - 15, jtxt(S2[p].J), { fs: 22, anchor: 'middle' });
+  L.push(['dots', dots]);
+  if (v.b >= 1) L.push(['keyA', `<rect x="350" y="424" width="26" height="6" rx="2" fill="${OCHRE}"/>` + label(384, 440, 'assignment step', { fs: 21 })]);
+  if (v.b >= 2) L.push(['keyC', `<rect x="545" y="424" width="26" height="6" rx="2" fill="${INK}"/>` + label(579, 440, 'centroid step', { fs: 21 })]);
+  if (v.b >= 4) L.push(['ring2', `<circle cx="${JX(3)}" cy="${f1(JY(S2[3].J))}" r="16" fill="none" stroke="${INK}" stroke-width="2"/>`]);
+  if (v.b >= 5) L.push(['stop', label(JX(S2.length - 1), JY(fin.J) + 34, 'stop', { fs: 21, anchor: 'middle' })]);
+  paint(fig2, L, fwd);
+}
+
+// ---------- Two clusters in 2D (Problem 3 and the title) ----------
+const X2 = [[-2.44,-0.9],[-0.97,0.83],[-0.34,0.78],[-2.34,-0.23],[-1.04,-0.01],[0.25,1.15],[-0.7,0.43],[-1.92,0.25],
+            [1.7,-0.33],[2.34,-1.29],[0.61,-0.32],[1.05,-0.5],[0.83,0.69],[1.5,0.29],[1.02,0.34],[1.5,-1.14],[1.68,-0.6],[1.49,-0.29],[1.07,0.13],[2.02,-1.53],[1.85,-0.76],[1.93,-1.09],[0.12,0.65],[0.7,0.02]];
+const Z2 = X2.map((_, i) => (i < 8 ? 0 : 1)); // 8 points from component 1, 16 from component 2
+const wmean = (P, w) => [0, 1].map(d => sum(P.map((p, i) => w[i] * p[d])) / sum(w));
+const wcov = (P, w, m) => { // [a, b, c] = [[a, b], [b, c]]
+  const r = [0, 0, 0];
+  P.forEach((p, i) => { const dx = p[0] - m[0], dy = p[1] - m[1]; r[0] += w[i] * dx * dx; r[1] += w[i] * dx * dy; r[2] += w[i] * dy * dy; });
+  return r.map(v => v / sum(w));
+};
+const logN2 = (p, m, [a, b, c]) => {
+  const det = a * c - b * b, dx = p[0] - m[0], dy = p[1] - m[1];
+  return -(c * dx * dx - 2 * b * dx * dy + a * dy * dy) / (2 * det) - 0.5 * Math.log(det) - Math.log(2 * Math.PI);
+};
+function estep2(P, f) {
+  let ll = 0;
+  const W = P.map(p => {
+    const l = f.mus.map((m, j) => Math.log(f.phis[j]) + logN2(p, m, f.Ss[j])), mx = Math.max(...l);
+    const e = l.map(v => Math.exp(v - mx)), s = sum(e);
+    ll += mx + Math.log(s);
+    return e.map(v => v / s);
+  });
+  return { W, ll };
+}
+function em2(P, mus, S0, iters) {
+  const k = mus.length;
+  let f = { mus: mus.map(m => [...m]), Ss: Array(k).fill(S0), phis: Array(k).fill(1 / k) };
+  for (let t = 0; t < iters; t++) {
+    const { W } = estep2(P, f);
+    const w = j => W.map(r => r[j]);
+    const mu = [...Array(k).keys()].map(j => wmean(P, w(j)));
+    f = { mus: mu, phis: mu.map((_, j) => sum(w(j)) / P.length), Ss: mu.map((m, j) => wcov(P, w(j), m)) };
+  }
+  return { ...f, ...estep2(P, f) };
+}
+const LAB = [0, 1].map(j => { const w = Z2.map(z => +(z === j)); const m = wmean(X2, w); return { m, S: wcov(X2, w, m) }; });
+const FIT2 = em2(X2, [[-1, 0], [1, 0]], [1, 0, 1], 300);
+
+// ---------- Problem 3: one generative process, observed in two ways ----------
+// Panel 0 is GDA (labels observed), panel 1 the mixture (labels latent). Both draw the same points:
+// a label j with probability ϕ_j (the bars), then x from N(μ_j, Σ_j) (the contours).
+const PANEL = { title: 26, top: 38, h: 300, step: 360 }; // two stacked panels in a 700×700 figure
+const BOX1 = [-3.15, 2.65, -1.75, 1.55];
+const FR1 = { w: 556 };                                     // plot width; the ϕ bars sit to its right
+const T3 = [0, 1].map(p => mapBox(BOX1, 1, PANEL.step * p + PANEL.top, FR1.w - 2, PANEL.h, 16));
+const TRUE2 = [{ m: [-1.4, 0.3], S: [0.6, 0.38, 0.35] }, { m: [1.4, -0.2], S: [0.3, -0.22, 0.45] }]; // the model the data were drawn from
+const TRUEPHI = [1 / 3, 2 / 3];
+const ORDER = (() => { // sampling order: one blue, one red, then the rest shuffled
+  let seed = 12345; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const rest = [...Array(24).keys()].filter(i => i !== 3 && i !== 15);
+  for (let i = rest.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [rest[i], rest[j]] = [rest[j], rest[i]]; }
+  return [3, 15, ...rest];
+})();
+const LABN = [0, 1].map(j => Z2.filter(z => z === j).length), LABPHI = LABN.map(c => c / Z2.length);
+const PHI = { cx: 630, base: 252, w: 30, gap: 24, H: 190 };
+const barX = j => PHI.cx + (j ? PHI.gap / 2 : -PHI.gap / 2 - PHI.w);
+
+const fig3 = document.getElementById('fig3');
+fig3.innerHTML = [1, 0].map(p => { // panel 1 first: during the split it slides out from behind panel 0
+  const y0 = PANEL.step * p, T = T3[p], fit = p ? FIT2 : { mus: LAB.map(g => g.m), Ss: LAB.map(g => g.S) };
+  const conn = ORDER.map((i, r) => { // from the mean to each sampled point, in sampling order
+    const m = TRUE2[Z2[i]].m, q = X2[i];
+    const x1 = T.X(m[0]), y1 = T.Y(m[1]), x2 = T.X(q[0]), y2 = T.Y(q[1]), L = Math.hypot(x2 - x1, y2 - y1).toFixed(1);
+    return `<line class="conn" data-k="${r}" data-len="${L}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" opacity="0"/>`;
+  }).join('');
+  return `<g data-panel="${p}"><rect x="0" y="${y0}" width="700" height="${PANEL.step - 15}" fill="#fff"/>`
+    + frameRect(1, y0 + PANEL.top, FR1.w - 2, PANEL.h)
+    + `<text class="title" x="1" y="${y0 + PANEL.title}" font-size="26" fill="${INK}"></text>`
+    + label(FR1.w - 1, y0 + PANEL.title, p ? 'observed: $x^{(i)}$' : 'observed: $x^{(i)}$ and $y^{(i)}$', { fs: 24, fill: '#444', anchor: 'end', cls: 'obs' })
+    + `<g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${gaussianAt(T, g.m, g.S, COLS[j])}</g>`).join('')}</g>`
+    + `<g class="fitS">${fit.mus.map((m, j) => gaussianAt(T, m, fit.Ss[j], COLS[j])).join('')}</g>`
+    + conn
+    + ORDER.map((i, r) => `<circle class="pt" data-r="${r}" cx="${T.X(X2[i][0])}" cy="${T.Y(X2[i][1])}" r="9" stroke="#fff" stroke-width="1.5"/>`).join('')
+    + (p ? `<g class="pies">${X2.map((q, i) => pieAt(T.X(q[0]), T.Y(q[1]), 9, FIT2.W[i])).join('')}</g>` : '')
+    + `<g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${crossAt(T, g.m, INK)}</g>`).join('')}</g>`
+    + `<g class="fitMu">${fit.mus.map(m => crossAt(T, m, INK)).join('')}</g>`
+    + `<g class="phi"><line x1="${PHI.cx - 52}" x2="${PHI.cx + 52}" y1="${y0 + PHI.base}" y2="${y0 + PHI.base}" stroke="${AXIS}" stroke-width="1.5"/>`
+    + [0, 1].map(j => `<rect class="bar" data-j="${j}" x="${barX(j)}" width="${PHI.w}" fill="${COLS[j]}" rx="2"/>`
+        + `<text class="phv" data-j="${j}" x="${barX(j) + PHI.w / 2}" text-anchor="middle" font-size="22" fill="${INK}"></text>`
+        + label(barX(j) + PHI.w / 2, y0 + PHI.base + 34, `$ϕ_${j + 1}$`, { fs: 28, anchor: 'middle' })).join('')
+    + `</g></g>`;
+}).join('');
+
+// (a): one panel samples from the model; then it splits into a GDA copy and a mixture copy. (b): both panels.
+function fig3State(v) {
+  if (v.b === undefined) {
+    const split = v.a >= 2;
+    return {
+      split, title: split ? ['GDA', 'Mixture of Gaussians'] : ['Both models', 'Both models'], n: v.n, draw: v.n === 1 || v.n === 2 ? v.n - 1 : -1,
+      model: [v.a <= 2, v.a <= 3], phiVals: [TRUEPHI, TRUEPHI], phiTxt: [['1/3', '2/3'], ['1/3', '2/3']], obs: [v.a >= 3, v.a >= 4],
+      fill1: v.a >= 4 ? 'grey' : 'true', fitS: [false, false], fitMu: [false, false] };
+  }
+  return {
+    split: true, title: ['Labels known', v.b >= 4 ? 'Labels latent: EM fit' : 'Labels latent'], n: 24, draw: -1,
+    model: [false, false], phi: [v.b >= 1, v.b >= 4], phiVals: [LABPHI, FIT2.phis], phiTxt: [['', ''], ['', '']], obs: [false, false],
+    fill1: v.b >= 4 ? 'em' : 'grey', fitS: [v.b >= 3, v.b >= 4], fitMu: [v.b >= 2, v.b >= 4] };
+}
+let fig3Shown = null, fig3Timers = [];
+function drawFig3(v, animate) {
+  fig3Timers.forEach(clearTimeout);
+  fig3Timers = [];
+  const later = (ms, f) => fig3Timers.push(setTimeout(f, ms));
+  const s = fig3State(v), prev = fig3Shown;
+  fig3Shown = s;
+  animate = animate && prev && !document.hidden;
+  const set = (el, props, trans) => { el.style.transition = animate ? trans : 'none'; Object.assign(el.style, props); };
+  // One draw: the label (bars), then its Gaussian, then a line from the mean to the new point.
+  const single = animate && s.draw >= 0 && s.n === prev.n + 1;
+  const reset = single && prev.draw >= 0; // the second draw starts from the neutral model
+  const off = single && s.draw === 0 ? 300 : 0; // the first draw waits for its sentence
+  const T = { off, gauss: off + 450, line: off + 900, point: off + 1250, fade: off + 1750 };
+  // The remaining points: the same draw, repeated faster and faster.
+  const bulk = animate && s.draw < 0 && s.n > prev.n + 1, sched = {};
+  if (bulk) for (let r = prev.n, t = 250, k = 0; r < s.n; r++, k++) {
+    const d = Math.max(110, 380 * 0.84 ** k), g = Math.max(60, Math.min(200, 0.55 * d));
+    sched[r] = { t, g }; t += d;
+  }
+  const splitting = animate && s.split && !prev.split;
+  const drain = animate && prev.fill1 === 'true' && s.fill1 === 'grey'; // model first, then the colours
+  const lab = s.draw >= 0 ? Z2[ORDER[s.draw]] : -1, dim = j => (lab < 0 || j === lab ? 1 : 0.15);
+  const apply = () => fig3.querySelectorAll('[data-panel]').forEach(g => {
+    const p = +g.dataset.panel, y0 = PANEL.step * p, model = s.model[p], phi = s.phi ? s.phi[p] : model;
+    const ty = s.split ? 0 : (p ? -1 : 1) * PANEL.step / 2; // before the split both panels sit in the middle
+    set(g, { transform: `translate(0px, ${ty}px)`, opacity: s.split || !p ? 1 : 0 }, 'transform .7s cubic-bezier(.4,0,.2,1), opacity .2s');
+    const title = g.querySelector('.title');
+    if (splitting) {
+      set(title, { opacity: 0 }, 'opacity .15s');
+      later(700, () => { title.textContent = s.title[p]; set(title, { opacity: 1 }, 'opacity .3s'); });
+    } else { title.textContent = s.title[p]; set(title, { opacity: 1 }, 'none'); }
+    set(g.querySelector('.obs'), { opacity: s.obs[p] ? 1 : 0 }, `opacity .3s ${p && drain ? 600 : 0}ms`);
+    g.querySelectorAll('.model').forEach(m => set(m, { opacity: model ? 1 : 0 }, 'opacity .5s'));
+    if (!bulk) g.querySelectorAll('.model .c').forEach(c => set(c, { opacity: dim(+c.dataset.j) }, `opacity .35s ${single ? T.gauss : 0}ms`));
+    set(g.querySelector('.phi'), { opacity: phi ? 1 : 0 }, 'opacity .5s');
+    g.querySelectorAll('.bar').forEach(b => {
+      const j = +b.dataset.j, h = s.phiVals[p][j] * PHI.H, t = g.querySelector(`.phv[data-j="${j}"]`);
+      b.setAttribute('y', y0 + PHI.base - h); b.setAttribute('height', h);
+      t.setAttribute('y', y0 + PHI.base - h - 9); t.textContent = s.phiTxt[p][j];
+      if (bulk) return;
+      set(b, { opacity: dim(j) }, `opacity .3s ${single ? T.off : 0}ms`);
+      set(t, { opacity: Math.max(dim(j), 0.35) }, `opacity .3s ${single ? T.off : 0}ms`);
+    });
+    set(g.querySelector('.fitS'), { opacity: s.fitS[p] ? 1 : 0 }, 'opacity .5s');
+    set(g.querySelector('.fitMu'), { opacity: s.fitMu[p] ? 1 : 0 }, 'opacity .5s');
+    g.querySelectorAll('.conn').forEach(c => {
+      const on = +c.dataset.k === s.draw;
+      set(c, { opacity: on && single ? 0.9 : 0, strokeDashoffset: on ? '0px' : c.dataset.len + 'px' },
+        on ? `stroke-dashoffset .35s ease-out ${T.line}ms, opacity 0s ${T.line}ms` : 'opacity .3s, stroke-dashoffset 0s .3s');
+      if (on && single) later(T.fade, () => set(c, { opacity: 0 }, 'opacity .3s'));
+    });
+    g.querySelectorAll('.pt').forEach(el => {
+      const r = +el.dataset.r, i = ORDER[r], on = r < s.n, fresh = on && prev && r >= prev.n;
+      const d = fresh ? (single ? T.point : bulk ? sched[r].t + sched[r].g : 0) : 0;
+      const fill = p === 0 || s.fill1 === 'true' ? COLS[Z2[i]] : GREY;
+      set(el, { opacity: on && !(p === 1 && s.fill1 === 'em') ? 1 : 0, transform: `scale(${on ? 1 : 0.2})`, fill },
+        `opacity .25s ${d}ms, transform .3s cubic-bezier(.2,.8,.2,1) ${d}ms, fill .3s ease-in ${p && drain ? 600 : 0}ms`);
+    });
+    const pies = g.querySelector('.pies');
+    if (pies) set(pies, { opacity: s.fill1 === 'em' ? 1 : 0 }, 'opacity .6s');
+  });
+  if (reset) { // back to the neutral model first, then the new draw
+    fig3.querySelectorAll('.bar, .phv, .model .c').forEach(el => set(el, { opacity: 1 }, 'opacity .25s'));
+    fig3.querySelectorAll('.conn').forEach(el => set(el, { opacity: 0 }, 'opacity .25s'));
+    later(500, apply);
+  } else apply();
+  if (bulk) { // each point: its label, its Gaussian, a line from the mean, the point
+    const pick = j => {
+      fig3.querySelectorAll('.bar').forEach(b => set(b, { opacity: +b.dataset.j === j ? 1 : 0.2 }, 'opacity .1s'));
+      fig3.querySelectorAll('.phv').forEach(b => set(b, { opacity: +b.dataset.j === j ? 1 : 0.35 }, 'opacity .1s'));
+      fig3.querySelectorAll('.model .c').forEach(c => set(c, { opacity: +c.dataset.j === j ? 1 : 0.4 }, 'opacity .1s'));
+    };
+    let end = 0;
+    Object.entries(sched).forEach(([r, { t, g }]) => {
+      const lines = fig3.querySelectorAll(`.conn[data-k="${r}"]`);
+      later(t, () => {
+        pick(Z2[ORDER[r]]);
+        lines.forEach(c => {
+          c.style.transition = 'none'; c.style.strokeDashoffset = c.dataset.len + 'px'; c.style.opacity = 0.9;
+          c.getBoundingClientRect();
+          c.style.transition = `stroke-dashoffset ${g}ms linear`; c.style.strokeDashoffset = '0px';
+        });
+      });
+      later(t + g + 80, () => lines.forEach(c => set(c, { opacity: 0 }, 'opacity .3s')));
+      end = Math.max(end, t + g);
+    });
+    later(end + 450, () => {
+      fig3.querySelectorAll('.bar, .phv, .model .c').forEach(el => set(el, { opacity: 1 }, 'opacity .35s'));
+      fig3.querySelectorAll('.conn').forEach(c => set(c, { strokeDashoffset: c.dataset.len + 'px' }, 'none'));
+    });
+  }
+}
+
+// ---------- Problem 4: the four points and the two Gaussians (or the k-means means) ----------
+const svg4 = document.getElementById('fig4');
+const X0 = -1.5, X1 = 5.5, PX0 = 30, PX1 = 670, BASE = 225, YS = 900;
+const px = x => PX0 + (x - X0) * (PX1 - PX0) / (X1 - X0);
+const curve = (mu, phi) => {
+  let d = '';
+  for (let k = 0; k <= 160; k++) {
+    const x = X0 + (X1 - X0) * k / 160;
+    d += (k ? 'L' : 'M') + px(x).toFixed(1) + ' ' + (BASE - phi * gauss(x, mu) * YS).toFixed(1);
+  }
+  return d;
+};
+function draw4(v) {
+  let s = '';
+  if (v.ghost) [[v.ghost.mu1, v.ghost.phi, BLUE], [v.ghost.mu2, 1 - v.ghost.phi, RED]].forEach(([mu, ph, c]) => {
+    s += `<path d="${curve(mu, ph)}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="6 6" opacity="0.4"/>`;
+  });
+  if (v.kghost) [0.5, 3.5].forEach(mu => { // the means of k-means
+    s += `<line x1="${px(mu)}" y1="${BASE}" x2="${px(mu)}" y2="${BASE - 130}" stroke="${INK}" stroke-width="1.6" stroke-dasharray="6 5" opacity="0.55"/>`;
+  });
+  [[v.p.mu1, v.p.phi, BLUE, 1], [v.p.mu2, 1 - v.p.phi, RED, 2]].forEach(([mu, ph, c, k]) => {
+    if (v.hard) { // k-means has a mean per cluster but no Gaussian
+      s += `<line x1="${px(mu)}" y1="${BASE}" x2="${px(mu)}" y2="${BASE - 130}" stroke="${c}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+      s += label(px(mu), BASE - 146, `$μ_${k}$ = ${mu.toFixed(2)}`, { fs: 30, anchor: 'middle' });
+      return;
+    }
+    const d = curve(mu, ph), top = BASE - ph * gauss(mu, mu) * YS;
+    s += `<path d="${d} L${PX1} ${BASE} L${PX0} ${BASE} Z" fill="${c}" opacity="0.07"/>`;
+    s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="3"/>`;
+    s += `<line x1="${px(mu)}" y1="${BASE}" x2="${px(mu)}" y2="${top}" stroke="${c}" stroke-width="1.2" stroke-dasharray="3 4"/>`;
+    s += label(px(mu), top - 14, `$μ_${k}$ = ${mu.toFixed(2)}`, { fs: 30, anchor: 'middle' });
+  });
+  if (v.heights) { // the two terms of Bayes' rule at x = 1
+    const x = 1, hb = v.p.phi * gauss(x, v.p.mu1) * YS, ho = (1 - v.p.phi) * gauss(x, v.p.mu2) * YS;
+    s += `<line x1="${px(x) - 6}" y1="${BASE}" x2="${px(x) - 6}" y2="${BASE - hb}" stroke="${BLUE}" stroke-width="7"/>`;
+    s += `<line x1="${px(x) + 6}" y1="${BASE}" x2="${px(x) + 6}" y2="${BASE - ho}" stroke="${RED}" stroke-width="7"/>`;
+  }
+  s += `<line x1="${PX0 - 10}" y1="${BASE}" x2="${PX1 + 10}" y2="${BASE}" stroke="${AXIS}" stroke-width="1.5"/>`;
+  for (let t = -1; t <= 5; t++) {
+    s += `<line x1="${px(t)}" y1="${BASE - 4}" x2="${px(t)}" y2="${BASE + 4}" stroke="${AXIS}" stroke-width="1.5"/>`;
+    s += `<text x="${px(t)}" y="${BASE + 46}" text-anchor="middle" fill="${MUTED}" font-size="28">${num(t, 0)}</text>`;
+  }
+  if (v.extra) {
+    const known = v.extra === 'show';
+    s += known ? pieAt(px(2), BASE, 19, [0.5, 0.5], 1.5) : `<circle cx="${px(2)}" cy="${BASE}" r="18" fill="#fff" stroke="${GREY}" stroke-width="2.5" stroke-dasharray="4 3"/>`;
+    s += `<text x="${px(2)}" y="${BASE + 86}" text-anchor="middle" fill="${INK}" font-size="28">${known ? '0.5' : '?'}</text>`;
+  }
+  XS.forEach((x, i) => {
+    s += v.w ? pieAt(px(x), BASE, 19, [v.w[i], 1 - v.w[i]], 1.5, 0.999) : `<circle cx="${px(x)}" cy="${BASE}" r="19" fill="${GREY}" stroke="#fff" stroke-width="1.5"/>`;
+    if (v.w) s += `<text x="${px(x)}" y="${BASE + 86}" text-anchor="middle" fill="${INK}" font-size="28">${v.hard ? String(v.w[i]) : v.w[i].toFixed(3)}</text>`;
+  });
+  if (v.w || v.extra) s += label(PX0, BASE + 86, '$w_1$', { fs: 28, fill: MUTED });
+  svg4.innerHTML = s;
+}
+// Move the curves smoothly when the means change.
+const tw4 = tweener();
+const drawFig4 = (v, fwd) => tw4.go([v.p.mu1, v.p.mu2, v.p.phi], fwd, ([mu1, mu2, phi], _, done) => draw4(done ? v : { ...v, p: { mu1, mu2, phi } }));
+
+// ---------- Title: the mixture that EM fits to the data of Problem 3 ----------
+(() => {
+  const ext = [0, 1].map(d => [Math.min, Math.max].map((f, e) => f(...X2.map(q => q[d]), ...FIT2.mus.map((m, j) => m[d] + (e ? 2 : -2) * Math.sqrt(FIT2.Ss[j][2 * d])))));
+  const T = mapBox([ext[0][0], ext[0][1], ext[1][0], ext[1][1]], 0, 0, 700, 440, 6);
+  let s = FIT2.mus.map((m, j) => gaussianAt(T, m, FIT2.Ss[j], COLS[j])).join('');
+  X2.forEach((p, i) => { s += pieAt(T.X(p[0]), T.Y(p[1]), 9, FIT2.W[i]); });
+  FIT2.mus.forEach(m => { s += crossAt(T, m, INK); });
+  document.getElementById('fig0').innerHTML = s;
+})();
+
+// ---------- Contents panel ----------
+const toc = document.getElementById('toc'), panel = document.getElementById('toc-panel');
+const firstStep = (slide, part) => steps.findIndex(s => s[0] === slide && (!part || s[1] === part));
+const link = (label, slide, part) => `<a data-slide="${slide}"${part ? ` data-part="${part}"` : ''}>${label}</a>`;
+panel.innerHTML = link('Start', 0) + '<span></span>' + [...document.querySelectorAll('.slide')].slice(1).map(sl => {
+  const n = +sl.dataset.slide;
+  const parts = [...sl.querySelectorAll('.part')].map(p => link(`(${p.dataset.part})`, n, p.dataset.part)).join('');
+  return link(sl.querySelector('h1').textContent, n) + `<span class="parts">${parts}</span>`;
+}).join('');
+const openToc = on => toc.classList.toggle('open', on);
+const tocBtn = document.getElementById('toc-btn');
+tocBtn.addEventListener('mouseenter', () => openToc(true));
+tocBtn.addEventListener('click', () => { openToc(true); tocBtn.blur(); });
+toc.addEventListener('mouseleave', () => openToc(false));
+document.addEventListener('click', e => { if (!toc.contains(e.target)) openToc(false); });
+panel.addEventListener('click', e => {
+  const a = e.target.closest('a');
+  if (a) { go(firstStep(+a.dataset.slide, a.dataset.part)); openToc(false); }
+});
+
+// ---------- Navigation ----------
+// › / Space / → : next      ‹ / ← : back      0–4 : jump to a problem      F : fullscreen
+let cur = 0;
+function go(k) {
+  const next = Math.max(0, Math.min(steps.length - 1, k));
+  const forward = next === cur + 1 && steps[cur][0] === steps[next][0]; // animate only one step forward within a slide
+  cur = next;
+  const [slide, part, shown, fig] = steps[cur];
+  document.querySelectorAll('.slide').forEach(sl => {
+    const on = +sl.dataset.slide === slide;
+    sl.classList.toggle('current', on);
+    if (!on) return;
+    sl.querySelectorAll('.part').forEach(el => {
+      const here = el.dataset.part === part;
+      el.classList.toggle('current', here);
+      if (here) el.querySelectorAll('.item').forEach((it, j) => it.classList.toggle('shown', j < shown));
+    });
+  });
+  panel.querySelectorAll('a').forEach(a => a.classList.toggle('here',
+    +a.dataset.slide === slide && (!a.dataset.part || a.dataset.part === part)));
+  document.getElementById('bar').style.width = (100 * cur / (steps.length - 1)) + '%';
+  if (fig) ({ 1: drawFig1, 2: drawFig2, 3: drawFig3, 4: drawFig4 })[slide](fig, forward);
+}
+document.getElementById('next').onclick = e => { go(cur + 1); e.target.blur(); };
+document.getElementById('prev').onclick = e => { go(cur - 1); e.target.blur(); };
+document.addEventListener('keydown', e => {
+  if ([' ', 'ArrowRight', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (/^[0-4]$/.test(e.key)) go(steps.findIndex(s => s[0] === +e.key));
+  else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.();
+  }
+});
+
+go(0);
+window.addEventListener('DOMContentLoaded', () => {
+  // keep a comma or full stop on the same line as the inline math before it
+  document.querySelectorAll('.item, .q, .setup').forEach(el => {
+    el.innerHTML = el.innerHTML.replace(/(\$[^$]+\$)([.,;:)]+)/g, '<span class="nw">$1$2</span>');
+  });
+  if (window.renderMathInElement) renderMathInElement(document.body, {
+    delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+  });
+});
+</script>
+</body>
+</html>

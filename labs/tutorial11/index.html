@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Learning · Lab 11</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23fff'/><path d='M6.0 47.0 L7.3 46.4 L8.6 45.5 L9.9 44.3 L11.2 42.7 L12.5 40.7 L13.8 38.3 L15.1 35.5 L16.4 32.5 L17.7 29.3 L19.0 26.3 L20.3 23.7 L21.6 21.6 L22.9 20.3 L24.2 20.0 L25.5 20.6 L26.8 22.2 L28.1 24.4 L29.4 27.2 L30.7 30.3 L32.0 33.4 L33.3 36.4 L34.6 39.1 L35.9 41.4 L37.2 43.3 L38.5 44.7 L39.8 45.8 L41.1 46.6 L42.4 47.1 L43.7 47.5 L45.0 47.7 L46.3 47.8 L47.6 47.9 L48.9 47.9 L50.2 48.0 L51.5 48.0 L52.8 48.0 L54.1 48.0 L55.4 48.0 L56.7 48.0 L58.0 48.0 L58 48 L6 48Z' fill='%231d6fa5' fill-opacity='.18'/><path d='M6.0 48.0 L7.3 48.0 L8.6 48.0 L9.9 48.0 L11.2 48.0 L12.5 48.0 L13.8 47.9 L15.1 47.9 L16.4 47.8 L17.7 47.7 L19.0 47.5 L20.3 47.2 L21.6 46.7 L22.9 46.0 L24.2 45.1 L25.5 43.7 L26.8 42.0 L28.1 39.8 L29.4 37.1 L30.7 34.0 L32.0 30.5 L33.3 26.7 L34.6 23.0 L35.9 19.4 L37.2 16.3 L38.5 13.9 L39.8 12.5 L41.1 12.0 L42.4 12.6 L43.7 14.3 L45.0 16.8 L46.3 20.0 L47.6 23.6 L48.9 27.3 L50.2 31.0 L51.5 34.5 L52.8 37.6 L54.1 40.2 L55.4 42.3 L56.7 44.0 L58.0 45.2 L58 48 L6 48Z' fill='%23d6002b' fill-opacity='.18'/><path d='M6.0 47.0 L7.3 46.4 L8.6 45.5 L9.9 44.3 L11.2 42.7 L12.5 40.7 L13.8 38.3 L15.1 35.5 L16.4 32.5 L17.7 29.3 L19.0 26.3 L20.3 23.7 L21.6 21.6 L22.9 20.3 L24.2 20.0 L25.5 20.6 L26.8 22.2 L28.1 24.4 L29.4 27.2 L30.7 30.3 L32.0 33.4 L33.3 36.4 L34.6 39.1 L35.9 41.4 L37.2 43.3 L38.5 44.7 L39.8 45.8 L41.1 46.6 L42.4 47.1 L43.7 47.5 L45.0 47.7 L46.3 47.8 L47.6 47.9 L48.9 47.9 L50.2 48.0 L51.5 48.0 L52.8 48.0 L54.1 48.0 L55.4 48.0 L56.7 48.0 L58.0 48.0' fill='none' stroke='%231d6fa5' stroke-width='5' stroke-linejoin='round'/><path d='M6.0 48.0 L7.3 48.0 L8.6 48.0 L9.9 48.0 L11.2 48.0 L12.5 48.0 L13.8 47.9 L15.1 47.9 L16.4 47.8 L17.7 47.7 L19.0 47.5 L20.3 47.2 L21.6 46.7 L22.9 46.0 L24.2 45.1 L25.5 43.7 L26.8 42.0 L28.1 39.8 L29.4 37.1 L30.7 34.0 L32.0 30.5 L33.3 26.7 L34.6 23.0 L35.9 19.4 L37.2 16.3 L38.5 13.9 L39.8 12.5 L41.1 12.0 L42.4 12.6 L43.7 14.3 L45.0 16.8 L46.3 20.0 L47.6 23.6 L48.9 27.3 L50.2 31.0 L51.5 34.5 L52.8 37.6 L54.1 40.2 L55.4 42.3 L56.7 44.0 L58.0 45.2' fill='none' stroke='%23d6002b' stroke-width='5' stroke-linejoin='round'/><path d='M5 50.5H59' stroke='%231f1f1f' stroke-width='5' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root { --ink: #1f1f1f; --muted: #666; --hair: #d6d6d6; --red: #d6002b; --ok: #2f7a4a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  html { scroll-behavior: smooth; }
+  body {
+    color: var(--ink);
+    font-family: KaTeX_Main, "Latin Modern Roman", "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.45;
+  }
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  header .rule { width: 2.6em; height: 4px; background: var(--red); margin-bottom: 1.3em; }
+  header .course, header .sub { color: var(--muted); }
+  header h1 { font-size: 2.1em; line-height: 1.2; margin: 0.25em 0 0.3em; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 0.4em 2.2em; margin-top: 1.7em; }
+  nav.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hair); }
+  nav.toc a:hover { border-color: var(--ink); }
+  nav.toc .n { color: var(--muted); margin-right: 0.4em; }
+
+  section { border-top: 1px solid var(--hair); margin-top: 3.2em; padding-top: 1.8em; scroll-margin-top: 12px; }
+  .where { color: var(--muted); font-size: 0.8em; }
+  h2 { font-size: 1.4em; margin: 0.1em 0 0.4em; }
+  .lead { max-width: 50em; margin: 0 0 1.4em; }
+  .katex { font-size: 1.05em; }
+
+  /* Controls in one row; below them the main view and its companion, at the same height. */
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 30px; margin-bottom: 16px; }
+  .grp { display: flex; align-items: center; gap: 8px; }
+  .grp .lbl { color: var(--muted); margin-right: 4px; }
+  .read { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px 26px; }
+  .read .v { display: inline-block; min-width: 3.3em; }
+  .num { font-variant-numeric: tabular-nums; }
+  .views { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; }
+
+  button {
+    font: inherit; font-size: 0.9em; line-height: 1; height: 2.15em; padding: 0 0.95em;
+    color: var(--ink); background: #fff; border: 1px solid #a6a6a6; border-radius: 4px; cursor: pointer;
+  }
+  button:hover { border-color: var(--ink); }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  button.primary { background: var(--ink); border-color: var(--ink); color: #fff; min-width: 6.6em; }
+  button.primary:hover { background: #000; }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button:disabled:hover { border-color: #a6a6a6; }
+  button.primary:disabled:hover { background: var(--ink); border-color: var(--ink); }
+  .seg { display: inline-flex; }
+  .seg button { border-radius: 0; margin-left: -1px; }
+  .seg button:first-child { border-radius: 4px 0 0 4px; margin-left: 0; }
+  .seg button:last-child { border-radius: 0 4px 4px 0; }
+  .seg button:hover { position: relative; z-index: 1; }
+  .seg button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; position: relative; z-index: 2; }
+
+  input[type=range] { --p: 50%; -webkit-appearance: none; appearance: none; width: 150px; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: linear-gradient(to right, var(--ink) 0 var(--p), #cfcfcf var(--p) 100%); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; margin-top: -7px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--ink); }
+  input[type=range]::-moz-range-track { height: 3px; border-radius: 2px; background: #cfcfcf; }
+  input[type=range]::-moz-range-progress { height: 3px; border-radius: 2px; background: var(--ink); }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--ink); }
+  input[type=range]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  input[type=range]:disabled { opacity: 0.35; cursor: default; }
+
+  /* The step bar under the views: play, one step back or forward, and a slider with a tick for every step. */
+  .steps { display: flex; flex-wrap: wrap; align-items: center; gap: 26px 18px; margin: 14px 0 16px; }
+  .steps .btns { display: flex; gap: 6px; }
+  button.ic { width: 2.3em; padding: 0; display: inline-grid; place-items: center; }
+  button.ic.primary { min-width: 0; width: 2.9em; }
+  button.ic svg { width: 14px; height: 14px; }
+  .steps .track { position: relative; flex: 1 1 180px; min-width: 170px; height: 1.935em; display: flex; align-items: center; }
+  .steps .track input[type=range] { width: 100%; }
+  .steps .ticks { position: absolute; left: 8.5px; right: 8.5px; top: calc(50% + 11px); pointer-events: none; }
+  .tk { position: absolute; top: 0; width: 1px; height: 4px; margin-left: -0.5px; background: #c4c4c4; }
+  .tk.maj { height: 7px; background: #8c8c8c; }
+  .tl { position: absolute; top: 9px; transform: translateX(-50%); font-size: 0.7em; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .steps .pos { min-width: 9.2em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .mi { font-family: KaTeX_Math; font-style: italic; }
+
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: inherit; }
+  svg .mi { font-family: KaTeX_Math; font-style: italic; }
+  svg .kept { font-weight: bold; }
+  svg .pt { transform-box: fill-box; transform-origin: center; }
+  svg .fadein { animation: fade 0.4s ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Things to drag: θ and the data in 2 and 3, Λ and x in 4. */
+  svg text.halo { stroke: #fff; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
+  svg .knob { cursor: grab; touch-action: none; }
+  svg .knob .disc { transition: stroke-width 0.12s; }
+  svg .knob:hover .disc { stroke-width: 4.5; }
+  svg .knob .dot { transition: r 0.12s; }
+  svg .knob:hover .dot { r: 10px; }
+  svg .knob.off { pointer-events: none; }
+  svg.dragging, svg.dragging * { cursor: grabbing !important; }
+  #f4 .knob, #f4 .hit, #fm .knob, #fm .hit { cursor: ew-resize; touch-action: none; }
+  #f4 .hit:hover + .ring, #f4 .ring.on, #fm .hit:hover + .ring, #fm .ring.on { opacity: 1; }
+  #f4 .ring, #fm .ring { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+  #g3 .run { cursor: pointer; outline: none; }
+  #g3 .run .hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
+  #g3 .run:hover .line, #g3 .run:focus-visible .line { stroke: #555; stroke-width: 2.6; }
+  #g3 .run:hover .end, #g3 .run:focus-visible .end { fill: #555; }
+
+  /* Check questions: every option has its own feedback, shown under it once picked. */
+  .check { margin-top: 2.2em; }
+  .check .label { color: var(--muted); font-size: 0.8em; }
+  .check .q { margin: 0.1em 0 0.7em; }
+  .opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8em; align-items: start; }
+  .opt {
+    display: grid; grid-template-columns: 1fr auto; column-gap: 0.7em; align-items: start;
+    width: 100%; height: auto; text-align: left; border: 1px solid var(--hair); border-radius: 4px;
+    padding: 0.6em 0.8em; line-height: 1.4; font-size: 0.95em;
+  }
+  .opt:hover { background: #fff; border-color: #999; }
+  .opt .mark {
+    width: 1.25em; height: 1.25em; border-radius: 50%; border: 1px solid var(--hair);
+    display: grid; place-items: center; font-size: 0.85em; line-height: 1; margin-top: 0.1em;
+  }
+  .opt .fb { grid-column: 1 / -1; display: none; margin-top: 0.5em; padding-top: 0.5em; border-top: 1px solid var(--hair); font-size: 0.93em; }
+  .opt.right, .opt.right:hover { border-color: var(--ok); box-shadow: inset 0 0 0 1px var(--ok); }
+  .opt.right .mark { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .opt.wrong, .opt.wrong:hover { border-color: #9a9a9a; }
+  .opt.wrong .mark { border-color: #9a9a9a; color: #777; }
+  .opt.right .fb, .opt.wrong .fb { display: block; }
+
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    main { padding: 28px 16px 64px; }
+    header h1 { font-size: 1.6em; }
+    nav.toc { flex-direction: column; gap: 0.3em; }
+    .toolbar { gap: 10px 18px; }
+    .read { margin-left: 0; width: 100%; }
+    .views { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    input[type=range] { width: 120px; }
+    .opts { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="rule"></div>
+  <div class="course">Machine Learning · Tutorial 11</div>
+  <h1>EM, MM and Factor Analysis</h1>
+  <div class="sub">Interactive lab</div>
+  <nav class="toc" aria-label="Experiments">
+    <a href="#e1"><span class="n">1</span>Several starts</a>
+    <a href="#e2"><span class="n">2</span>$\ell$ never goes down</a>
+    <a href="#e3"><span class="n">3</span>MM: the median</a>
+    <a href="#e4"><span class="n">4</span>Factor analysis</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="e1">
+  <div class="where">Problem 2(c)</div>
+  <h2>1. Several starts</h2>
+  <p class="lead">Same data, different starting means. Each run picks $k$ random data points as the starting means
+    and runs EM until $\ell$ stops increasing, with $\Sigma_j = 0.25\,I$ fixed.</p>
+  <div class="toolbar">
+    <div class="grp"><button id="new3" class="primary">New start</button><button id="ten3">10 starts</button></div>
+    <div class="grp"><span class="lbl">Clusters $k$</span>
+      <div class="seg" id="k3" role="group" aria-label="Number of clusters">
+        <button data-k="2" aria-pressed="false">2</button><button data-k="3" aria-pressed="true">3</button><button data-k="4" aria-pressed="false">4</button><button data-k="5" aria-pressed="false">5</button>
+      </div><button id="data3">New data</button></div>
+    <div class="read"><span id="r3"></span></div>
+  </div>
+  <div class="views">
+    <svg id="f3" viewBox="0 0 690 400" role="img" aria-label="One EM run: start, path and end of each mean"></svg>
+    <svg id="g3" viewBox="0 0 460 400" aria-label="The log-likelihood during each run"></svg>
+  </div>
+  <div class="steps" id="s3"></div>
+  <div class="check" id="q3"></div>
+</section>
+
+<!-- 2 -->
+<section id="e2">
+  <div class="where">Problem 2(a) and (b)</div>
+  <h2>2. $\ell$ never goes down</h2>
+  <p class="lead">Only one mean is fitted, $\mu_1 = \theta$; $\mu_2$, $\phi_j = \tfrac12$ and $\sigma$ stay fixed.
+    The E-step gives a lower bound on $\ell$ that touches it at $\theta^{(t)}$; the M-step jumps to the maximum of the bound.
+    Drag the black dot to choose $\theta^{(0)}$, or drag a data point.</p>
+  <div class="toolbar">
+    <div class="grp"><span class="lbl">Data</span>
+      <div class="seg" id="data4" role="group" aria-label="Data">
+        <button data-k="p2" aria-pressed="true">Four points</button><button data-k="hills" aria-pressed="false">Two hills</button><button data-k="far" aria-pressed="false">Far apart</button>
+      </div></div>
+    <div class="grp"><span class="lbl">$\sigma$</span>
+      <input id="sig4" type="range" min="0.5" max="2" step="0.05" value="1" aria-label="sigma">
+      <span id="sig4v" class="num">1.00</span></div>
+  </div>
+  <div class="views">
+    <svg id="f4" viewBox="0 0 690 470" role="img" aria-label="Log-likelihood, the lower bound of the E-step, and the data"></svg>
+    <svg id="g4" viewBox="0 0 460 470" role="img" aria-label="The values of each iteration"></svg>
+  </div>
+  <div class="steps" id="s4"></div>
+  <div class="check" id="q4"></div>
+</section>
+
+<!-- 3 -->
+<section id="e3">
+  <div class="where">Problem 3</div>
+  <h2>3. MM: the median</h2>
+  <p class="lead">To minimize $f(\theta)=\sum_i|x_i-\theta|$, each step puts a parabola $g(\theta\mid\theta_t)$ above $f$ that touches it at $\theta_t$,
+    then jumps to the bottom of the parabola: the weighted mean with weights $w_i=1/|x_i-\theta_t|$.
+    Drag the black dot to choose $\theta_0$, or drag a data point.</p>
+  <div class="toolbar">
+    <div class="grp"><span class="lbl">Data</span>
+      <div class="seg" id="datam" role="group" aria-label="Data">
+        <button data-k="p3" aria-pressed="true">Problem 3</button><button data-k="out" aria-pressed="false">Five points</button>
+      </div></div>
+  </div>
+  <div class="views">
+    <svg id="fm" viewBox="0 0 690 470" role="img" aria-label="The objective f, the parabola above it, and the data"></svg>
+    <svg id="gm" viewBox="0 0 460 470" role="img" aria-label="The values of each iteration"></svg>
+  </div>
+  <div class="steps" id="sm"></div>
+  <div class="check" id="qm"></div>
+</section>
+
+<!-- 4 -->
+<section id="e4">
+  <div class="where">Problem 4</div>
+  <h2>4. Factor analysis</h2>
+  <p class="lead">Each point is $x=\Lambda z+\varepsilon$: a hidden factor $z\sim\mathcal N(0,1)$ moves it along $\Lambda$,
+    then the noise $\varepsilon\sim\mathcal N(0,\Psi)$ moves each coordinate on its own.
+    Drag the tip of $\Lambda$, change the noise, and drag the black point to see its E-step.</p>
+  <div class="toolbar">
+    <div class="grp"><span class="lbl">Show</span>
+      <div class="seg" id="viewfa" role="group" aria-label="Show">
+        <button data-v="factor" aria-pressed="false">$\Lambda z$ only</button><button data-v="all" aria-pressed="true">$\Lambda z+\varepsilon$</button>
+      </div></div>
+    <div class="grp"><span class="lbl">$\psi_1$</span>
+      <input id="psi1" type="range" min="0.05" max="3" step="0.05" value="1" aria-label="psi 1">
+      <span id="psi1v" class="num">1.00</span></div>
+    <div class="grp"><span class="lbl">$\psi_2$</span>
+      <input id="psi2" type="range" min="0.05" max="3" step="0.05" value="1" aria-label="psi 2">
+      <span id="psi2v" class="num">1.00</span></div>
+    <div class="grp"><button id="resetfa">Problem 4(d)</button></div>
+  </div>
+  <div class="views">
+    <svg id="ffa" viewBox="0 0 690 470" role="img" aria-label="Samples of x, the direction Lambda and the covariance ellipses"></svg>
+    <svg id="gfa" viewBox="0 0 460 470" role="img" aria-label="The covariance of x and the E-step at the black point"></svg>
+  </div>
+  <div class="check" id="qfa"></div>
+</section>
+
+</main>
+
+<script>
+// ---------- Palette and labels (as in the Tutorial 10 presentation) ----------
+const BLUE = '#1d6fa5', RED = '#d6002b', OCHRE = '#c98a00', COLS = [BLUE, RED, OCHRE, '#2f7a4a', '#e377c2'];
+const INK = '#1f1f1f', MUTED = '#555555', HAIR = '#d6d6d6', AXIS = '#b3b3b3', GREY = '#8c8c8c', GRID = '#ececec';
+const $ = (s, el = document) => el.querySelector(s);
+const sum = a => a.reduce((s, v) => s + v, 0);
+const num = (x, d) => x.toFixed(d).replace('-', '−');
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// A point with responsibilities w: one sector per component, angle 2π·w_j (solid when one w_j is almost 1).
+function pieAt(cx, cy, r, w, ring = 1.5, solid = 0.97) {
+  const top = w.indexOf(Math.max(...w));
+  if (w[top] >= solid) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${COLS[top]}" stroke="#fff" stroke-width="${ring}"/>`;
+  let s = '', a = -Math.PI / 2;
+  w.forEach((v, j) => {
+    if (v < 0.004) return;
+    const b = a + 2 * Math.PI * v, P = t => `${(cx + r * Math.cos(t)).toFixed(2)} ${(cy + r * Math.sin(t)).toFixed(2)}`;
+    s += `<path d="M${cx} ${cy}L${P(a)}A${r} ${r} 0 ${v > 0.5 ? 1 : 0} 1 ${P(b)}Z" fill="${COLS[j]}"/>`;
+    a = b;
+  });
+  return s + `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="${ring}"/>`;
+}
+
+// Small TeX-like labels in SVG: $…$ is math (letters in KaTeX's math italic), _x and ^{…} are sub- and superscripts.
+const LETTER = /[A-Za-zα-ωϕ]/;
+function tex(s, fs) {
+  let out = '', math = false, shift = 0, run = '', key = '';
+  const flush = () => {
+    if (!run) return;
+    const [it, size, target] = key.split('|'), dy = +(target - shift).toFixed(2);
+    shift = +target;
+    out += `<tspan${it === '1' ? ' class="mi"' : ''}${+size !== fs ? ` font-size="${size}"` : ''}${dy ? ` dy="${dy}"` : ''}>${run}</tspan>`;
+    run = '';
+  };
+  const put = (ch, it, size, target) => {
+    const k = `${it ? 1 : 0}|${size}|${target}`;
+    if (k !== key) { flush(); key = k; }
+    run += ch;
+  };
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '$') { math = !math; continue; }
+    if (math && (c === '_' || c === '^')) {
+      let g = s[++i];
+      if (g === '{') { const e = s.indexOf('}', i); g = s.slice(i + 1, e); i = e; }
+      for (const ch of g) put(ch, LETTER.test(ch), +(0.7 * fs).toFixed(1), +(c === '_' ? 0.22 * fs : -0.42 * fs).toFixed(1));
+    } else put(c, math && LETTER.test(c), fs, 0);
+  }
+  flush();
+  return out;
+}
+const label = (x, y, s, { fs = 24, fill = INK, anchor = 'start', cls = '' } = {}) =>
+  `<text${cls ? ` class="${cls}"` : ''} x="${x}" y="${y}" font-size="${fs}" fill="${fill}" text-anchor="${anchor}">${tex(s, fs)}</text>`;
+// The title row above every view: a title on the left, a short caption on the right.
+const heading = (w, title, cap = '', cls = '') => label(1, 26, title, { fs: 24, cls })
+  + (cap ? label(w - 1, 26, cap, { fs: 20, fill: MUTED, anchor: 'end' }) : '');
+
+// ---------- Geometry ----------
+function mapBox(box, x0, y0, w, h, pad) { // data box → the w×h area at (x0, y0), same scale on both axes
+  const s = Math.min((w - 2 * pad) / (box[1] - box[0]), (h - 2 * pad) / (box[3] - box[2]));
+  const cx = x0 + w / 2, cy = y0 + h / 2, mx = (box[0] + box[1]) / 2, my = (box[2] + box[3]) / 2;
+  return { X: x => cx + (x - mx) * s, Y: y => cy - (y - my) * s, IX: X => mx + (X - cx) / s, IY: Y => my - (Y - cy) / s, s };
+}
+const frameRect = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${HAIR}" stroke-width="1.5"/>`;
+const dotAt = (T, p, fill, r = 9) => `<circle cx="${T.X(p[0])}" cy="${T.Y(p[1])}" r="${r}" fill="${fill}" stroke="#fff" stroke-width="1.5"/>`;
+const crossAt = (T, m, c, r = 7, w = [4, 2.5]) => {
+  const x = T.X(m[0]), y = T.Y(m[1]), d = `M${x - r} ${y - r}L${x + r} ${y + r}M${x - r} ${y + r}L${x + r} ${y - r}`;
+  return `<path d="${d}" stroke="#fff" stroke-width="${w[0]}" stroke-linecap="round"/><path d="${d}" stroke="${c}" stroke-width="${w[1]}" stroke-linecap="round"/>`;
+};
+function ellipseAt(T, m, [a, b, c], k, attrs) { // contour k standard deviations from the mean
+  const t = Math.sqrt(((a - c) / 2) ** 2 + b * b), l1 = (a + c) / 2 + t, l2 = Math.max((a + c) / 2 - t, 1e-9);
+  const ang = 0.5 * Math.atan2(2 * b, a - c) * 180 / Math.PI, cx = T.X(m[0]), cy = T.Y(m[1]);
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${k * Math.sqrt(l1) * T.s}" ry="${k * Math.sqrt(l2) * T.s}" transform="rotate(${-ang} ${cx} ${cy})" ${attrs}/>`;
+}
+const gaussianAt = (T, m, S, col, dash = '') => { // the 1σ and 2σ contours of a Gaussian
+  const d = dash ? ` stroke-dasharray="${dash}"` : '';
+  return ellipseAt(T, m, S, 2, `fill="${col}" fill-opacity="0.05" stroke="${col}" stroke-opacity="0.6" stroke-width="1.8"${d}`)
+    + ellipseAt(T, m, S, 1, `fill="${col}" fill-opacity="0.09" stroke="${col}" stroke-width="2.4"${d}`);
+};
+// Round tick values for an axis from lo to hi, and the decimals they need.
+function ticks(lo, hi, n = 5) {
+  const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw));
+  const d = [1, 2, 5, 10].map(k => k * mag).reduce((p, q) => (Math.abs(Math.log(q / raw)) < Math.abs(Math.log(p / raw)) ? q : p)), out = [];
+  for (let v = Math.ceil(lo / d - 1e-9); v * d <= hi + 1e-9; v++) out.push(v * d);
+  return { out, dec: [0, 1, 2, 3].find(k => Math.abs(Math.round(d * 10 ** k) - d * 10 ** k) < 1e-6) ?? 3 };
+}
+
+// ---------- Gaussian mixtures in 2D ----------
+const wmean = (P, w) => [0, 1].map(d => sum(P.map((p, i) => w[i] * p[d])) / sum(w));
+const wcov = (P, w, m) => { // [a, b, c] = [[a, b], [b, c]]
+  const r = [0, 0, 0];
+  P.forEach((p, i) => { const dx = p[0] - m[0], dy = p[1] - m[1]; r[0] += w[i] * dx * dx; r[1] += w[i] * dx * dy; r[2] += w[i] * dy * dy; });
+  return r.map(v => v / sum(w));
+};
+const logN2 = (p, m, [a, b, c]) => {
+  const det = a * c - b * b, dx = p[0] - m[0], dy = p[1] - m[1];
+  return -(c * dx * dx - 2 * b * dx * dy + a * dy * dy) / (2 * det) - 0.5 * Math.log(det) - Math.log(2 * Math.PI);
+};
+function estep2(P, f) { // responsibilities W and log-likelihood ℓ
+  let ll = 0;
+  const W = P.map(p => {
+    const l = f.mus.map((m, j) => Math.log(f.phis[j]) + logN2(p, m, f.Ss[j])), mx = Math.max(...l);
+    const e = l.map(v => Math.exp(v - mx)), s = sum(e);
+    ll += mx + Math.log(s);
+    return e.map(v => v / s);
+  });
+  return { W, ll };
+}
+function mstep2(P, W, f, fixedCov) {
+  const k = f.mus.length, w = j => W.map(r => r[j]);
+  const mus = [...Array(k).keys()].map(j => (sum(w(j)) > 1e-9 ? wmean(P, w(j)) : f.mus[j]));
+  return { mus, phis: mus.map((_, j) => sum(w(j)) / P.length), Ss: fixedCov ? f.Ss : mus.map((m, j) => wcov(P, w(j), m)) };
+}
+function tween(dur, frame) { // eased animation; finishes even if the tab is hidden
+  return new Promise(res => {
+    const t0 = performance.now(); let done = false;
+    const end = () => { if (!done) { done = true; frame(1); res(); } };
+    const step = now => {
+      if (done) return;
+      const u = Math.min(1, (now - t0) / dur);
+      if (u >= 1) return end();
+      frame(u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    setTimeout(end, dur + 120);
+  });
+}
+const lerp = (a, b, u) => a + (b - a) * u;
+const lerpF = (f, g, u) => ({
+  mus: f.mus.map((m, j) => m.map((v, d) => lerp(v, g.mus[j][d], u))),
+  Ss: f.Ss.map((S, j) => S.map((v, d) => lerp(v, g.Ss[j][d], u))),
+  phis: f.phis.map((v, j) => lerp(v, g.phis[j], u)),
+});
+
+function typeset(el) {
+  if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '$', right: '$', display: false }], throwOnError: false });
+}
+function svgPoint(svg, e) {
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+const fillRange = el => el.style.setProperty('--p', `${(el.value - el.min) / (el.max - el.min) * 100}%`);
+
+// ---------- The step bar: play, one step back or forward, and a slider with a tick for every step ----------
+const ICON = {
+  play: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.6v10.8L12.2 7z" fill="currentColor"/></svg>',
+  pause: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/></svg>',
+  prev: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2.5L4.5 7 9 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  next: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2.5L9.5 7 5 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+// go(s, anim) shows step s (it may return a promise while it animates); text(s) says where step s is;
+// kind(i): 2 for a labelled tick, 1 for a small one; tick(i): the label of tick i; wait(s): the pause after step s while playing.
+function stepper(el, { go, text, kind = () => 2, tick = i => i, wait = () => 300, name = 'Step' }) {
+  el.insertAdjacentHTML('afterbegin', '<div class="btns"><button class="ic primary"></button>'
+    + `<button class="ic" aria-label="One step back">${ICON.prev}</button><button class="ic" aria-label="One step forward">${ICON.next}</button></div>`
+    + `<div class="track"><input type="range" min="0" max="1" step="1" value="0" aria-label="${name}"><div class="ticks" aria-hidden="true"></div></div>`
+    + '<div class="pos" aria-live="polite"></div>');
+  const [play, prev, next] = el.querySelectorAll('.btns button'), range = $('input', el), tk = $('.ticks', el), pos = $('.pos', el);
+  const S = { n: 1, s: 0, playing: false, ep: 0 };
+  function sync() {
+    range.max = S.n; range.value = S.s; fillRange(range);
+    prev.disabled = S.s <= 0; next.disabled = S.s >= S.n;
+    play.innerHTML = S.playing ? ICON.pause : ICON.play;
+    play.setAttribute('aria-label', S.playing ? 'Pause' : 'Play');
+    pos.innerHTML = text(S.s);
+  }
+  function ticks() { // a tick for every step; labels thinned to round numbers that fit
+    const w = range.clientWidth - 17, n = S.n;
+    if (w <= 0) return;
+    let big = 0;
+    for (let i = 0; i <= n; i++) if (kind(i) === 2) big++;
+    const every = [1, 2, 5, 10, 20, 50, 100, 200].find(e => big / e <= w / 30) ?? 500;
+    const small = w / n >= 6, all = w / big >= 4;
+    let h = '';
+    for (let i = 0; i <= n; i++) {
+      const x = `left:${(i / n * 100).toFixed(3)}%`;
+      if (kind(i) === 2) {
+        const v = tick(i), lab = v % every === 0;
+        if (all || lab) h += `<i class="tk maj" style="${x}"></i>`;
+        if (lab) h += `<span class="tl" style="${x}">${v}</span>`;
+      } else if (small) h += `<i class="tk" style="${x}"></i>`;
+    }
+    tk.innerHTML = h;
+  }
+  const halt = () => { if (S.playing) { S.playing = false; S.ep++; } };
+  const to = (s, anim) => { halt(); S.s = clamp(s, 0, S.n); sync(); go(S.s, anim); };
+  async function run() {
+    const my = ++S.ep;
+    S.playing = true;
+    if (S.s >= S.n) { S.s = 0; sync(); go(0, false); await sleep(500); }
+    sync();
+    while (S.playing && my === S.ep && S.s < S.n) {
+      S.s++; sync();
+      await go(S.s, true);
+      if (my !== S.ep) return;
+      await sleep(wait(S.s));
+    }
+    if (my === S.ep) { S.playing = false; sync(); }
+  }
+  range.addEventListener('input', () => to(+range.value, false));
+  prev.addEventListener('click', () => to(S.s - 1, true));
+  next.addEventListener('click', () => to(S.s + 1, true));
+  play.addEventListener('click', () => { if (S.playing) { halt(); sync(); } else run(); });
+  new ResizeObserver(ticks).observe(range);
+  return {
+    reset(n, s = 0) { halt(); S.n = Math.max(1, n); S.s = clamp(s, 0, S.n); ticks(); sync(); },
+    play: run,
+    stop() { halt(); sync(); },
+    get s() { return S.s; },
+    get playing() { return S.playing; },
+  };
+}
+// Steps of EM on the bar: 2t is θ after t iterations, 2t + 1 the E-step there.
+const emText = s => (s === 0 ? 'start, <span class="mi">t</span> = 0'
+  : `${s % 2 ? 'E-step at' : 'M-step to'} <span class="mi">t</span> = ${s >> 1}`);
+const emBar = { text: emText, kind: i => (i % 2 ? 1 : 2), tick: i => i / 2, name: 'E- and M-steps' };
+const pace = s => (s <= 6 ? 1 : 0.45); // the first iterations slowly, the rest faster
+
+// A check question: one answer is right; every option has its own feedback.
+function check(id, q, opts) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="label">Check</div><p class="q">${q}</p><div class="opts">`
+    + opts.map((o, k) => `<button class="opt" data-k="${k}"><span class="t">${o.t}</span><span class="mark" aria-hidden="true"></span>`
+      + `<span class="fb" aria-live="polite"></span></button>`).join('') + '</div>';
+  el.addEventListener('click', e => {
+    const b = e.target.closest('.opt');
+    if (!b || b.classList.contains('right') || b.classList.contains('wrong')) return;
+    const o = opts[+b.dataset.k], fb = $('.fb', b);
+    b.classList.add(o.ok ? 'right' : 'wrong');
+    $('.mark', b).textContent = o.ok ? '✓' : '✕';
+    fb.innerHTML = `<b>${o.ok ? 'Yes.' : 'No.'}</b> ${o.fb}`;
+    typeset(fb);
+  });
+}
+
+
+// ==================== 1. Several starts ====================
+const E3 = (() => {
+  const main = $('#f3'), side = $('#g3'), W = 690, H = 400, S3 = [0.25, 0, 0.25], TOL = 1e-3, MAXRUNS = 60;
+  let T; // the view fits each dataset
+  const LAYOUT = { // cluster centres before a random shift
+    2: [[-1.9, 0.1], [1.9, 0.3]],
+    3: [[-2.3, -0.4], [0, 0.9], [2.3, -0.3]],
+    4: [[-2.6, 0.8], [-0.9, -0.8], [0.9, 0.8], [2.6, -0.8]],
+    5: [[-2.8, -0.6], [-1.4, 1.0], [0, -0.7], [1.4, 1.0], [2.8, -0.6]],
+  };
+  // A seeded generator: every student starts from the same data and the same first runs.
+  let seed = 1;
+  const rnd = () => {
+    seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+  const gauss = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd());
+  // runs: every run so far; sel: the one shown, at iteration t (fractional while it moves); live: a new run not yet at its end
+  const st = { k: 3, X: [], ref: 0, runs: [], sel: 0, live: -1, t: 0, anim: 0 };
+  let bar;
+
+  function em(m0) { // EM until ℓ stops increasing; keeps every iterate and its ℓ
+    let f = { mus: m0, Ss: m0.map(() => S3), phis: m0.map(() => 1 / m0.length) };
+    const path = [f], hist = [];
+    for (let it = 0; ; it++) {
+      const { W: R, ll } = estep2(st.X, f);
+      hist.push(ll);
+      if ((it && ll - hist[it - 1] < TOL) || it >= 300) break;
+      f = mstep2(st.X, R, f, true); path.push(f);
+    }
+    return { path, hist, ll: hist[hist.length - 1] };
+  }
+  function makeData() { // k clusters of 6 to 13 points; ref: ℓ when EM starts from the true centres
+    const C = LAYOUT[st.k].map(c => [c[0] + (rnd() - 0.5) * 0.5, c[1] + (rnd() - 0.5) * 0.5]);
+    st.X = C.flatMap(c => Array.from({ length: 6 + Math.floor(rnd() * 8) }, () => [c[0] + 0.33 * gauss(), c[1] + 0.33 * gauss()]));
+    st.ref = em(C).ll;
+    const xs = st.X.map(p => p[0]), ys = st.X.map(p => p[1]);
+    T = mapBox([Math.min(...xs) - 1, Math.max(...xs) + 1, Math.min(...ys) - 1, Math.max(...ys) + 1], 1, 38, W - 2, H - 39, 6);
+  }
+  const start = () => { // k different data points
+    const idx = [];
+    while (idx.length < st.k) { const i = Math.floor(rnd() * st.X.length); if (!idx.includes(i)) idx.push(i); }
+    return idx.map(i => [...st.X[i]]);
+  };
+  const done = () => { const d = st.runs.filter((_, i) => i !== st.live); return d.length ? d : st.runs; };
+  const best = () => Math.max(...done().map(r => r.ll)); // the highest ℓ of the finished runs
+  const top = r => r.ll > best() - 0.05;
+  const end = r => r.path.length - 1; // its last iteration
+  const at = (r, t) => { // ϕ and μ at iteration t, between two iterations while it moves
+    const n = end(r), k = Math.min(Math.floor(t), n - 1);
+    return t >= n ? r.path[n] : lerpF(r.path[k], r.path[k + 1], t - k);
+  };
+
+  const legend = `<circle cx="${W - 150}" cy="19" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>` + label(W - 137, 26, 'start', { fs: 20, fill: MUTED })
+    + crossAt({ X: x => x, Y: y => y }, [W - 68, 19], INK, 6) + label(W - 55, 26, 'end', { fs: 20, fill: MUTED });
+  function show() { // the selected run at iteration t: its means so far, the responsibilities there
+    const r = st.runs[st.sel], t = st.t, f = at(r, t), R = estep2(st.X, f).W, k = Math.floor(t), fin = t >= end(r);
+    const title = !fin ? `Run ${st.sel + 1}` : `Run ${st.sel + 1}: $ℓ$ = ${num(r.ll, 1)}`
+      + (top(r) ? ', the highest' : `, lower than run ${st.runs.findIndex((q, i) => i !== st.live && top(q)) + 1}`);
+    let s = heading(W, title, '', fin && top(r) ? 'kept' : '') + legend;
+    s += `<defs><clipPath id="clip3"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>` + frameRect(1, 38, W - 2, H - 39);
+    s += '<g clip-path="url(#clip3)">' + f.mus.map((m, j) => gaussianAt(T, m, S3, COLS[j])).join('');
+    st.X.forEach((p, i) => { s += pieAt(T.X(p[0]), T.Y(p[1]), 8, R[i]); });
+    f.mus.forEach((_, j) => {
+      const pts = r.path.slice(0, k + 1).map(q => q.mus[j]).concat([f.mus[j]]).map(m => `${T.X(m[0]).toFixed(1)},${T.Y(m[1]).toFixed(1)}`).join(' ');
+      s += `<polyline points="${pts}" fill="none" stroke="#fff" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`
+        + `<polyline points="${pts}" fill="none" stroke="${COLS[j]}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    s += '</g>';
+    r.path[0].mus.forEach((m, j) => { s += `<circle cx="${T.X(m[0])}" cy="${T.Y(m[1])}" r="7" fill="#fff" stroke="${COLS[j]}" stroke-width="3"/>`; });
+    f.mus.forEach(m => { s += crossAt(T, m, INK, 8, [4.5, 3]); });
+    main.innerHTML = s;
+  }
+
+  // ℓ after each iteration, one curve per run; the selected run in black, up to iteration t.
+  const P = { L: 74, R: 438, TOP: 62, BOT: 322 };
+  function plot() {
+    const hi = best(), lo = Math.min(...st.runs.map(r => r.ll)), y0 = Math.min(lo, hi) - Math.max(0.6 * Math.abs(hi - lo), 15);
+    const y1 = Math.max(hi, ...st.runs.map(r => r.ll)) + 0.1 * (hi - y0), tmax = Math.max(8, ...st.runs.map(end));
+    const px = t => P.L + t / tmax * (P.R - P.L), py = v => P.BOT - (v - y0) / (y1 - y0) * (P.BOT - P.TOP);
+    let s = heading(460, '$ℓ$ during each run', 'click a curve to replay it') + frameRect(1, 38, 458, H - 39);
+    s += `<defs><clipPath id="clip3s"><rect x="${P.L}" y="40" width="${P.R - P.L + 10}" height="${P.BOT - 40}"/></clipPath></defs>`;
+    const yt = ticks(y0, y1);
+    yt.out.forEach(v => { s += `<line x1="${P.L}" x2="${P.R}" y1="${py(v)}" y2="${py(v)}" stroke="${GRID}" stroke-width="1.2"/>` + label(P.L - 10, py(v) + 6, num(v, yt.dec), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    ticks(0, tmax).out.forEach(t => {
+      s += `<line x1="${px(t)}" x2="${px(t)}" y1="${P.BOT}" y2="${P.BOT + 5}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(t), P.BOT + 25, String(t), { fs: 17, fill: MUTED, anchor: 'middle' });
+    });
+    s += `<line x1="${P.L}" x2="${P.R}" y1="${P.BOT}" y2="${P.BOT}" stroke="${AXIS}" stroke-width="1.5"/>` + label((P.L + P.R) / 2, P.BOT + 52, 'iteration $t$', { fs: 19, fill: MUTED, anchor: 'middle' });
+    const pts = (r, upto) => { // the curve up to iteration `upto` (fractional while it moves)
+      const n = Math.floor(upto), p = r.hist.slice(0, n + 1).map((v, t) => [px(t), py(v)]);
+      if (upto > n && n + 1 < r.hist.length) p.push([px(upto), py(lerp(r.hist[n], r.hist[n + 1], upto - n))]);
+      return p;
+    };
+    const line = p => p.map(q => `${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ');
+    const run = (i, inner) => `<g class="run" data-k="${i}" tabindex="0" role="button" aria-label="Replay run ${i + 1}">${inner}</g>`;
+    s += '<g clip-path="url(#clip3s)">';
+    st.runs.forEach((r, i) => {
+      if (i === st.sel) return;
+      const p = pts(r, end(r)), e = p[p.length - 1];
+      s += run(i, `<polyline class="line" points="${line(p)}" fill="none" stroke="#b5b5b5" stroke-width="1.6" stroke-linejoin="round"/>`
+        + `<circle class="end" cx="${e[0]}" cy="${e[1]}" r="4" fill="#b5b5b5"/><polyline class="hit" points="${line(p)}"/>`);
+    });
+    s += `<line x1="${P.L}" x2="${P.R}" y1="${py(hi)}" y2="${py(hi)}" stroke="${INK}" stroke-width="1.3" stroke-dasharray="6 5"/>`;
+    const r = st.runs[st.sel], fin = st.t >= end(r), p = pts(r, Math.min(st.t, end(r))), e = p[p.length - 1];
+    if (fin) s += `<line x1="${e[0]}" x2="${P.R}" y1="${e[1]}" y2="${e[1]}" stroke="${INK}" stroke-width="2.2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
+    s += run(st.sel, `<polyline points="${line(p)}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`
+      + `<circle cx="${e[0]}" cy="${e[1]}" r="6" fill="${INK}" stroke="#fff" stroke-width="2"/>`);
+    s += '</g>' + label(P.R, py(hi) - 9, 'highest $ℓ$', { fs: 17, fill: MUTED, anchor: 'end', cls: 'halo' });
+    side.innerHTML = s;
+  }
+
+  function readout() {
+    const d = done(), m = d.filter(top).length;
+    $('#r3').innerHTML = `${m} of ${d.length} runs reach the highest $\\ell = ${num(best(), 1)}$`;
+    typeset($('#r3'));
+    $('#new3').disabled = $('#ten3').disabled = st.runs.length >= MAXRUNS;
+  }
+  function render() { // a new run counts once it has reached its end
+    const live = st.live;
+    if (st.live === st.sel && st.t >= end(st.runs[st.sel])) st.live = -1;
+    show(); plot();
+    if (live !== st.live) readout();
+  }
+  function go(t, anim) { // iteration t of the selected run; one iteration at a time it moves
+    const my = ++st.anim, from = st.t, r = st.runs[st.sel];
+    if (!anim || Math.abs(t - from) > 1) { st.t = t; render(); return; }
+    return tween(clamp(2400 / end(r), 150, 450), u => { if (my === st.anim) { st.t = lerp(from, t, u); render(); } });
+  }
+  function select(i, replay) { // run i, from its start (and play it) or at its end
+    if (i !== st.live) st.live = -1;
+    st.sel = i; st.anim++;
+    const n = end(st.runs[i]);
+    st.t = replay ? 0 : n;
+    bar.reset(n, st.t); render(); readout();
+    if (replay) bar.play();
+  }
+  function add(n) {
+    const first = st.runs.length;
+    for (let i = 0; i < n && st.runs.length < MAXRUNS; i++) st.runs.push(em(start()));
+    if (st.runs.length === first) return;
+    if (n === 1) { st.live = first; return select(first, true); }
+    let b = first; // of several new runs, show the one you would keep
+    for (let i = first; i < st.runs.length; i++) if (st.runs[i].ll > st.runs[b].ll) b = i;
+    select(b, false);
+  }
+  function load(k, s0) { // new data with five runs; the first data of each k is chosen to show both kinds of run
+    st.k = k;
+    for (let s = s0; s < s0 + 50; s++) {
+      seed = s; makeData();
+      st.runs = Array.from({ length: 5 }, () => em(start()));
+      const stuck = st.runs.filter(r => r.ll < st.ref - 0.05).length;
+      if (s0 < 1000 || (stuck > 0 && stuck < 5) || k === 2) break;
+    }
+    document.querySelectorAll('#k3 button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
+    st.live = -1;
+    const s = st.runs.findIndex(r => r.ll < st.ref - 0.05);
+    select(Math.max(0, s), false);
+  }
+
+  bar = stepper($('#s3'), { go, text: t => `<span class="mi">t</span> = ${t} of ${end(st.runs[st.sel])}`, wait: () => 70, name: 'Iteration' });
+  side.addEventListener('click', e => { const g = e.target.closest('.run'); if (g) select(+g.dataset.k, true); });
+  side.addEventListener('keydown', e => {
+    const g = e.target.closest('.run');
+    if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(+g.dataset.k, true); }
+  });
+  $('#new3').addEventListener('click', () => add(1));
+  $('#ten3').addEventListener('click', () => add(10));
+  $('#k3').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(+b.dataset.k, 1000 * +b.dataset.k); });
+  $('#data3').addEventListener('click', () => load(st.k, Math.floor(Math.random() * 999) + 1));
+  load(3, 3000);
+
+  check('q3', 'A run ends with two means on the same cluster. What helps?', [
+    { t: 'More iterations of EM.', ok: false,
+      fb: 'The run has converged: its curve of $\\ell$ is flat, so more iterations leave it at the same local maximum.' },
+    { t: 'Restart from other initial means and keep the run with the highest $\\ell$.', ok: true,
+      fb: 'EM climbs to a local maximum that depends on the start. Each new start is another chance; keep the run with the highest $\\ell$.' },
+    { t: 'A smaller step size.', ok: false,
+      fb: 'EM has no step size: each M-step jumps straight to the maximum of the lower bound.' },
+  ]);
+  return { st, best, top, em, bar: () => bar };
+})();
+
+// ==================== 2. ℓ never goes down ====================
+const E4 = (() => {
+  const main = $('#f4'), side = $('#g4'), W = 690, H = 470, TOL = 1e-4;
+  const L = 76, R = 642, TOP = 66, BOT = 318, AX = 424, SH = 50; // the plot of ℓ above, the data below, one shared axis
+  const DATA = {
+    p2: { xs: [0, 1, 3, 4], mu2: 3, dom: [-1.5, 5], th0: 2.5 },
+    hills: { xs: [-3, -2.5, -2, 2, 2.5, 3, 3.5], mu2: 0, dom: [-4.5, 5], th0: -0.6 },
+    far: { xs: [-0.5, 0, 0.5, 1], mu2: 4, dom: [-2, 5.5], th0: 2.5 },
+  };
+  // th: θ^{(0..t)}; Q: the E-step weights from θ^{(qt)}; hollow: θ on the bound (during and after an M-step)
+  const st = { key: 'p2', xs: [], mu2: 0, dom: [0, 1], s: 1, TH: [0], at: 0, th: [0], Q: null, qt: -1, hollow: null, next: 'E',
+    busy: false, chain: null, drag: null, yr: [0, 1], top: 0, ep: 0 };
+
+  // p(x) = ½ N(x; θ, σ²) + ½ N(x; μ₂, σ²), in log space
+  const LH = Math.log(0.5);
+  const lg = (x, m) => -((x - m) ** 2) / (2 * st.s * st.s) - Math.log(Math.sqrt(2 * Math.PI) * st.s);
+  const lse = (a, b) => { const m = Math.max(a, b); return m + Math.log(Math.exp(a - m) + Math.exp(b - m)); };
+  const ll = th => sum(st.xs.map(x => LH + lse(lg(x, th), lg(x, st.mu2))));
+  const post = th => st.xs.map(x => 1 / (1 + Math.exp(lg(x, st.mu2) - lg(x, th)))); // Q_i = p(z = 1 | x; θ)
+  const term = (q, l) => (q > 1e-300 ? q * (LH + l - Math.log(q)) : 0);
+  const elbo = (Q, th) => sum(st.xs.map((x, i) => term(Q[i], lg(x, th)) + term(1 - Q[i], lg(x, st.mu2))));
+  const argmax = (Q, th) => { const w = sum(Q); return w > 1e-12 ? sum(st.xs.map((x, i) => Q[i] * x)) / w : th; };
+
+  const px = t => L + (t - st.dom[0]) / (st.dom[1] - st.dom[0]) * (R - L);
+  const ix = X => st.dom[0] + (X - L) / (R - L) * (st.dom[1] - st.dom[0]);
+  const py = v => BOT - (v - st.yr[0]) / (st.yr[1] - st.yr[0]) * (BOT - TOP);
+  const cy = v => clamp(py(v), TOP - 80, BOT + 80);
+  const grid = (n = 280) => [...Array(n + 1)].map((_, k) => st.dom[0] + (st.dom[1] - st.dom[0]) * k / n);
+  const curve = f => grid().map((t, k) => `${k ? 'L' : 'M'}${px(t).toFixed(1)} ${cy(f(t)).toFixed(1)}`).join('');
+  const last = () => st.th[st.th.length - 1];
+  const conv = () => st.th.length > 1 && ll(last()) - ll(st.th[st.th.length - 2]) < TOL;
+
+  function scale() { // the y-range holds ℓ over the whole axis; top: the highest ℓ
+    const v = grid().map(ll), lo = Math.min(...v), hi = Math.max(...v), d = hi - lo || 1;
+    st.yr = [lo - 0.05 * d, hi + 0.12 * d]; st.top = hi;
+  }
+  function title() {
+    const t = st.th.length - 1;
+    if (st.busy) return 'M-step: maximize the bound';
+    if (st.next === 'M') return `E-step: the bound touches $ℓ$ at $θ^{(${t})}$`;
+    if (conv()) return ll(last()) < st.top - 0.01 ? 'Converged to a local maximum' : 'Converged to the maximum';
+    if (t > 0) return 'M-step: maximize the bound';
+    return 'Start at $θ^{(0)}$';
+  }
+  function legend() {
+    const x = 418;
+    let s = `<line x1="${x}" x2="${x + 30}" y1="19" y2="19" stroke="${INK}" stroke-width="3"/>` + label(x + 38, 26, '$ℓ(θ)$', { fs: 20 });
+    if (st.Q) s += `<line x1="${x + 100}" x2="${x + 130}" y1="19" y2="19" stroke="${INK}" stroke-width="2.6" stroke-dasharray="7 5"/>`
+      + label(x + 138, 26, `ELBO$(Q^{(${st.qt})}, θ)$`, { fs: 20 });
+    return s;
+  }
+  // The data on the same axis: both Gaussians (peak height fixed), each point a pie of Q_i and 1 − Q_i.
+  function strip(cur) {
+    const bump = (m, col) => {
+      const p = grid(200).map(x => `L${px(x).toFixed(1)} ${(AX - SH * Math.exp(-((x - m) ** 2) / (2 * st.s * st.s))).toFixed(1)}`).join('');
+      return `<path d="M${L} ${AX}${p}L${R} ${AX}Z" fill="${col}" fill-opacity="0.1"/><path d="M${p.slice(1)}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    };
+    let s = `<g clip-path="url(#clip4s)">${bump(st.mu2, RED)}${bump(cur, BLUE)}</g>`;
+    const X = [px(cur), px(st.mu2)], near = Math.abs(X[0] - X[1]) < 56, y = AX - SH - 10;
+    ['$μ_1$', '$μ_2$'].forEach((t, j) => {
+      const left = X[j] < X[1 - j] || (X[j] === X[1 - j] && j === 0);
+      s += label(near ? X[j] + (left ? -5 : 5) : X[j], y, t, { fs: 20, anchor: near ? (left ? 'end' : 'start') : 'middle' });
+    });
+    return s;
+  }
+  function draw(fade = false) {
+    const t = st.th.length - 1, th = st.th[t], cur = st.hollow ?? th, Q = st.Q, idle = !st.busy;
+    let s = label(1, 26, title(), { fs: 24 }) + legend();
+    s += `<defs><clipPath id="clip4"><rect x="${L}" y="40" width="${R - L}" height="${BOT - 40}"/></clipPath>`
+      + `<clipPath id="clip4s"><rect x="${L}" y="${BOT + 2}" width="${R - L}" height="${AX - BOT - 3.5}"/></clipPath></defs>`;
+    s += frameRect(1, 38, W - 2, H - 39);
+    const { out, dec } = ticks(st.yr[0], st.yr[1]);
+    out.forEach(v => { s += `<line x1="${L}" x2="${R}" y1="${py(v)}" y2="${py(v)}" stroke="${GRID}" stroke-width="1.2"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    for (let k = Math.ceil(st.dom[0]); k <= Math.floor(st.dom[1]); k++)
+      s += `<line x1="${px(k)}" x2="${px(k)}" y1="${TOP - 14}" y2="${AX}" stroke="${GRID}" stroke-width="1.2"/>`
+        + `<line x1="${px(k)}" x2="${px(k)}" y1="${AX}" y2="${AX + 6}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(k), AX + 28, num(k, 0), { fs: 19, fill: MUTED, anchor: 'middle' });
+    s += label(R + 12, BOT + 7, '$θ$', { fs: 22, fill: MUTED }) + label(R + 12, AX + 7, '$x$', { fs: 22, fill: MUTED });
+    // θ on the curve, linked down to μ₁ on the data axis
+    s += `<line x1="${px(cur)}" x2="${px(cur)}" y1="${py(st.hollow !== null && Q ? elbo(Q, cur) : ll(cur))}" y2="${AX - SH}" stroke="${BLUE}" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="3 4"/>`;
+    s += strip(cur);
+    s += `<line x1="${L}" x2="${R}" y1="${BOT}" y2="${BOT}" stroke="${AXIS}" stroke-width="1.5"/><line x1="${L}" x2="${R}" y1="${AX}" y2="${AX}" stroke="${AXIS}" stroke-width="1.5"/>`;
+    // the bound and the gap between it and ℓ
+    if (Q) {
+      s += `<g clip-path="url(#clip4)"${fade ? ' class="fadein"' : ''}>`
+        + `<path d="${curve(v => elbo(Q, v))}" fill="none" stroke="${INK}" stroke-width="2.6" stroke-dasharray="9 6"/></g>`;
+    }
+    s += `<path d="${curve(ll)}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round" clip-path="url(#clip4)"/>`;
+    // after an M-step: what the bound gained, and the gap that opened above it
+    if (st.chain && st.next === 'E' && !st.busy) {
+      const c = st.chain, a = px(st.th[c.k]), b = px(st.th[c.k + 1]), y0 = py(c.v[3]), y1 = py(c.v[1]), y2 = py(c.v[0]);
+      const segs = [[y0, y1, 'M-step'], [y1, y2, 'gap']]; // [bottom, top, label] on screen
+      // a label sits beside the bracket where neither curve runs through it
+      const crossed = (x0, x1, yt, yb) => {
+        for (let X = x0; X <= x1; X += 3) if ([ll(ix(X)), elbo(Q, ix(X))].some(v => py(v) > yt - 3 && py(v) < yb + 3)) return true;
+        return false;
+      };
+      const fit = right => segs.map(([ya, yb, txt]) => {
+        const w = txt.length * 9, x0 = right ? b + 28 : b - 28 - w, mid = (ya + yb) / 2 + 6, ys = [];
+        if (ya - yb < 18 || x0 < L || x0 + w > R) return null;
+        for (let y = yb + 14; y <= ya - 2; y += 3) ys.push(y);
+        return ys.sort((p, q) => Math.abs(p - mid) - Math.abs(q - mid)).find(y => !crossed(x0, x0 + w, y - 13, y + 3)) ?? null;
+      });
+      // the far side from θ^(t) first; the other side if more labels fit there
+      const far = b >= a, n = v => v.filter(y => y !== null).length;
+      let right = far, at = fit(far);
+      if (far ? b + 24 > R : b - 24 < L) { right = !far; at = fit(!far); }
+      else if (!far ? b + 24 <= R : b - 24 >= L) { const o = fit(!far); if (n(o) > n(at)) { right = !far; at = o; } }
+      const xb = b + (right ? 18 : -18);
+      s += `<line x1="${a}" x2="${xb}" y1="${y0}" y2="${y0}" stroke="${INK}" stroke-width="1.4" stroke-dasharray="2 4"/>`;
+      segs.forEach(([ya, yb, txt], i) => {
+        if (ya - yb < 2) return;
+        s += `<path d="M${xb - 5} ${ya}H${xb + 5}M${xb} ${ya}V${yb}M${xb - 5} ${yb}H${xb + 5}" stroke="${INK}" stroke-width="1.6" fill="none"/>`;
+        const y = at[i] ?? (ya - yb >= 18 ? (ya + yb) / 2 + 6 : null); // no clear spot: the middle, on its white halo
+        if (y !== null) s += label(xb + (right ? 10 : -10), y, txt, { fs: 17, fill: MUTED, anchor: right ? 'start' : 'end', cls: 'halo' });
+      });
+    }
+    st.th.slice(0, t).forEach(v => { s += `<circle cx="${px(v)}" cy="${py(ll(v))}" r="4.5" fill="${GREY}" stroke="#fff" stroke-width="1.5"/>`; });
+    if (st.hollow !== null && Q) s += `<circle cx="${px(st.hollow)}" cy="${py(elbo(Q, st.hollow))}" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>`;
+    s += `<g class="knob${idle ? '' : ' off'}" data-d="th"><circle cx="${px(th)}" cy="${py(ll(th))}" r="18" fill="transparent"/>`
+      + `<circle class="dot" cx="${px(th)}" cy="${py(ll(th))}" r="8" fill="${INK}" stroke="#fff" stroke-width="2"/></g>`;
+    st.xs.forEach((x, i) => {
+      const X = px(x), Y = AX - 10;
+      s += (Q ? pieAt(X, Y, 9, [Q[i], 1 - Q[i]]) : `<circle cx="${X}" cy="${Y}" r="9" fill="${GREY}" stroke="#fff" stroke-width="1.5"/>`)
+        + (idle ? `<circle class="hit" data-d="${i}" cx="${X}" cy="${Y}" r="16" fill="transparent"/><circle class="ring${st.drag === String(i) ? ' on' : ''}" cx="${X}" cy="${Y}" r="13" fill="none" stroke="${INK}" stroke-width="1.5"/>` : '');
+    });
+    main.innerHTML = s;
+  }
+  // The companion: the chain of the last M-step, then every iteration.
+  function table() {
+    const n = st.th.length - 1, c = st.chain, k = c ? String(c.k) : 't', k1 = c ? String(c.k + 1) : 't+1';
+    let s = heading(460, 'Step by step') + frameRect(1, 38, 458, H - 39);
+    s += label(20, 72, c ? `The last M-step, from $t$ = ${c.k} to ${c.k + 1}` : 'The last M-step (none yet)', { fs: 19, fill: MUTED });
+    [['', `$ℓ(θ^{(${k1})})$`, ''], ['≥', `ELBO$(Q^{(${k})}, θ^{(${k1})})$`, 'gap ≥ 0'],
+     ['≥', `ELBO$(Q^{(${k})}, θ^{(${k})})$`, 'M-step'], ['=', `$ℓ(θ^{(${k})})$`, 'E-step']].forEach(([r, term, why], i) => {
+      const y = 108 + 33 * i;
+      s += label(30, y, r, { fs: 21, anchor: 'middle' }) + label(50, y, term, { fs: 21 }) + label(338, y, why, { fs: 17, fill: MUTED, anchor: 'end' })
+        + label(438, y, c ? num(c.v[i], 3) : '–', { fs: 21, anchor: 'end', fill: c ? INK : MUTED });
+    });
+    s += `<line x1="20" x2="440" y1="234" y2="234" stroke="${HAIR}" stroke-width="1.2"/>`;
+    s += label(20, 266, 'All iterations', { fs: 19, fill: MUTED });
+    const col = [[34, 'middle', '$t$'], [168, 'end', '$θ^{(t)}$'], [310, 'end', '$ℓ(θ^{(t)})$'], [438, 'end', 'change']];
+    col.forEach(([x, a, t]) => { s += label(x, 300, t, { fs: 19, fill: MUTED, anchor: a }); });
+    s += `<line x1="20" x2="440" y1="312" y2="312" stroke="${HAIR}" stroke-width="1.2"/>`;
+    for (let t = Math.max(0, n - 4), r = 0; t <= n; t++, r++) {
+      const v = ll(st.th[t]), d = t ? v - ll(st.th[t - 1]) : null, cls = t === n ? 'kept' : '';
+      [String(t), num(st.th[t], 3), num(v, 3), d === null ? '–' : `${d < 0 ? '−' : '+'}${Math.abs(d).toFixed(3)}`]
+        .forEach((txt, i) => { s += label(col[i][0], 340 + 28 * r, txt, { fs: 19, anchor: col[i][1], cls }); });
+    }
+    side.innerHTML = s;
+  }
+  function ui() {
+    document.querySelectorAll('#data4 button').forEach(x => x.setAttribute('aria-pressed', x.dataset.k === st.key));
+  }
+  // TH: θ^{(0..T)} of the whole run. Step `at` of the bar: 2t is θ^{(t)} after its M-step, 2t + 1 the E-step at θ^{(t)}.
+  const chainOf = k => { const Q = post(st.TH[k]), a = st.TH[k + 1], th = st.TH[k]; return { k, v: [ll(a), elbo(Q, a), elbo(Q, th), ll(th)] }; };
+  function apply(s) {
+    const t = s >> 1, TH = st.TH;
+    st.at = s; st.th = TH.slice(0, t + 1); st.busy = false;
+    if (s === 0) { st.Q = null; st.qt = -1; st.hollow = null; st.next = 'E'; st.chain = null; }
+    else if (s % 2) { st.Q = post(TH[t]); st.qt = t; st.hollow = null; st.next = 'M'; st.chain = t ? chainOf(t - 1) : null; }
+    else { st.Q = post(TH[t - 1]); st.qt = t - 1; st.hollow = TH[t]; st.next = 'E'; st.chain = chainOf(t - 1); }
+  }
+  function restart(th0, rescale = false) { // EM from θ^{(0)} until ℓ stops increasing; the bar back at the start
+    st.ep++;
+    if (rescale) scale();
+    st.TH = [th0];
+    for (let t = 0; t < 80; t++) {
+      const th = st.TH[t], a = argmax(post(th), th);
+      st.TH.push(a);
+      if (ll(a) - ll(th) < TOL) break;
+    }
+    bar.reset(2 * (st.TH.length - 1)); apply(0); draw(); table(); ui();
+  }
+  function load(key) {
+    const d = DATA[key];
+    st.key = key; st.xs = [...d.xs]; st.mu2 = d.mu2; st.dom = d.dom;
+    restart(d.th0, true);
+  }
+  // Show step s. Across an M-step the hollow dot slides along the bound to its maximum (or back).
+  function go(s, anim) {
+    const from = st.at, my = ++st.ep;
+    if (!(anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0)) {
+      apply(s); draw(anim && s === from + 1 && s % 2 === 1); table(); ui(); return;
+    }
+    const t = Math.max(s, from) >> 1, a = st.TH[t - 1], b = st.TH[t], fwd = s > from;
+    apply(2 * t - 1); st.busy = fwd;
+    return tween(650 * pace(s), u => { if (my === st.ep) { st.hollow = fwd ? lerp(a, b, u) : lerp(b, a, u); draw(); } })
+      .then(() => { if (my === st.ep) { apply(s); draw(); table(); } });
+  }
+  const bar = stepper($('#s4'), { ...emBar, go, wait: s => (s % 2 ? 800 : 700) * pace(s) });
+
+  main.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-d]');
+    if (!h || st.busy) return;
+    bar.stop();
+    st.drag = h.dataset.d; main.classList.add('dragging');
+    main.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  main.addEventListener('pointermove', e => {
+    if (st.drag === null) return;
+    const v = +clamp(ix(svgPoint(main, e).x), st.dom[0] + 0.1, st.dom[1] - 0.1).toFixed(2);
+    if (st.drag === 'th') restart(v);
+    else { st.xs[+st.drag] = v; restart(st.TH[0], true); }
+  });
+  const drop = () => { st.drag = null; main.classList.remove('dragging'); if (!st.busy) draw(); };
+  main.addEventListener('pointerup', drop);
+  main.addEventListener('pointercancel', drop);
+  $('#data4').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(b.dataset.k); });
+  $('#sig4').addEventListener('input', e => {
+    st.s = +e.target.value; fillRange(e.target); $('#sig4v').textContent = st.s.toFixed(2);
+    restart(st.TH[0], true);
+  });
+  fillRange($('#sig4'));
+  load('p2');
+
+  check('q4', 'Why does the dashed bound touch $\\ell$ at $\\theta^{(t)}$?', [
+    { t: 'The E-step sets $Q^{(i)}$ to the posterior of $z^{(i)}$ under $\\theta^{(t)}$, so Jensen’s inequality is an equality there.', ok: true,
+      fb: 'Because the bound touches, anything the M-step gains on the bound is also gained on $\\ell$.' },
+    { t: 'The ELBO and $\\ell$ are the same function.', ok: false,
+      fb: 'Away from $\\theta^{(t)}$ the bound lies below $\\ell$. Look at the gap after an M-step.' },
+    { t: 'The M-step chooses $\\theta$ on the curve $\\ell$.', ok: false,
+      fb: 'The M-step maximizes the bound, not $\\ell$. The bound touches $\\ell$ before the M-step.' },
+  ]);
+  return { st, ll, elbo, post, argmax, load, bar: () => bar };
+})();
+
+
+// ---------- Seeded random numbers ----------
+function rng(seed) { // mulberry32
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const gauss = r => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+
+// ==================== 3. MM: the median ====================
+const MM = (() => {
+  const main = $('#fm'), side = $('#gm'), W = 690, H = 470, EPS = 1e-3;
+  const L = 76, R = 642, TOP = 66, BOT = 318, AX = 424; // the plot of f above, the data below, one shared axis
+  const DATA = {
+    p3: { xs: [0, 1, 5], dom: [-1, 6], th0: 2 },
+    out: { xs: [0, 1, 1.5, 2.5, 9], dom: [-1, 10], th0: 6 },
+  };
+  // TH: θ_0, θ_1, … of the whole run; step `at` of the bar: 2t is θ_t, 2t + 1 the parabola at θ_t
+  const st = { key: 'p3', xs: [], dom: [0, 1], TH: [0], at: 0, hollow: null, busy: false, yr: [0, 1], drag: null, ep: 0 };
+  const f = th => sum(st.xs.map(x => Math.abs(x - th)));
+  const rr = tt => st.xs.map(x => Math.max(Math.abs(x - tt), EPS));
+  const g = (th, tt) => { const r = rr(tt); return sum(st.xs.map((x, i) => (x - th) ** 2 / (2 * r[i]) + r[i] / 2)); };
+  const wts = tt => rr(tt).map(r => 1 / r);
+  const argmin = tt => { const w = wts(tt); return sum(st.xs.map((x, i) => w[i] * x)) / sum(w); };
+  const median = () => { const s = [...st.xs].sort((a, b) => a - b), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
+  const mean = () => sum(st.xs) / st.xs.length;
+
+  const px = t => L + (t - st.dom[0]) / (st.dom[1] - st.dom[0]) * (R - L);
+  const ix = X => st.dom[0] + (X - L) / (R - L) * (st.dom[1] - st.dom[0]);
+  const py = v => BOT - (v - st.yr[0]) / (st.yr[1] - st.yr[0]) * (BOT - TOP);
+  const cy = v => clamp(py(v), TOP - 80, BOT + 80);
+  const grid = (n = 400) => [...Array(n + 1)].map((_, k) => st.dom[0] + (st.dom[1] - st.dom[0]) * k / n);
+  const curve = fn => grid().map((t, k) => `${k ? 'L' : 'M'}${px(t).toFixed(1)} ${cy(fn(t)).toFixed(1)}`).join('');
+  const T = () => st.at >> 1; // the iterate shown
+
+  function scale() {
+    const v = grid().map(f), lo = Math.min(...v), hi = Math.max(...v), d = hi - lo || 1;
+    st.yr = [Math.max(0, lo - 0.25 * d), hi + 0.08 * d];
+  }
+  function title() {
+    const t = T(), n = st.TH.length - 1;
+    if (st.busy) return 'Minimize: slide to the bottom of the parabola';
+    if (st.at === 0) return 'Start at $θ_0$';
+    if (st.at % 2) return `Majorize: the parabola touches $f$ at $θ_${t}$`;
+    if (st.at === 2 * n) return 'Converged to the minimum of $f$';
+    return `Minimize: the bottom of the parabola gives $θ_${t}$`;
+  }
+  function legend() {
+    const x = 512;
+    return `<line x1="${x}" x2="${x + 30}" y1="19" y2="19" stroke="${INK}" stroke-width="3"/>` + label(x + 38, 26, '$f(θ)$', { fs: 20 })
+      + `<line x1="${x + 98}" x2="${x + 128}" y1="19" y2="19" stroke="${BLUE}" stroke-width="2.6" stroke-dasharray="7 5"/>` + label(x + 136, 26, '$g$', { fs: 20 });
+  }
+  function draw(fade = false) {
+    const t = T(), at = st.at, th = st.TH[t], tt = at % 2 ? th : (t ? st.TH[t - 1] : null), idle = !st.busy;
+    let s = label(1, 26, title(), { fs: 24 });
+    s += `<defs><clipPath id="clipm"><rect x="${L}" y="40" width="${R - L}" height="${BOT - 40}"/></clipPath></defs>`;
+    s += frameRect(1, 38, W - 2, H - 39) + legend();
+    const { out, dec } = ticks(st.yr[0], st.yr[1], 4);
+    out.forEach(v => { s += `<line x1="${L}" x2="${R}" y1="${py(v)}" y2="${py(v)}" stroke="${GRID}" stroke-width="1.2"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    const step = st.dom[1] - st.dom[0] > 8 ? 2 : 1;
+    for (let k = Math.ceil(st.dom[0]); k <= Math.floor(st.dom[1]); k += 1) {
+      s += `<line x1="${px(k)}" x2="${px(k)}" y1="${TOP - 14}" y2="${AX}" stroke="${GRID}" stroke-width="1.2"/>`;
+      if (k % step === 0) s += `<line x1="${px(k)}" x2="${px(k)}" y1="${AX}" y2="${AX + 6}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(k), AX + 28, num(k, 0), { fs: 19, fill: MUTED, anchor: 'middle' });
+    }
+    s += label(R + 12, BOT + 7, '$θ$', { fs: 22, fill: MUTED }) + label(R + 12, AX + 7, '$x$', { fs: 22, fill: MUTED });
+    // the data strip: the mean and the median, and each point sized by its weight w_i
+    const strip = (v, txt, col, side) => `<line x1="${px(v)}" x2="${px(v)}" y1="${BOT + 30}" y2="${AX}" stroke="${col}" stroke-width="2" stroke-dasharray="5 4"/>`
+      + label(px(v) + (side ? 6 : -6), BOT + 26, txt, { fs: 17, fill: col, anchor: side ? 'start' : 'end', cls: 'halo' });
+    const me = mean(), md = median();
+    s += strip(me, 'mean', OCHRE, me >= md) + strip(md, 'median', BLUE, md > me);
+    const cur = st.hollow ?? th;
+    s += `<line x1="${L}" x2="${R}" y1="${BOT}" y2="${BOT}" stroke="${AXIS}" stroke-width="1.5"/><line x1="${L}" x2="${R}" y1="${AX}" y2="${AX}" stroke="${AXIS}" stroke-width="1.5"/>`;
+    const low = st.hollow !== null || (at % 2 === 0 && t > 0); // the dotted link starts on the parabola
+    s += `<line x1="${px(cur)}" x2="${px(cur)}" y1="${cy(low ? g(cur, tt) : f(cur))}" y2="${AX}" stroke="${INK}" stroke-opacity="0.45" stroke-width="1.5" stroke-dasharray="3 4"/>`;
+    if (tt !== null) s += `<path d="${curve(v => g(v, tt))}" fill="none" stroke="${BLUE}" stroke-width="2.6" stroke-dasharray="9 6" clip-path="url(#clipm)"${fade ? ' class="fadein"' : ''}/>`;
+    s += `<path d="${curve(f)}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round" clip-path="url(#clipm)"/>`;
+    st.TH.slice(0, t).forEach(v => { s += `<circle cx="${px(v)}" cy="${py(f(v))}" r="4.5" fill="${GREY}" stroke="#fff" stroke-width="1.5"/>`; });
+    if (tt !== null && at % 2 === 0) s += `<circle cx="${px(tt)}" cy="${py(f(tt))}" r="6" fill="#fff" stroke="${GREY}" stroke-width="2"/>`;
+    if (low) s += `<circle cx="${px(cur)}" cy="${cy(g(cur, tt))}" r="6.5" fill="#fff" stroke="${BLUE}" stroke-width="2.5"/>`;
+    if (!st.busy) s += `<g class="knob${idle ? '' : ' off'}" data-d="th"><circle cx="${px(th)}" cy="${py(f(th))}" r="18" fill="transparent"/>`
+      + `<circle class="dot" cx="${px(th)}" cy="${py(f(th))}" r="8" fill="${INK}" stroke="#fff" stroke-width="2"/></g>`;
+    const w = tt !== null ? wts(tt) : null, wmax = w ? Math.max(...w) : 1;
+    st.xs.forEach((x, i) => {
+      const X = px(x), Y = AX - 13, r = w ? 4 + 9 * Math.sqrt(w[i] / wmax) : 9;
+      s += `<circle cx="${X}" cy="${Y}" r="${r.toFixed(1)}" fill="${w ? INK : GREY}" stroke="#fff" stroke-width="1.5"/>`
+        + (idle ? `<circle class="hit" data-d="${i}" cx="${X}" cy="${Y}" r="16" fill="transparent"/><circle class="ring${st.drag === String(i) ? ' on' : ''}" cx="${X}" cy="${Y}" r="15" fill="none" stroke="${INK}" stroke-width="1.5"/>` : '');
+    });
+    if (w) s += label(L + 8, AX - 40, 'dot size: weight $w_i$', { fs: 16, fill: MUTED, cls: 'halo' });
+    main.innerHTML = s;
+  }
+  // The companion: the chain of the last MM step, then every iteration.
+  function table() {
+    const n = T(), c = n >= 1 ? n - 1 : null, k = c !== null ? String(c) : 't', k1 = c !== null ? String(c + 1) : 't+1';
+    let s = heading(460, 'Step by step') + frameRect(1, 38, 458, H - 39);
+    s += label(20, 72, c !== null ? `The last MM step, from $t$ = ${c} to ${c + 1}` : 'The last MM step (none yet)', { fs: 19, fill: MUTED });
+    const a = c !== null ? st.TH[c + 1] : 0, b = c !== null ? st.TH[c] : 0, v = c !== null ? [f(a), g(a, b), g(b, b), f(b)] : null;
+    [['', `$f(θ_{${k1}})$`, ''], ['≤', `$g(θ_{${k1}} | θ_{${k}})$`, '$g$ above $f$'],
+     ['≤', `$g(θ_{${k}} | θ_{${k}})$`, 'minimize'], ['=', `$f(θ_{${k}})$`, 'touch']].forEach(([r, term, why], i) => {
+      const y = 108 + 33 * i;
+      s += label(30, y, r, { fs: 21, anchor: 'middle' }) + label(50, y, term, { fs: 21 }) + label(338, y, why, { fs: 17, fill: MUTED, anchor: 'end' })
+        + label(438, y, v ? num(v[i], 3) : '–', { fs: 21, anchor: 'end', fill: v ? INK : MUTED });
+    });
+    s += `<line x1="20" x2="440" y1="234" y2="234" stroke="${HAIR}" stroke-width="1.2"/>`;
+    s += label(20, 266, 'All iterations', { fs: 19, fill: MUTED });
+    const col = [[34, 'middle', '$t$'], [168, 'end', '$θ_t$'], [310, 'end', '$f(θ_t)$'], [438, 'end', 'change']];
+    col.forEach(([x, an, txt]) => { s += label(x, 300, txt, { fs: 19, fill: MUTED, anchor: an }); });
+    s += `<line x1="20" x2="440" y1="312" y2="312" stroke="${HAIR}" stroke-width="1.2"/>`;
+    for (let t = Math.max(0, n - 4), r = 0; t <= n; t++, r++) {
+      const val = f(st.TH[t]), d = t ? val - f(st.TH[t - 1]) : null, cls = t === n ? 'kept' : '';
+      [String(t), num(st.TH[t], 3), num(val, 3), d === null ? '–' : `${d < 0 ? '−' : '+'}${Math.abs(d).toFixed(3)}`]
+        .forEach((txt, i) => { s += label(col[i][0], 340 + 28 * r, txt, { fs: 19, anchor: col[i][1], cls }); });
+    }
+    side.innerHTML = s;
+  }
+  function restart(th0, rescale = false) { // MM from θ_0 until θ stops moving
+    st.ep++;
+    if (rescale) scale();
+    st.TH = [th0];
+    for (let t = 0; t < 40; t++) {
+      const a = argmin(st.TH[t]);
+      st.TH.push(a);
+      if (Math.abs(a - st.TH[t]) < 5e-4) break;
+    }
+    bar.reset(2 * (st.TH.length - 1)); st.at = 0; st.hollow = null; st.busy = false; draw(); table();
+    document.querySelectorAll('#datam button').forEach(x => x.setAttribute('aria-pressed', x.dataset.k === st.key));
+  }
+  function load(key) {
+    const d = DATA[key];
+    st.key = key; st.xs = [...d.xs]; st.dom = d.dom;
+    restart(d.th0, true);
+  }
+  // Show step s; across a minimize step the hollow dot slides down the parabola to its bottom.
+  function go(s, anim) {
+    const from = st.at, my = ++st.ep, show = (fade = false) => { st.at = s; st.hollow = null; st.busy = false; draw(fade); table(); };
+    if (!(anim && s === from + 1 && s % 2 === 0)) return show(anim && s === from + 1);
+    const t = s >> 1, a = st.TH[t - 1], b = st.TH[t];
+    st.busy = true;
+    return tween(650 * pace(s), u => { if (my === st.ep) { st.hollow = lerp(a, b, u); draw(); } })
+      .then(() => { if (my === st.ep) show(); });
+  }
+  // while sliding, `at` still names the parabola step, so draw() keeps the parabola at θ_{t−1}
+  const bar = stepper($('#sm'), {
+    go,
+    text: s => (s === 0 ? 'start, <span class="mi">t</span> = 0' : `${s % 2 ? 'majorize at' : 'minimize to'} <span class="mi">t</span> = ${s >> 1}`),
+    kind: i => (i % 2 ? 1 : 2), tick: i => i / 2, name: 'MM steps', wait: s => (s % 2 ? 800 : 700) * pace(s),
+  });
+
+  main.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-d]');
+    if (!h || st.busy) return;
+    bar.stop();
+    st.drag = h.dataset.d; main.classList.add('dragging');
+    main.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  main.addEventListener('pointermove', e => {
+    if (st.drag === null) return;
+    const v = +clamp(ix(svgPoint(main, e).x), st.dom[0] + 0.1, st.dom[1] - 0.1).toFixed(2);
+    if (st.drag === 'th') restart(v);
+    else { st.xs[+st.drag] = v; restart(st.TH[0], true); }
+  });
+  const drop = () => { st.drag = null; main.classList.remove('dragging'); if (!st.busy) draw(); };
+  main.addEventListener('pointerup', drop);
+  main.addEventListener('pointercancel', drop);
+  $('#datam').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(b.dataset.k); });
+  load('p3');
+
+  check('qm', 'With the Problem 3 data, drag the point at $5$ far to the right and run MM again. Where does it end?', [
+    { t: 'At $1$ again: the median does not care how far the outlier is.', ok: true,
+      fb: 'The far point only gets a small weight $1/|x_i-\\theta_t|$. The mean (ochre) follows the outlier; the median (blue) stays.' },
+    { t: 'Further right: it follows the outlier, like the mean.', ok: false,
+      fb: 'Watch the ochre and blue lines in the data strip while you drag: only the mean moves.' },
+    { t: 'Halfway between the mean and the median.', ok: false,
+      fb: 'MM decreases $f(\\theta)=\\sum_i|x_i-\\theta|$ until it reaches its minimum, the median.' },
+  ]);
+  return { st, f, g, argmin, load, bar: () => bar };
+})();
+
+// ==================== 4. Factor analysis ====================
+const FA = (() => {
+  const main = $('#ffa'), side = $('#gfa'), W = 690, H = 470, BOX = [-4.4, 4.4, -3.1, 3.1], N = 160;
+  const T = mapBox(BOX, 1, 38, W - 2, H - 39, 12);
+  const r = rng(11), Z = [...Array(N)].map(() => [gauss(r), gauss(r), gauss(r)]); // z, ε₁, ε₂ (standard normal)
+  const P4 = { lam: [2, 1], psi: [1, 1], x: [1, 2] };
+  const st = { lam: [...P4.lam], psi: [...P4.psi], x: [...P4.x], u: 1, drag: null, ep: 0 };
+  const cov = () => { const [a, b] = st.lam; return [a * a + st.psi[0], a * b, b * b + st.psi[1]]; }; // [Σ11, Σ12, Σ22]
+  function post() { // z | x ~ N(m, v): m = ΛᵀΣ⁻¹x, v = 1 − ΛᵀΣ⁻¹Λ
+    const [p, q, s] = cov(), det = p * s - q * q, [a, b] = st.lam;
+    const u = [(s * a - q * b) / det, (-q * a + p * b) / det];
+    return { m: u[0] * st.x[0] + u[1] * st.x[1], v: 1 - (u[0] * a + u[1] * b) };
+  }
+  const fx = v => v.toFixed(1);
+  function draw() {
+    const [a, b] = st.lam, sp = st.psi.map(Math.sqrt), O = [T.X(0), T.Y(0)], nl = Math.hypot(a, b);
+    let s = heading(W, st.u < 1 ? 'The factor part $Λz$ only' : 'Samples of $x = Λz + ε$', 'drag the arrow tip or the black point')
+      + `<defs><clipPath id="clipfa"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
+      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipfa)">';
+    s += `<line x1="${T.X(BOX[0])}" x2="${T.X(BOX[1])}" y1="${O[1]}" y2="${O[1]}" stroke="${AXIS}" stroke-width="1.3"/>`
+      + `<line x1="${O[0]}" x2="${O[0]}" y1="${T.Y(BOX[2])}" y2="${T.Y(BOX[3])}" stroke="${AXIS}" stroke-width="1.3"/>`;
+    if (nl > 1e-6) { const k = 12 / nl; s += `<line x1="${fx(T.X(-k * a))}" y1="${fx(T.Y(-k * b))}" x2="${fx(T.X(k * a))}" y2="${fx(T.Y(k * b))}" stroke="${BLUE}" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="6 5"/>`; }
+    s += ellipseAt(T, [0, 0], [st.psi[0], 0, st.psi[1]], 2, `fill="none" stroke="${GREY}" stroke-width="2" stroke-dasharray="6 5"`);
+    if (st.u > 0) s += ellipseAt(T, [0, 0], cov(), 2, `fill="${RED}" fill-opacity="${(0.05 * st.u).toFixed(3)}" stroke="${RED}" stroke-opacity="${st.u.toFixed(2)}" stroke-width="2.4"`);
+    s += Z.map(([z, e1, e2]) => `<circle cx="${fx(T.X(a * z + st.u * sp[0] * e1))}" cy="${fx(T.Y(b * z + st.u * sp[1] * e2))}" r="4" fill="${INK}" fill-opacity="0.45"/>`).join('');
+    // the E-step at the black point: Λ·E[z | x] on the line, and Λz for z within one posterior sd
+    const { m, v } = post(), sd = Math.sqrt(Math.max(v, 0)), A = [(m - sd) * a, (m - sd) * b], B = [(m + sd) * a, (m + sd) * b];
+    s += `<line x1="${fx(T.X(A[0]))}" y1="${fx(T.Y(A[1]))}" x2="${fx(T.X(B[0]))}" y2="${fx(T.Y(B[1]))}" stroke="${BLUE}" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>`
+      + `<line x1="${fx(T.X(st.x[0]))}" y1="${fx(T.Y(st.x[1]))}" x2="${fx(T.X(m * a))}" y2="${fx(T.Y(m * b))}" stroke="${INK}" stroke-width="1.6" stroke-dasharray="3 4"/>`
+      + `<circle cx="${fx(T.X(m * a))}" cy="${fx(T.Y(m * b))}" r="7" fill="#fff" stroke="${BLUE}" stroke-width="2.5"/>`;
+    s += '</g>';
+    // Λ: an arrow from the origin, with a knob at its tip
+    const tip = [T.X(a), T.Y(b)], pr = nl > 1e-6 ? [-b / nl, -a / nl] : [-0.7, -0.7]; // on screen, perpendicular to Λ
+    if (pr[1] > 0) { pr[0] = -pr[0]; pr[1] = -pr[1]; } // the label goes above the line
+    s += `<line x1="${O[0]}" y1="${O[1]}" x2="${fx(tip[0])}" y2="${fx(tip[1])}" stroke="${BLUE}" stroke-width="3.5" stroke-linecap="round"/>`
+      + `<g class="knob" data-h="lam"><circle cx="${fx(tip[0])}" cy="${fx(tip[1])}" r="20" fill="transparent"/><circle class="dot" cx="${fx(tip[0])}" cy="${fx(tip[1])}" r="8" fill="${BLUE}" stroke="#fff" stroke-width="2"/></g>`
+      + label(tip[0] + 24 * pr[0], tip[1] + 24 * pr[1] + 7, '$Λ$', { fs: 22, fill: BLUE, anchor: 'middle', cls: 'halo' });
+    const X = [T.X(st.x[0]), T.Y(st.x[1])];
+    s += `<g class="knob" data-h="x"><circle cx="${fx(X[0])}" cy="${fx(X[1])}" r="20" fill="transparent"/><circle class="dot" cx="${fx(X[0])}" cy="${fx(X[1])}" r="8" fill="${INK}" stroke="#fff" stroke-width="2"/></g>`
+      + label(X[0] + 12, X[1] - 12, '$x$', { fs: 22, cls: 'halo' });
+    s += label(T.X(BOX[1]) - 8, O[1] - 8, '$x_1$', { fs: 20, fill: MUTED, anchor: 'end' }) + label(O[0] + 8, T.Y(BOX[3]) + 22, '$x_2$', { fs: 20, fill: MUTED });
+    main.innerHTML = s;
+  }
+  function matrix(x, y, M, w = 112) { // a 2×2 matrix of numbers between brackets
+    const h = 62, b = (X, d) => `<path d="M${X + 6 * d} ${y - 22}H${X}V${y + h - 22}H${X + 6 * d}" fill="none" stroke="${INK}" stroke-width="1.6"/>`;
+    let s = b(x, 1) + b(x + w, -1);
+    M.forEach((row, i) => row.forEach((v, j) => { s += label(x + (j ? w - 12 : 50), y + 6 + 28 * i, num(v, 2), { fs: 19, anchor: 'end' }); }));
+    return s;
+  }
+  function panel() {
+    const [a, b] = st.lam, [p, q, s2] = cov(), rho = q / Math.sqrt(p * s2), { m, v } = post();
+    let s = heading(460, 'Covariance of $x$') + frameRect(1, 38, 458, H - 39);
+    s += label(20, 76, `$Λ$ = (${num(a, 1)}, ${num(b, 1)})`, { fs: 20 });
+    s += label(66, 112, '$ΛΛ^⊤$', { fs: 19, fill: MUTED, anchor: 'middle' }) + label(214, 112, '$Ψ$', { fs: 19, fill: MUTED, anchor: 'middle' }) + label(362, 112, '$Σ$', { fs: 19, fill: MUTED, anchor: 'middle' });
+    s += matrix(10, 146, [[a * a, a * b], [a * b, b * b]]) + label(140, 160, '+', { fs: 24, anchor: 'middle' })
+      + matrix(158, 146, [[st.psi[0], 0], [0, st.psi[1]]]) + label(288, 160, '=', { fs: 24, anchor: 'middle' })
+      + matrix(306, 146, [[p, q], [q, s2]]);
+    s += label(20, 238, `corr$(x_1, x_2)$ = ${num(rho, 2)}`, { fs: 21 });
+    s += label(20, 266, 'the off-diagonal of $Σ$ comes from $ΛΛ^⊤$ alone', { fs: 17, fill: MUTED });
+    s += `<line x1="20" x2="440" y1="290" y2="290" stroke="${HAIR}" stroke-width="1.2"/>`;
+    s += label(20, 322, `E-step at $x$ = (${num(st.x[0], 1)}, ${num(st.x[1], 1)})`, { fs: 19, fill: MUTED });
+    s += label(20, 356, `E[$z$ | $x$] = ${num(m, 2)}`, { fs: 21 }) + label(240, 356, `Var($z$ | $x$) = ${num(v, 2)}`, { fs: 21 });
+    s += `<circle cx="28" cy="${398}" r="7" fill="#fff" stroke="${BLUE}" stroke-width="2.5"/>` + label(44, 404, '$Λ$ E[$z$ | $x$]', { fs: 17, fill: MUTED })
+      + `<line x1="196" x2="226" y1="398" y2="398" stroke="${BLUE}" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>` + label(238, 404, '± one posterior sd', { fs: 17, fill: MUTED });
+    s += `<ellipse cx="28" cy="436" rx="14" ry="8" fill="${RED}" fill-opacity="0.05" stroke="${RED}" stroke-width="2"/>` + label(50, 442, '$Σ$, 2 sd', { fs: 17, fill: MUTED })
+      + `<ellipse cx="210" cy="436" rx="14" ry="8" fill="none" stroke="${GREY}" stroke-width="2" stroke-dasharray="5 4"/>` + label(232, 442, '$Ψ$ alone, 2 sd', { fs: 17, fill: MUTED });
+    side.innerHTML = s;
+  }
+  const render = () => { draw(); panel(); };
+  function setPsi(i, val) {
+    st.psi[i] = val; const el = $(`#psi${i + 1}`);
+    el.value = val; fillRange(el); $(`#psi${i + 1}v`).textContent = val.toFixed(2);
+  }
+  [0, 1].forEach(i => $(`#psi${i + 1}`).addEventListener('input', e => { setPsi(i, +e.target.value); render(); }));
+  $('#viewfa').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    $('#viewfa').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    const to = b.dataset.v === 'all' ? 1 : 0, from = st.u, my = ++st.ep;
+    tween(600, u => { if (my === st.ep) { st.u = lerp(from, to, u); draw(); } });
+  });
+  $('#resetfa').addEventListener('click', () => { st.lam = [...P4.lam]; st.x = [...P4.x]; setPsi(0, P4.psi[0]); setPsi(1, P4.psi[1]); render(); });
+  main.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-h]');
+    if (!h) return;
+    st.drag = h.dataset.h; main.classList.add('dragging');
+    main.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  main.addEventListener('pointermove', e => {
+    if (!st.drag) return;
+    const p = svgPoint(main, e), q = [clamp(T.IX(p.x), BOX[0] + 0.3, BOX[1] - 0.3), clamp(T.IY(p.y), BOX[2] + 0.3, BOX[3] - 0.3)].map(v => Math.round(v * 10) / 10);
+    if (st.drag === 'lam') st.lam = q; else st.x = q;
+    render();
+  });
+  const drop = () => { st.drag = null; main.classList.remove('dragging'); };
+  main.addEventListener('pointerup', drop);
+  main.addEventListener('pointercancel', drop);
+  setPsi(0, st.psi[0]); setPsi(1, st.psi[1]);
+  render();
+
+  check('qfa', 'Drag the arrow until $\\Lambda$ is horizontal, $\\Lambda=(\\lambda_1,0)$. What is the correlation of $x_1$ and $x_2$ now?', [
+    { t: '$0$: $\\Psi$ is diagonal, so only $\\Lambda$ can couple $x_1$ and $x_2$.', ok: true,
+      fb: 'The off-diagonal of $\\Lambda\\Lambda^\\top$ is $\\lambda_1\\lambda_2=0$, and $\\Psi$ adds nothing there. The red ellipse is axis-aligned.' },
+    { t: 'It depends on $\\psi_1$ and $\\psi_2$.', ok: false,
+      fb: 'Move the sliders: the ellipse stretches along the axes, but the correlation stays $0$. $\\Psi$ only changes the diagonal.' },
+    { t: '$1$: the factor part $\\Lambda z$ lies on a line.', ok: false,
+      fb: 'It lies on the horizontal axis, so it only moves $x_1$. The noise moves $x_1$ and $x_2$ independently.' },
+  ]);
+  return { st, post, cov };
+})();
+
+document.addEventListener('DOMContentLoaded', () => typeset(document.body));
+</script>
+</body>
+</html>

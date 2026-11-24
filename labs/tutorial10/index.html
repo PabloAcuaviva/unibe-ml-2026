@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Learning · Lab 10</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23fff'/><path d='M6.0 47.0 L7.3 46.4 L8.6 45.5 L9.9 44.3 L11.2 42.7 L12.5 40.7 L13.8 38.3 L15.1 35.5 L16.4 32.5 L17.7 29.3 L19.0 26.3 L20.3 23.7 L21.6 21.6 L22.9 20.3 L24.2 20.0 L25.5 20.6 L26.8 22.2 L28.1 24.4 L29.4 27.2 L30.7 30.3 L32.0 33.4 L33.3 36.4 L34.6 39.1 L35.9 41.4 L37.2 43.3 L38.5 44.7 L39.8 45.8 L41.1 46.6 L42.4 47.1 L43.7 47.5 L45.0 47.7 L46.3 47.8 L47.6 47.9 L48.9 47.9 L50.2 48.0 L51.5 48.0 L52.8 48.0 L54.1 48.0 L55.4 48.0 L56.7 48.0 L58.0 48.0 L58 48 L6 48Z' fill='%231d6fa5' fill-opacity='.18'/><path d='M6.0 48.0 L7.3 48.0 L8.6 48.0 L9.9 48.0 L11.2 48.0 L12.5 48.0 L13.8 47.9 L15.1 47.9 L16.4 47.8 L17.7 47.7 L19.0 47.5 L20.3 47.2 L21.6 46.7 L22.9 46.0 L24.2 45.1 L25.5 43.7 L26.8 42.0 L28.1 39.8 L29.4 37.1 L30.7 34.0 L32.0 30.5 L33.3 26.7 L34.6 23.0 L35.9 19.4 L37.2 16.3 L38.5 13.9 L39.8 12.5 L41.1 12.0 L42.4 12.6 L43.7 14.3 L45.0 16.8 L46.3 20.0 L47.6 23.6 L48.9 27.3 L50.2 31.0 L51.5 34.5 L52.8 37.6 L54.1 40.2 L55.4 42.3 L56.7 44.0 L58.0 45.2 L58 48 L6 48Z' fill='%23d6002b' fill-opacity='.18'/><path d='M6.0 47.0 L7.3 46.4 L8.6 45.5 L9.9 44.3 L11.2 42.7 L12.5 40.7 L13.8 38.3 L15.1 35.5 L16.4 32.5 L17.7 29.3 L19.0 26.3 L20.3 23.7 L21.6 21.6 L22.9 20.3 L24.2 20.0 L25.5 20.6 L26.8 22.2 L28.1 24.4 L29.4 27.2 L30.7 30.3 L32.0 33.4 L33.3 36.4 L34.6 39.1 L35.9 41.4 L37.2 43.3 L38.5 44.7 L39.8 45.8 L41.1 46.6 L42.4 47.1 L43.7 47.5 L45.0 47.7 L46.3 47.8 L47.6 47.9 L48.9 47.9 L50.2 48.0 L51.5 48.0 L52.8 48.0 L54.1 48.0 L55.4 48.0 L56.7 48.0 L58.0 48.0' fill='none' stroke='%231d6fa5' stroke-width='5' stroke-linejoin='round'/><path d='M6.0 48.0 L7.3 48.0 L8.6 48.0 L9.9 48.0 L11.2 48.0 L12.5 48.0 L13.8 47.9 L15.1 47.9 L16.4 47.8 L17.7 47.7 L19.0 47.5 L20.3 47.2 L21.6 46.7 L22.9 46.0 L24.2 45.1 L25.5 43.7 L26.8 42.0 L28.1 39.8 L29.4 37.1 L30.7 34.0 L32.0 30.5 L33.3 26.7 L34.6 23.0 L35.9 19.4 L37.2 16.3 L38.5 13.9 L39.8 12.5 L41.1 12.0 L42.4 12.6 L43.7 14.3 L45.0 16.8 L46.3 20.0 L47.6 23.6 L48.9 27.3 L50.2 31.0 L51.5 34.5 L52.8 37.6 L54.1 40.2 L55.4 42.3 L56.7 44.0 L58.0 45.2' fill='none' stroke='%23d6002b' stroke-width='5' stroke-linejoin='round'/><path d='M5 50.5H59' stroke='%231f1f1f' stroke-width='5' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root { --ink: #1f1f1f; --muted: #666; --hair: #d6d6d6; --red: #d6002b; --ok: #2f7a4a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  html { scroll-behavior: smooth; }
+  body {
+    color: var(--ink);
+    font-family: KaTeX_Main, "Latin Modern Roman", "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.45;
+  }
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  header .rule { width: 2.6em; height: 4px; background: var(--red); margin-bottom: 1.3em; }
+  header .course, header .sub { color: var(--muted); }
+  header h1 { font-size: 2.1em; line-height: 1.2; margin: 0.25em 0 0.3em; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 0.4em 2.2em; margin-top: 1.7em; }
+  nav.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hair); }
+  nav.toc a:hover { border-color: var(--ink); }
+  nav.toc .n { color: var(--muted); margin-right: 0.4em; }
+
+  section { border-top: 1px solid var(--hair); margin-top: 3.2em; padding-top: 1.8em; scroll-margin-top: 12px; }
+  .where { color: var(--muted); font-size: 0.8em; }
+  h2 { font-size: 1.4em; margin: 0.1em 0 0.4em; }
+  .lead { max-width: 50em; margin: 0 0 1.4em; }
+  .katex { font-size: 1.05em; }
+
+  /* Controls in one row; below them the main view and its companion, at the same height. */
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 30px; margin-bottom: 16px; }
+  .grp { display: flex; align-items: center; gap: 8px; }
+  .grp .lbl { color: var(--muted); margin-right: 4px; }
+  .read { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px 26px; }
+  .read .v { display: inline-block; min-width: 3.3em; }
+  .num { font-variant-numeric: tabular-nums; }
+  .views { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; }
+
+  button {
+    font: inherit; font-size: 0.9em; line-height: 1; height: 2.15em; padding: 0 0.95em;
+    color: var(--ink); background: #fff; border: 1px solid #a6a6a6; border-radius: 4px; cursor: pointer;
+  }
+  button:hover { border-color: var(--ink); }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  button.primary { background: var(--ink); border-color: var(--ink); color: #fff; min-width: 6.6em; }
+  button.primary:hover { background: #000; }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button:disabled:hover { border-color: #a6a6a6; }
+  button.primary:disabled:hover { background: var(--ink); border-color: var(--ink); }
+  .seg { display: inline-flex; }
+  .seg button { border-radius: 0; margin-left: -1px; }
+  .seg button:first-child { border-radius: 4px 0 0 4px; margin-left: 0; }
+  .seg button:last-child { border-radius: 0 4px 4px 0; }
+  .seg button:hover { position: relative; z-index: 1; }
+  .seg button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; position: relative; z-index: 2; }
+
+  input[type=range] { --p: 50%; -webkit-appearance: none; appearance: none; width: 150px; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: linear-gradient(to right, var(--ink) 0 var(--p), #cfcfcf var(--p) 100%); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; margin-top: -7px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--ink); }
+  input[type=range]::-moz-range-track { height: 3px; border-radius: 2px; background: #cfcfcf; }
+  input[type=range]::-moz-range-progress { height: 3px; border-radius: 2px; background: var(--ink); }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--ink); }
+  input[type=range]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  input[type=range]:disabled { opacity: 0.35; cursor: default; }
+
+  /* The step bar under the views: play, one step back or forward, and a slider with a tick for every step. */
+  .steps { display: flex; flex-wrap: wrap; align-items: center; gap: 26px 18px; margin: 14px 0 16px; }
+  .steps .btns { display: flex; gap: 6px; }
+  button.ic { width: 2.3em; padding: 0; display: inline-grid; place-items: center; }
+  button.ic.primary { min-width: 0; width: 2.9em; }
+  button.ic svg { width: 14px; height: 14px; }
+  .steps .track { position: relative; flex: 1 1 180px; min-width: 170px; height: 1.935em; display: flex; align-items: center; }
+  .steps .track input[type=range] { width: 100%; }
+  .steps .ticks { position: absolute; left: 8.5px; right: 8.5px; top: calc(50% + 11px); pointer-events: none; }
+  .tk { position: absolute; top: 0; width: 1px; height: 4px; margin-left: -0.5px; background: #c4c4c4; }
+  .tk.maj { height: 7px; background: #8c8c8c; }
+  .tl { position: absolute; top: 9px; transform: translateX(-50%); font-size: 0.7em; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .steps .pos { min-width: 9.2em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .mi { font-family: KaTeX_Math; font-style: italic; }
+
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: inherit; }
+  svg .mi { font-family: KaTeX_Math; font-style: italic; }
+  svg .kept { font-weight: bold; }
+  svg .pt { transform-box: fill-box; transform-origin: center; }
+  svg .fadein { animation: fade 0.4s ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Things to drag: the means in 2, θ and the data in 4. */
+  svg text.halo { stroke: #fff; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
+  svg .knob { cursor: grab; touch-action: none; }
+  svg .knob .disc { transition: stroke-width 0.12s; }
+  svg .knob:hover .disc { stroke-width: 4.5; }
+  svg .knob .dot { transition: r 0.12s; }
+  svg .knob:hover .dot { r: 10px; }
+  svg .knob.off { pointer-events: none; }
+  svg.dragging, svg.dragging * { cursor: grabbing !important; }
+  #f4 .knob, #f4 .hit { cursor: ew-resize; touch-action: none; }
+  #f4 .hit:hover + .ring, #f4 .ring.on { opacity: 1; }
+  #f4 .ring { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+  #g3 .run { cursor: pointer; outline: none; }
+  #g3 .run .hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
+  #g3 .run:hover .line, #g3 .run:focus-visible .line { stroke: #555; stroke-width: 2.6; }
+  #g3 .run:hover .end, #g3 .run:focus-visible .end { fill: #555; }
+
+  /* Check questions: every option has its own feedback, shown under it once picked. */
+  .check { margin-top: 2.2em; }
+  .check .label { color: var(--muted); font-size: 0.8em; }
+  .check .q { margin: 0.1em 0 0.7em; }
+  .opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8em; align-items: start; }
+  .opt {
+    display: grid; grid-template-columns: 1fr auto; column-gap: 0.7em; align-items: start;
+    width: 100%; height: auto; text-align: left; border: 1px solid var(--hair); border-radius: 4px;
+    padding: 0.6em 0.8em; line-height: 1.4; font-size: 0.95em;
+  }
+  .opt:hover { background: #fff; border-color: #999; }
+  .opt .mark {
+    width: 1.25em; height: 1.25em; border-radius: 50%; border: 1px solid var(--hair);
+    display: grid; place-items: center; font-size: 0.85em; line-height: 1; margin-top: 0.1em;
+  }
+  .opt .fb { grid-column: 1 / -1; display: none; margin-top: 0.5em; padding-top: 0.5em; border-top: 1px solid var(--hair); font-size: 0.93em; }
+  .opt.right, .opt.right:hover { border-color: var(--ok); box-shadow: inset 0 0 0 1px var(--ok); }
+  .opt.right .mark { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .opt.wrong, .opt.wrong:hover { border-color: #9a9a9a; }
+  .opt.wrong .mark { border-color: #9a9a9a; color: #777; }
+  .opt.right .fb, .opt.wrong .fb { display: block; }
+
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    main { padding: 28px 16px 64px; }
+    header h1 { font-size: 1.6em; }
+    nav.toc { flex-direction: column; gap: 0.3em; }
+    .toolbar { gap: 10px 18px; }
+    .read { margin-left: 0; width: 100%; }
+    .views { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    input[type=range] { width: 120px; }
+    .opts { grid-template-columns: minmax(0, 1fr); }
+  }
+  svg .pick { cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="rule"></div>
+  <div class="course">Machine Learning · Tutorial 10</div>
+  <h1>Clustering, $k$-Means and Mixtures of Gaussians</h1>
+  <div class="sub">Interactive lab</div>
+  <nav class="toc" aria-label="Experiments">
+    <a href="#e1"><span class="n">1</span>$k$-means step by step</a>
+    <a href="#e2"><span class="n">2</span>Several starts</a>
+    <a href="#e3"><span class="n">3</span>Sample, then hide the labels</a>
+    <a href="#e4"><span class="n">4</span>EM step by step</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="e1">
+  <div class="where">Problems 1 and 2</div>
+  <h2>1. $k$-means step by step</h2>
+  <p class="lead">Each iteration has two steps: every point joins its nearest centroid, then every centroid moves to the mean of its points.
+    Drag a centroid to choose where $k$-means starts, then step through with the bar below.</p>
+  <div class="toolbar">
+    <div class="grp"><span class="lbl">Data</span>
+      <div class="seg" id="datak1" role="group" aria-label="Data">
+        <button data-k="blobs" aria-pressed="true">Three clusters</button><button data-k="p1" aria-pressed="false">Problem 1</button>
+      </div></div>
+  </div>
+  <div class="views">
+    <svg id="fk1" viewBox="0 0 690 440" role="img" aria-label="The points, coloured by cluster, and the centroids"></svg>
+    <svg id="gk1" viewBox="0 0 460 440" role="img" aria-label="The distortion J after every step"></svg>
+  </div>
+  <div class="steps" id="sk1">
+    <div class="read"><span>$J$ = <span id="jk1" class="v num"></span></span></div>
+  </div>
+  <div class="check" id="qk1"></div>
+</section>
+
+<!-- 2 -->
+<section id="e2">
+  <div class="where">Problem 1(c)</div>
+  <h2>2. Several starts</h2>
+  <p class="lead">Five groups of points. Each start picks $k$ random data points as the centroids
+    and runs $k$-means until no point changes its cluster.</p>
+  <div class="toolbar">
+    <div class="grp"><button id="newk2" class="primary">New start</button><button id="tenk2">10 starts</button></div>
+    <div class="grp"><span class="lbl">Clusters $k$</span>
+      <div class="seg" id="kk2" role="group" aria-label="Number of clusters">
+        <button data-k="2" aria-pressed="false">2</button><button data-k="3" aria-pressed="false">3</button><button data-k="4" aria-pressed="false">4</button><button data-k="5" aria-pressed="true">5</button>
+      </div><button id="datak2">New data</button></div>
+    <div class="read"><span>this start: $J$ = <span id="jk2" class="v num"></span></span><span>smallest: <span id="bk2" class="num"></span></span></div>
+  </div>
+  <div class="views">
+    <svg id="fk2" viewBox="0 0 690 420" role="img" aria-label="One k-means run: the final clusters and the path of each centroid"></svg>
+    <svg id="gk2" viewBox="0 0 460 420" role="img" aria-label="The final J of every start"></svg>
+  </div>
+  <div class="check" id="qk2"></div>
+</section>
+
+<!-- 3 -->
+<section id="e3">
+  <div class="where">Problem 3</div>
+  <h2>3. Sample, then hide the labels</h2>
+  <p class="lead">Each draw picks a label $j$ with probability $\phi_j$, then a point $x \sim \mathcal N(\mu_j, \Sigma_j)$.
+    Draw some points, then switch to what each model observes.</p>
+  <div class="toolbar">
+    <div class="grp"><button id="draw1" class="primary">Draw one</button><button id="draw20">Draw 20</button><button id="clear1">Clear</button></div>
+    <div class="grp"><span class="lbl">$\phi_1$</span>
+      <input id="phi1" type="range" min="0.1" max="0.9" step="0.01" value="0.333" aria-label="phi 1">
+      <span id="phi1v" class="num">0.33</span></div>
+    <div class="grp"><span class="lbl">View</span>
+      <div class="seg" id="view1" role="group" aria-label="View">
+        <button data-v="model" aria-pressed="true">Model</button><button data-v="gda" aria-pressed="false">GDA</button><button data-v="mix" aria-pressed="false">Mixture</button>
+      </div></div>
+    <div class="read"><span>$n$ = <span id="n1" class="v num">0</span></span></div>
+  </div>
+  <div class="views">
+    <svg id="f1" viewBox="0 0 690 360" role="img" aria-label="Two Gaussians and the sampled points"></svg>
+    <svg id="g1" viewBox="0 0 460 360" role="img" aria-label="The mixing weights"></svg>
+  </div>
+  <div class="check" id="q1"></div>
+</section>
+
+<!-- 4 -->
+<section id="e4">
+  <div class="where">Problems 3 and 4</div>
+  <h2>4. EM step by step</h2>
+  <p class="lead">Two Gaussians, started from $\Sigma_j = I$ and $\phi_j = \tfrac12$.
+    Drag the means to choose where EM starts, then step through the E- and M-steps with the bar below.</p>
+  <div class="views">
+    <svg id="f2" viewBox="0 0 690 470" role="img" aria-label="Data, the two Gaussians and their means"></svg>
+    <svg id="g2" viewBox="0 0 460 470" role="img" aria-label="Log-likelihood after each iteration"></svg>
+  </div>
+  <div class="steps" id="s2">
+    <div class="read">
+      <span>$\ell$ = <span id="l2" class="v num"></span></span>
+      <span>$\phi$ = (<span id="ph2" class="num"></span>)</span>
+    </div>
+  </div>
+  <div class="check" id="q2"></div>
+</section>
+
+</main>
+
+<script>
+// ---------- Palette and labels (as in the Tutorial 10 presentation) ----------
+const BLUE = '#1d6fa5', RED = '#d6002b', OCHRE = '#c98a00', COLS = [BLUE, RED, OCHRE, '#2f7a4a', '#e377c2'];
+const INK = '#1f1f1f', MUTED = '#555555', HAIR = '#d6d6d6', AXIS = '#b3b3b3', GREY = '#8c8c8c', GRID = '#ececec';
+const $ = (s, el = document) => el.querySelector(s);
+const sum = a => a.reduce((s, v) => s + v, 0);
+const num = (x, d) => x.toFixed(d).replace('-', '−');
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// A point with responsibilities w: one sector per component, angle 2π·w_j (solid when one w_j is almost 1).
+function pieAt(cx, cy, r, w, ring = 1.5, solid = 0.97) {
+  const top = w.indexOf(Math.max(...w));
+  if (w[top] >= solid) return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${COLS[top]}" stroke="#fff" stroke-width="${ring}"/>`;
+  let s = '', a = -Math.PI / 2;
+  w.forEach((v, j) => {
+    if (v < 0.004) return;
+    const b = a + 2 * Math.PI * v, P = t => `${(cx + r * Math.cos(t)).toFixed(2)} ${(cy + r * Math.sin(t)).toFixed(2)}`;
+    s += `<path d="M${cx} ${cy}L${P(a)}A${r} ${r} 0 ${v > 0.5 ? 1 : 0} 1 ${P(b)}Z" fill="${COLS[j]}"/>`;
+    a = b;
+  });
+  return s + `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="${ring}"/>`;
+}
+
+// Small TeX-like labels in SVG: $…$ is math (letters in KaTeX's math italic), _x and ^{…} are sub- and superscripts.
+const LETTER = /[A-Za-zα-ωϕ]/;
+function tex(s, fs) {
+  let out = '', math = false, shift = 0, run = '', key = '';
+  const flush = () => {
+    if (!run) return;
+    const [it, size, target] = key.split('|'), dy = +(target - shift).toFixed(2);
+    shift = +target;
+    out += `<tspan${it === '1' ? ' class="mi"' : ''}${+size !== fs ? ` font-size="${size}"` : ''}${dy ? ` dy="${dy}"` : ''}>${run}</tspan>`;
+    run = '';
+  };
+  const put = (ch, it, size, target) => {
+    const k = `${it ? 1 : 0}|${size}|${target}`;
+    if (k !== key) { flush(); key = k; }
+    run += ch;
+  };
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '$') { math = !math; continue; }
+    if (math && (c === '_' || c === '^')) {
+      let g = s[++i];
+      if (g === '{') { const e = s.indexOf('}', i); g = s.slice(i + 1, e); i = e; }
+      for (const ch of g) put(ch, LETTER.test(ch), +(0.7 * fs).toFixed(1), +(c === '_' ? 0.22 * fs : -0.42 * fs).toFixed(1));
+    } else put(c, math && LETTER.test(c), fs, 0);
+  }
+  flush();
+  return out;
+}
+const label = (x, y, s, { fs = 24, fill = INK, anchor = 'start', cls = '' } = {}) =>
+  `<text${cls ? ` class="${cls}"` : ''} x="${x}" y="${y}" font-size="${fs}" fill="${fill}" text-anchor="${anchor}">${tex(s, fs)}</text>`;
+// The title row above every view: a title on the left, a short caption on the right.
+const heading = (w, title, cap = '', cls = '') => label(1, 26, title, { fs: 24, cls })
+  + (cap ? label(w - 1, 26, cap, { fs: 20, fill: MUTED, anchor: 'end' }) : '');
+
+// ---------- Geometry ----------
+function mapBox(box, x0, y0, w, h, pad) { // data box → the w×h area at (x0, y0), same scale on both axes
+  const s = Math.min((w - 2 * pad) / (box[1] - box[0]), (h - 2 * pad) / (box[3] - box[2]));
+  const cx = x0 + w / 2, cy = y0 + h / 2, mx = (box[0] + box[1]) / 2, my = (box[2] + box[3]) / 2;
+  return { X: x => cx + (x - mx) * s, Y: y => cy - (y - my) * s, IX: X => mx + (X - cx) / s, IY: Y => my - (Y - cy) / s, s };
+}
+const frameRect = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${HAIR}" stroke-width="1.5"/>`;
+const dotAt = (T, p, fill, r = 9) => `<circle cx="${T.X(p[0])}" cy="${T.Y(p[1])}" r="${r}" fill="${fill}" stroke="#fff" stroke-width="1.5"/>`;
+const crossAt = (T, m, c, r = 7, w = [4, 2.5]) => {
+  const x = T.X(m[0]), y = T.Y(m[1]), d = `M${x - r} ${y - r}L${x + r} ${y + r}M${x - r} ${y + r}L${x + r} ${y - r}`;
+  return `<path d="${d}" stroke="#fff" stroke-width="${w[0]}" stroke-linecap="round"/><path d="${d}" stroke="${c}" stroke-width="${w[1]}" stroke-linecap="round"/>`;
+};
+function ellipseAt(T, m, [a, b, c], k, attrs) { // contour k standard deviations from the mean
+  const t = Math.sqrt(((a - c) / 2) ** 2 + b * b), l1 = (a + c) / 2 + t, l2 = Math.max((a + c) / 2 - t, 1e-9);
+  const ang = 0.5 * Math.atan2(2 * b, a - c) * 180 / Math.PI, cx = T.X(m[0]), cy = T.Y(m[1]);
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${k * Math.sqrt(l1) * T.s}" ry="${k * Math.sqrt(l2) * T.s}" transform="rotate(${-ang} ${cx} ${cy})" ${attrs}/>`;
+}
+const gaussianAt = (T, m, S, col, dash = '') => { // the 1σ and 2σ contours of a Gaussian
+  const d = dash ? ` stroke-dasharray="${dash}"` : '';
+  return ellipseAt(T, m, S, 2, `fill="${col}" fill-opacity="0.05" stroke="${col}" stroke-opacity="0.6" stroke-width="1.8"${d}`)
+    + ellipseAt(T, m, S, 1, `fill="${col}" fill-opacity="0.09" stroke="${col}" stroke-width="2.4"${d}`);
+};
+// Round tick values for an axis from lo to hi, and the decimals they need.
+function ticks(lo, hi, n = 5) {
+  const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw));
+  const d = [1, 2, 5, 10].map(k => k * mag).reduce((p, q) => (Math.abs(Math.log(q / raw)) < Math.abs(Math.log(p / raw)) ? q : p)), out = [];
+  for (let v = Math.ceil(lo / d - 1e-9); v * d <= hi + 1e-9; v++) out.push(v * d);
+  return { out, dec: [0, 1, 2, 3].find(k => Math.abs(Math.round(d * 10 ** k) - d * 10 ** k) < 1e-6) ?? 3 };
+}
+
+// ---------- Gaussian mixtures in 2D ----------
+const wmean = (P, w) => [0, 1].map(d => sum(P.map((p, i) => w[i] * p[d])) / sum(w));
+const wcov = (P, w, m) => { // [a, b, c] = [[a, b], [b, c]]
+  const r = [0, 0, 0];
+  P.forEach((p, i) => { const dx = p[0] - m[0], dy = p[1] - m[1]; r[0] += w[i] * dx * dx; r[1] += w[i] * dx * dy; r[2] += w[i] * dy * dy; });
+  return r.map(v => v / sum(w));
+};
+const logN2 = (p, m, [a, b, c]) => {
+  const det = a * c - b * b, dx = p[0] - m[0], dy = p[1] - m[1];
+  return -(c * dx * dx - 2 * b * dx * dy + a * dy * dy) / (2 * det) - 0.5 * Math.log(det) - Math.log(2 * Math.PI);
+};
+function estep2(P, f) { // responsibilities W and log-likelihood ℓ
+  let ll = 0;
+  const W = P.map(p => {
+    const l = f.mus.map((m, j) => Math.log(f.phis[j]) + logN2(p, m, f.Ss[j])), mx = Math.max(...l);
+    const e = l.map(v => Math.exp(v - mx)), s = sum(e);
+    ll += mx + Math.log(s);
+    return e.map(v => v / s);
+  });
+  return { W, ll };
+}
+function mstep2(P, W, f, fixedCov) {
+  const k = f.mus.length, w = j => W.map(r => r[j]);
+  const mus = [...Array(k).keys()].map(j => (sum(w(j)) > 1e-9 ? wmean(P, w(j)) : f.mus[j]));
+  return { mus, phis: mus.map((_, j) => sum(w(j)) / P.length), Ss: fixedCov ? f.Ss : mus.map((m, j) => wcov(P, w(j), m)) };
+}
+function tween(dur, frame) { // eased animation; finishes even if the tab is hidden
+  return new Promise(res => {
+    const t0 = performance.now(); let done = false;
+    const end = () => { if (!done) { done = true; frame(1); res(); } };
+    const step = now => {
+      if (done) return;
+      const u = Math.min(1, (now - t0) / dur);
+      if (u >= 1) return end();
+      frame(u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    setTimeout(end, dur + 120);
+  });
+}
+const lerp = (a, b, u) => a + (b - a) * u;
+const lerpF = (f, g, u) => ({
+  mus: f.mus.map((m, j) => m.map((v, d) => lerp(v, g.mus[j][d], u))),
+  Ss: f.Ss.map((S, j) => S.map((v, d) => lerp(v, g.Ss[j][d], u))),
+  phis: f.phis.map((v, j) => lerp(v, g.phis[j], u)),
+});
+
+function typeset(el) {
+  if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '$', right: '$', display: false }], throwOnError: false });
+}
+function svgPoint(svg, e) {
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  return p.matrixTransform(svg.getScreenCTM().inverse());
+}
+const fillRange = el => el.style.setProperty('--p', `${(el.value - el.min) / (el.max - el.min) * 100}%`);
+
+// ---------- The step bar: play, one step back or forward, and a slider with a tick for every step ----------
+const ICON = {
+  play: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3.5 1.6v10.8L12.2 7z" fill="currentColor"/></svg>',
+  pause: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/></svg>',
+  prev: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2.5L4.5 7 9 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  next: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2.5L9.5 7 5 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+// go(s, anim) shows step s (it may return a promise while it animates); text(s) says where step s is;
+// kind(i): 2 for a labelled tick, 1 for a small one; tick(i): the label of tick i; wait(s): the pause after step s while playing.
+function stepper(el, { go, text, kind = () => 2, tick = i => i, wait = () => 300, name = 'Step' }) {
+  el.insertAdjacentHTML('afterbegin', '<div class="btns"><button class="ic primary"></button>'
+    + `<button class="ic" aria-label="One step back">${ICON.prev}</button><button class="ic" aria-label="One step forward">${ICON.next}</button></div>`
+    + `<div class="track"><input type="range" min="0" max="1" step="1" value="0" aria-label="${name}"><div class="ticks" aria-hidden="true"></div></div>`
+    + '<div class="pos" aria-live="polite"></div>');
+  const [play, prev, next] = el.querySelectorAll('.btns button'), range = $('input', el), tk = $('.ticks', el), pos = $('.pos', el);
+  const S = { n: 1, s: 0, playing: false, ep: 0 };
+  function sync() {
+    range.max = S.n; range.value = S.s; fillRange(range);
+    prev.disabled = S.s <= 0; next.disabled = S.s >= S.n;
+    play.innerHTML = S.playing ? ICON.pause : ICON.play;
+    play.setAttribute('aria-label', S.playing ? 'Pause' : 'Play');
+    pos.innerHTML = text(S.s);
+  }
+  function ticks() { // a tick for every step; labels thinned to round numbers that fit
+    const w = range.clientWidth - 17, n = S.n;
+    if (w <= 0) return;
+    let big = 0;
+    for (let i = 0; i <= n; i++) if (kind(i) === 2) big++;
+    const every = [1, 2, 5, 10, 20, 50, 100, 200].find(e => big / e <= w / 30) ?? 500;
+    const small = w / n >= 6, all = w / big >= 4;
+    let h = '';
+    for (let i = 0; i <= n; i++) {
+      const x = `left:${(i / n * 100).toFixed(3)}%`;
+      if (kind(i) === 2) {
+        const v = tick(i), lab = v % every === 0;
+        if (all || lab) h += `<i class="tk maj" style="${x}"></i>`;
+        if (lab) h += `<span class="tl" style="${x}">${v}</span>`;
+      } else if (small) h += `<i class="tk" style="${x}"></i>`;
+    }
+    tk.innerHTML = h;
+  }
+  const halt = () => { if (S.playing) { S.playing = false; S.ep++; } };
+  const to = (s, anim) => { halt(); S.s = clamp(s, 0, S.n); sync(); go(S.s, anim); };
+  async function run() {
+    const my = ++S.ep;
+    S.playing = true;
+    if (S.s >= S.n) { S.s = 0; sync(); go(0, false); await sleep(500); }
+    sync();
+    while (S.playing && my === S.ep && S.s < S.n) {
+      S.s++; sync();
+      await go(S.s, true);
+      if (my !== S.ep) return;
+      await sleep(wait(S.s));
+    }
+    if (my === S.ep) { S.playing = false; sync(); }
+  }
+  range.addEventListener('input', () => to(+range.value, false));
+  prev.addEventListener('click', () => to(S.s - 1, true));
+  next.addEventListener('click', () => to(S.s + 1, true));
+  play.addEventListener('click', () => { if (S.playing) { halt(); sync(); } else run(); });
+  new ResizeObserver(ticks).observe(range);
+  return {
+    reset(n, s = 0) { halt(); S.n = Math.max(1, n); S.s = clamp(s, 0, S.n); ticks(); sync(); },
+    play: run,
+    stop() { halt(); sync(); },
+    get s() { return S.s; },
+    get playing() { return S.playing; },
+  };
+}
+// Steps of EM on the bar: 2t is θ after t iterations, 2t + 1 the E-step there.
+const emText = s => (s === 0 ? 'start, <span class="mi">t</span> = 0'
+  : `${s % 2 ? 'E-step at' : 'M-step to'} <span class="mi">t</span> = ${s >> 1}`);
+const emBar = { text: emText, kind: i => (i % 2 ? 1 : 2), tick: i => i / 2, name: 'E- and M-steps' };
+const pace = s => (s <= 6 ? 1 : 0.45); // the first iterations slowly, the rest faster
+
+// A check question: one answer is right; every option has its own feedback.
+function check(id, q, opts) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="label">Check</div><p class="q">${q}</p><div class="opts">`
+    + opts.map((o, k) => `<button class="opt" data-k="${k}"><span class="t">${o.t}</span><span class="mark" aria-hidden="true"></span>`
+      + `<span class="fb" aria-live="polite"></span></button>`).join('') + '</div>';
+  el.addEventListener('click', e => {
+    const b = e.target.closest('.opt');
+    if (!b || b.classList.contains('right') || b.classList.contains('wrong')) return;
+    const o = opts[+b.dataset.k], fb = $('.fb', b);
+    b.classList.add(o.ok ? 'right' : 'wrong');
+    $('.mark', b).textContent = o.ok ? '✓' : '✕';
+    fb.innerHTML = `<b>${o.ok ? 'Yes.' : 'No.'}</b> ${o.fb}`;
+    typeset(fb);
+  });
+}
+
+// ==================== k-means (experiments 1 and 2) ====================
+function rng(seed) { // a small seeded random generator (mulberry32)
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const gauss = r => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+const fx = v => v.toFixed(1);
+const d2 = (p, m) => (p[0] - m[0]) ** 2 + (p[1] - m[1]) ** 2;
+const blobs = (seed, C, per, sd) => { const r = rng(seed); return C.flatMap(c => [...Array(per)].map(() => [c[0] + sd * gauss(r), c[1] + sd * gauss(r)])); };
+// k-means from the centroids M0 until an assignment step changes nothing.
+// Ms[t]: centroids after t centroid steps; Cs[t]: assignment of iteration t + 1; J: the distortion after every half step.
+function kmeans(P, M0, maxIt = 100) {
+  const Ms = [M0.map(m => [...m])], Cs = [], J = [];
+  let c = null;
+  for (let t = 0; t < maxIt; t++) {
+    const M = Ms[t];
+    const nc = P.map((p, i) => { // nearest centroid; on a tie a point keeps its cluster
+      let b = c ? c[i] : 0;
+      M.forEach((m, j) => { if (d2(p, m) < d2(p, M[b]) - 1e-12) b = j; });
+      return b;
+    });
+    Cs.push(nc); J.push(sum(P.map((p, i) => d2(p, M[nc[i]]))));
+    if (c && nc.every((v, i) => v === c[i])) break;
+    c = nc;
+    const NM = M.map((m, j) => {
+      const idx = P.map((_, i) => i).filter(i => c[i] === j);
+      return idx.length ? [0, 1].map(d => sum(idx.map(i => P[i][d])) / idx.length) : [...m]; // an empty cluster keeps its centroid
+    });
+    Ms.push(NM); J.push(sum(P.map((p, i) => d2(p, NM[c[i]]))));
+  }
+  return { Ms, Cs, J };
+}
+const centroidKnob = (T, m, j) => `<g class="knob" data-h="${j}" transform="translate(${fx(T.X(m[0]))} ${fx(T.Y(m[1]))})">`
+  + `<circle r="22" fill="transparent"/><circle class="disc" r="12" fill="#fff" stroke="${COLS[j]}" stroke-width="3"/>`
+  + `<path d="M-4.5 -4.5L4.5 4.5M-4.5 4.5L4.5 -4.5" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>`;
+
+// ==================== 1. k-means step by step ====================
+const K1 = (() => {
+  const main = $('#fk1'), side = $('#gk1'), W = 690, H = 440;
+  const DATA = {
+    blobs: { P: blobs(17, [[-1.9, 0.8], [1.9, 1.0], [0.1, -1.1]], 12, 0.42), M: [[-0.6, 1.7], [0.1, 1.7], [0.8, 1.7]], box: [-3.6, 3.6, -2.3, 2.3] },
+    p1: { P: [[0, 0], [0, 2], [4, 0], [4, 2]], M: [[0, 0], [4, 0]], box: [-1.2, 5.2, -0.8, 2.8] },
+  };
+  const st = { key: 'blobs', P: null, T: null, run: null, s: 0, drag: -1, ep: 0 };
+  let bar;
+  const last = () => st.run.J.length;
+  const cAt = s => (s ? st.run.Cs[(s - 1) >> 1] : null), mAt = s => st.run.Ms[s >> 1];
+  function title(s) {
+    if (!s) return ['Initial centroids', 'drag a centroid to move it'];
+    if (s % 2 === 0) return ['Centroid step', 'each centroid moves to the mean of its points'];
+    if (s === last() && s > 1) return ['Assignment step: no point changes', 'so $k$-means stops'];
+    return ['Assignment step', 'each point joins its nearest centroid'];
+  }
+  function draw(M, c, fade = false) {
+    const T = st.T, [t, cap] = title(st.s), big = st.key === 'p1';
+    let s = heading(W, t, cap) + `<defs><clipPath id="clipk1"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
+      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk1)">';
+    if (c) s += `<g${fade ? ' class="fadein"' : ''}>` + st.P.map((p, i) => `<line x1="${fx(T.X(p[0]))}" y1="${fx(T.Y(p[1]))}" x2="${fx(T.X(M[c[i]][0]))}" y2="${fx(T.Y(M[c[i]][1]))}" stroke="${COLS[c[i]]}" stroke-opacity="0.5" stroke-width="1.8"/>`).join('') + '</g>';
+    s += st.P.map((p, i) => dotAt(T, p, c ? COLS[c[i]] : GREY, big ? 11 : 8)).join('');
+    if (big) s += st.P.map((p, i) => label(T.X(p[0]) + 16, T.Y(p[1]) + (p[1] > 1 ? -12 : 26), `$x^{(${i + 1})}$`, { fs: 20, fill: MUTED })).join('');
+    s += '</g>' + M.map((m, j) => centroidKnob(T, m, j)).join('');
+    main.innerHTML = s;
+  }
+  function plot() { // J after every half step: the whole run in light grey, up to the current step in black
+    const L = 82, R = 436, TOP = 92, BOT = 358, J = st.run.J, s = st.s, xmax = Math.max(3, Math.ceil(J.length / 2));
+    const hi = Math.max(...J) * 1.08, px = k => L + (k + 1) / 2 / xmax * (R - L), py = v => BOT - v / hi * (BOT - TOP), { out, dec } = ticks(0, hi, 4);
+    const line = a => a.map((v, k) => `${fx(px(k))},${fx(py(v))}`).join(' ');
+    let g = heading(460, 'Distortion $J$', 'after every step') + frameRect(1, 38, 458, H - 39);
+    out.forEach(v => { g += `<line x1="${L}" x2="${R}" y1="${fx(py(v))}" y2="${fx(py(v))}" stroke="${v ? GRID : AXIS}" stroke-width="${v ? 1.2 : 1.5}"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
+    const dt = xmax <= 10 ? 1 : xmax <= 20 ? 2 : 5;
+    for (let t = 0; t <= xmax; t += dt) g += `<line x1="${fx(px(2 * t - 1))}" x2="${fx(px(2 * t - 1))}" y1="${BOT}" y2="${BOT + 5}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(2 * t - 1), BOT + 26, String(t), { fs: 18, fill: MUTED, anchor: 'middle' });
+    g += label((L + R) / 2, BOT + 56, 'iteration', { fs: 19, fill: MUTED, anchor: 'middle' });
+    g += `<polyline points="${line(J)}" fill="none" stroke="#d2d2d2" stroke-width="1.8" stroke-linejoin="round"/>`;
+    if (s) {
+      g += `<polyline points="${line(J.slice(0, s))}" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
+      g += J.slice(0, s).map((v, k) => `<circle cx="${fx(px(k))}" cy="${fx(py(v))}" r="${k === s - 1 ? 6.5 : 4}" fill="${k % 2 ? INK : '#fff'}" stroke="${INK}" stroke-width="${k % 2 ? 1.5 : 2}"/>`).join('');
+    }
+    g += `<circle cx="${R - 250}" cy="62" r="5" fill="#fff" stroke="${INK}" stroke-width="2"/>` + label(R - 238, 68, 'assignment', { fs: 17, fill: MUTED })
+      + `<circle cx="${R - 112}" cy="62" r="5" fill="${INK}"/>` + label(R - 100, 68, 'centroid step', { fs: 17, fill: MUTED });
+    side.innerHTML = g;
+    $('#jk1').textContent = s ? num(J[s - 1], 2) : '—';
+  }
+  function show(s, fade) { st.s = s; draw(mAt(s), cAt(s), fade); plot(); }
+  function go(s, anim) {
+    const from = st.s, my = ++st.ep, move = anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0;
+    if (!move) return show(s, anim && s === from + 1 && s % 2 === 1);
+    const M0 = mAt(from), M1 = mAt(s), c = cAt(Math.max(s, from));
+    st.s = s;
+    return tween(s <= 6 ? 500 : 300, u => { if (my === st.ep) draw(M0.map((m, j) => m.map((v, d) => lerp(v, M1[j][d], u))), c); })
+      .then(() => { if (my === st.ep) show(s); });
+  }
+  function reset(M) { st.ep++; st.run = kmeans(st.P, M); bar.reset(last()); show(0); }
+  function load(key) {
+    st.key = key; const D = DATA[key];
+    st.P = D.P; st.T = mapBox(D.box, 1, 38, W - 2, H - 39, 16);
+    reset(D.M);
+  }
+  bar = stepper($('#sk1'), {
+    go, kind: i => (i % 2 ? 1 : 2), tick: i => i / 2, name: 'k-means steps',
+    text: s => (s ? `iteration ${Math.ceil(s / 2)} · ${s % 2 ? 'assign' : 'move the centroids'}` : 'start'),
+    wait: s => (s <= 6 ? 750 : 380),
+  });
+  $('#datak1').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    $('#datak1').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    load(b.dataset.k);
+  });
+  main.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-h]');
+    if (!h) return;
+    bar.stop();
+    st.drag = +h.dataset.h; main.classList.add('dragging');
+    main.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  main.addEventListener('pointermove', e => {
+    if (st.drag < 0) return;
+    const p = svgPoint(main, e), B = DATA[st.key].box, M = mAt(st.s).map(q => [...q]);
+    M[st.drag] = [clamp(st.T.IX(p.x), B[0] + 0.1, B[1] - 0.1), clamp(st.T.IY(p.y), B[2] + 0.1, B[3] - 0.1)];
+    reset(M);
+  });
+  const drop = () => { st.drag = -1; main.classList.remove('dragging'); };
+  main.addEventListener('pointerup', drop);
+  main.addEventListener('pointercancel', drop);
+  load('blobs');
+
+  check('qk1', 'Can an assignment step increase $J$?', [
+    { t: 'Yes, when many points switch clusters at once.', ok: false,
+      fb: 'Each switching point moves to a nearer centroid, so each of their terms in $J$ shrinks. Watch the open dots on the right: they never rise.' },
+    { t: 'No: every point moves only to a centroid that is at least as near.', ok: true,
+      fb: 'And the centroid step cannot increase $J$ either (Problem 2(a)). So $J$ goes down step by step until nothing changes.' },
+    { t: 'Only in the first iteration.', ok: false,
+      fb: 'At step 1 there is no $J$ before it to compare with. From then on, neither step can increase $J$.' },
+  ]);
+  return st;
+})();
+
+// ==================== 2. Several starts ====================
+const K2 = (() => {
+  const main = $('#fk2'), side = $('#gk2'), W = 690, H = 420, SW = 460, BOX = [-3.8, 3.8, -2.6, 2.6], MAXR = 40;
+  const LAYOUT = [[-2.5, 1.15], [-2.3, -1.15], [0, 0.1], [2.4, 1.2], [2.3, -1.1]];
+  const T = mapBox(BOX, 1, 38, W - 2, H - 39, 16);
+  const st = { seed: 3, k: 5, P: [], runs: [], sel: -1 };
+  function data() {
+    const r = rng(1000 + st.seed), C = LAYOUT.map(c => [c[0] + 0.35 * gauss(r), c[1] + 0.25 * gauss(r)]);
+    st.P = blobs(st.seed, C, 12, 0.36).map(p => [clamp(p[0], BOX[0] + 0.15, BOX[1] - 0.15), clamp(p[1], BOX[2] + 0.15, BOX[3] - 0.15)]);
+    st.runs = []; st.sel = -1;
+  }
+  function start() {
+    const idx = [];
+    while (idx.length < st.k) { const i = Math.floor(Math.random() * st.P.length); if (!idx.includes(i)) idx.push(i); }
+    const run = kmeans(st.P, idx.map(i => st.P[i]));
+    st.runs.push({ Ms: run.Ms, c: run.Cs[run.Cs.length - 1], J: run.J[run.J.length - 1] });
+    if (st.runs.length > MAXR) st.runs.shift();
+    st.sel = st.runs.length - 1;
+  }
+  const best = () => Math.min(...st.runs.map(r => r.J));
+  function draw() {
+    const r = st.runs[st.sel], M = r.Ms[r.Ms.length - 1];
+    let s = heading(W, `Start ${st.sel + 1}: $J$ = ${num(r.J, 1)}`, 'circles: starting centroids')
+      + `<defs><clipPath id="clipk2"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
+      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk2)">';
+    s += st.P.map((p, i) => dotAt(T, p, COLS[r.c[i]], 7)).join('');
+    M.forEach((_, j) => {
+      const pts = r.Ms.map(m => `${fx(T.X(m[j][0]))},${fx(T.Y(m[j][1]))}`).join(' ');
+      s += `<polyline points="${pts}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" stroke-opacity="0.7"/>`
+        + `<circle cx="${fx(T.X(r.Ms[0][j][0]))}" cy="${fx(T.Y(r.Ms[0][j][1]))}" r="8" fill="#fff" stroke="${INK}" stroke-width="2"/>`;
+    });
+    s += M.map((m, j) => crossAt(T, m, INK, 8, [5, 3])).join('') + '</g>';
+    main.innerHTML = s;
+  }
+  function plot() { // the final J of every start; the smallest in blue
+    const L = 74, R = 436, TOP = 92, BOT = 350, n = st.runs.length, xmax = Math.max(10, n), b = best();
+    const hi = Math.max(...st.runs.map(r => r.J)) * 1.12, px = i => L + 12 + i / Math.max(1, xmax - 1) * (R - L - 24), py = v => BOT - v / hi * (BOT - TOP), { out, dec } = ticks(0, hi, 4);
+    let g = heading(SW, 'Final $J$ of every start', 'click a dot') + frameRect(1, 38, SW - 2, H - 39);
+    out.forEach(v => { g += `<line x1="${L}" x2="${R}" y1="${fx(py(v))}" y2="${fx(py(v))}" stroke="${v ? GRID : AXIS}" stroke-width="${v ? 1.2 : 1.5}"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
+    g += `<line x1="${L}" x2="${R}" y1="${fx(py(b))}" y2="${fx(py(b))}" stroke="${BLUE}" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+    const dt = xmax <= 10 ? 1 : xmax <= 20 ? 5 : 10;
+    for (let i = 1; i <= xmax; i += i === 1 && dt > 1 ? dt - 1 : dt) g += label(px(i - 1), BOT + 26, String(i), { fs: 17, fill: MUTED, anchor: 'middle' });
+    g += label((L + R) / 2, BOT + 54, 'start', { fs: 19, fill: MUTED, anchor: 'middle' });
+    st.runs.forEach((r, i) => {
+      const x = fx(px(i)), y = fx(py(r.J)), top = r.J <= b + 1e-6;
+      if (i === st.sel) g += `<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${INK}" stroke-width="2"/>`;
+      g += `<circle cx="${x}" cy="${y}" r="6.5" fill="${top ? BLUE : RED}" stroke="#fff" stroke-width="1.5"/>`
+        + `<circle class="pick" data-r="${i}" cx="${x}" cy="${y}" r="13" fill="transparent"><title>start ${i + 1}: J = ${num(r.J, 1)}</title></circle>`;
+    });
+    g += `<circle cx="${R - 250}" cy="62" r="6" fill="${BLUE}"/>` + label(R - 238, 68, 'smallest $J$ so far', { fs: 17, fill: MUTED })
+      + `<circle cx="${R - 70}" cy="62" r="6" fill="${RED}"/>` + label(R - 58, 68, 'larger', { fs: 17, fill: MUTED });
+    side.innerHTML = g;
+    $('#jk2').textContent = num(st.runs[st.sel].J, 1);
+    $('#bk2').textContent = `${num(b, 1)} (${st.runs.filter(r => r.J <= b + 1e-6).length} of ${n} starts)`;
+  }
+  const render = () => { draw(); plot(); };
+  $('#newk2').addEventListener('click', () => { start(); render(); });
+  $('#tenk2').addEventListener('click', () => { for (let i = 0; i < 10; i++) start(); render(); });
+  $('#datak2').addEventListener('click', () => { st.seed = 1 + Math.floor(Math.random() * 1e6); data(); start(); render(); });
+  $('#kk2').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    $('#kk2').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    st.k = +b.dataset.k; st.runs = []; start(); render();
+  });
+  side.addEventListener('click', e => { const p = e.target.closest('.pick'); if (p) { st.sel = +p.dataset.r; render(); } });
+  data(); start(); render();
+
+  check('qk2', 'Some starts end with a larger $J$ than others. Why?', [
+    { t: '$J$ went up during those runs.', ok: false,
+      fb: '$J$ never goes up (Experiment 1). These runs went down too, just into a worse place.' },
+    { t: '$k$-means stopped at a local minimum: no point wants to switch, yet the clusters are poor.', ok: true,
+      fb: 'Typically two centroids share one cluster while one centroid covers two. Keep the start with the smallest $J$ (Problem 1(c)).' },
+    { t: 'Those runs stopped too early; more iterations would fix them.', ok: false,
+      fb: 'Once no point changes its cluster, further iterations change nothing. Only a new start can help.' },
+  ]);
+  return st;
+})();
+
+// ==================== 3. Sample, then hide the labels ====================
+const TRUE2 = [{ m: [-1.4, 0.3], S: [0.6, 0.38, 0.35] }, { m: [1.4, -0.2], S: [0.3, -0.22, 0.45] }];
+const E1 = (() => {
+  const main = $('#f1'), side = $('#g1'), W = 690, H = 360, BOX = [-4.05, 3.55, -1.75, 1.55], MAX = 300;
+  const T = mapBox(BOX, 1, 38, W - 2, H - 39, 16);
+  const B = { L: 78, R: 436, TOP: 92, BOT: 298, w: 72, cx: [198, 328] }, by = v => B.BOT - v * (B.BOT - B.TOP);
+  const st = { phi: 1 / 3, view: 'model', pts: [], busy: false, timers: [], barH: [1 / 3, 2 / 3], bt: 0 };
+  const later = (ms, f) => st.timers.push(setTimeout(f, ms));
+  const set = (el, props, trans) => { el.style.transition = trans; Object.assign(el.style, props); };
+  const PT = 'fill .35s, opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1)';
+
+  main.innerHTML = '<g class="head"></g>'
+    + `<defs><clipPath id="clip1"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>` + frameRect(1, 38, W - 2, H - 39)
+    + `<g clip-path="url(#clip1)"><g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${gaussianAt(T, g.m, g.S, COLS[j])}</g>`).join('')}</g>`
+    + '<g class="lines"></g><g class="pts"></g></g>'
+    + `<g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${crossAt(T, g.m, INK)}</g>`).join('')}</g>`;
+  side.innerHTML = '<g class="head"></g>' + frameRect(1, 38, 458, H - 39)
+    + [0.5, 1].map(v => `<line x1="${B.L}" x2="${B.R}" y1="${by(v)}" y2="${by(v)}" stroke="${GRID}" stroke-width="1.2"/>`).join('')
+    + [0, 0.5, 1].map(v => label(B.L - 12, by(v) + 6, String(v), { fs: 18, fill: MUTED, anchor: 'end' })).join('')
+    + [0, 1].map(j => `<rect class="bar" data-j="${j}" x="${B.cx[j] - B.w / 2}" width="${B.w}" fill="${COLS[j]}"/>`
+        + `<line class="ghost" data-j="${j}" x1="${B.cx[j] - B.w / 2 - 9}" x2="${B.cx[j] + B.w / 2 + 9}" stroke="${INK}" stroke-width="2.5" stroke-dasharray="6 4" opacity="0"/>`
+        + `<text class="qm" data-j="${j}" x="${B.cx[j]}" y="${by(0) - 22}" text-anchor="middle" font-size="44" fill="${GREY}" opacity="0">?</text>`
+        + `<text class="phv" data-j="${j}" x="${B.cx[j]}" text-anchor="middle" font-size="19" fill="${INK}"></text>`
+        + label(B.cx[j], B.BOT + 36, `$ϕ_${j + 1}$`, { fs: 26, anchor: 'middle' })).join('')
+    + `<line x1="${B.L}" x2="${B.R}" y1="${B.BOT}" y2="${B.BOT}" stroke="${AXIS}" stroke-width="1.5"/>`
+    + `<g class="key" opacity="0"><line x1="${B.R - 122}" x2="${B.R - 92}" y1="63" y2="63" stroke="${INK}" stroke-width="2.5" stroke-dasharray="6 4"/>`
+    + label(B.R - 82, 69, 'true $ϕ_j$', { fs: 19, fill: MUTED }) + '</g>';
+  const ptsG = $('.pts', main), linesG = $('.lines', main);
+
+  function heads() {
+    const n = st.pts.length;
+    const [t, c] = { model: ['Both models', 'the generative model'], gda: ['GDA', 'observed: $x^{(i)}$ and $y^{(i)}$'], mix: ['Mixture of Gaussians', 'observed: $x^{(i)}$ only'] }[st.view];
+    $('.head', main).innerHTML = heading(W, t, c);
+    const sc = { model: 'the model', gda: n ? 'counted from the labels' : 'draw some points', mix: 'labels hidden' }[st.view];
+    $('.head', side).innerHTML = heading(460, 'Mixing weights $ϕ_j$', sc);
+    $('#n1').textContent = n;
+  }
+  // The bars: the model's ϕ; in GDA the fractions counted from the labels (dashed: the true ϕ); in the mixture nothing to count.
+  function setBars(h) {
+    st.barH = h;
+    const n = st.pts.length, c1 = st.pts.filter(p => p.j === 0).length, gda = st.view === 'gda', truth = [st.phi, 1 - st.phi];
+    h.forEach((v, j) => {
+      const b = $(`.bar[data-j="${j}"]`, side), t = $(`.phv[data-j="${j}"]`, side), g = $(`.ghost[data-j="${j}"]`, side), c = j ? n - c1 : c1;
+      b.setAttribute('y', by(v)); b.setAttribute('height', by(0) - by(v));
+      g.setAttribute('y1', by(truth[j])); g.setAttribute('y2', by(truth[j]));
+      t.setAttribute('y', by(gda ? Math.max(v, truth[j]) : v) - 12);
+      t.textContent = st.view === 'mix' || (gda && !n) ? '' : gda ? `${c}/${n} = ${(c / n).toFixed(2)}` : v.toFixed(2);
+    });
+  }
+  function bars(anim) {
+    const n = st.pts.length, c1 = st.pts.filter(p => p.j === 0).length;
+    const to = st.view === 'mix' ? [0, 0] : st.view === 'gda' ? (n ? [c1 / n, 1 - c1 / n] : [0, 0]) : [st.phi, 1 - st.phi];
+    side.querySelectorAll('.ghost').forEach(g => set(g, { opacity: st.view === 'gda' && n ? 1 : 0 }, 'opacity .3s'));
+    set($('.key', side), { opacity: st.view === 'gda' && n ? 1 : 0 }, 'opacity .3s');
+    side.querySelectorAll('.qm').forEach(q => set(q, { opacity: st.view === 'mix' ? 1 : 0 }, 'opacity .3s'));
+    $('#phi1v').textContent = st.phi.toFixed(2);
+    const from = st.barH, my = ++st.bt;
+    if (!anim) return setBars(to);
+    tween(400, u => { if (my === st.bt) setBars(from.map((v, j) => lerp(v, to[j], u))); });
+  }
+  // Highlight component j (its bar, its Gaussian, or both); j < 0 restores the neutral model.
+  function pick(j, what = 'both', ms = 200) {
+    if (what !== 'gauss') side.querySelectorAll('.bar, .phv').forEach(b => set(b, { opacity: j < 0 || +b.dataset.j === j ? 1 : 0.2 }, `opacity ${ms}ms`));
+    if (what !== 'bars') main.querySelectorAll('.model .c').forEach(c => set(c, { opacity: j < 0 || +c.dataset.j === j ? 1 : 0.25 }, `opacity ${ms}ms`));
+  }
+  function view(v) {
+    st.view = v;
+    document.querySelectorAll('#view1 button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+    main.querySelectorAll('.model').forEach(g => set(g, { opacity: v === 'model' ? 1 : 0 }, 'opacity .4s'));
+    ptsG.querySelectorAll('.pt').forEach(c => set(c, { fill: v === 'mix' ? GREY : COLS[+c.dataset.j] }, PT));
+    bars(true); heads();
+  }
+  function sample() { // a draw from the mixture; the rare point that would land outside the frame is drawn again
+    const j = Math.random() < st.phi ? 0 : 1, { m, S: [a, b, c] } = TRUE2[j];
+    const l11 = Math.sqrt(a), l21 = b / l11, l22 = Math.sqrt(c - l21 * l21);
+    for (let k = 0; ; k++) {
+      const r1 = Math.sqrt(-2 * Math.log(1 - Math.random())), t = 2 * Math.PI * Math.random();
+      const z1 = r1 * Math.cos(t), z2 = r1 * Math.sin(t), p = [m[0] + l11 * z1, m[1] + l21 * z1 + l22 * z2];
+      if (k > 50 || (T.X(p[0]) > 14 && T.X(p[0]) < W - 14 && T.Y(p[1]) > 51 && T.Y(p[1]) < H - 14)) return { j, p };
+    }
+  }
+  // One draw on screen: a line grows from the mean to the new point over g ms, starting at time t; then the point lands.
+  function land(s, t, g) {
+    const m = TRUE2[s.j].m, x1 = T.X(m[0]), y1 = T.Y(m[1]), x2 = T.X(s.p[0]), y2 = T.Y(s.p[1]);
+    const L = Math.hypot(x2 - x1, y2 - y1).toFixed(1);
+    later(t, () => {
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      Object.entries({ x1, y1, x2, y2, stroke: INK, 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-dasharray': L, 'stroke-dashoffset': L, opacity: 0.9 })
+        .forEach(([k, v]) => ln.setAttribute(k, v));
+      linesG.appendChild(ln);
+      ln.getBoundingClientRect();
+      set(ln, { strokeDashoffset: '0px' }, `stroke-dashoffset ${g}ms ease-out`);
+      later(g + 80, () => { set(ln, { opacity: 0 }, 'opacity .3s'); later(320, () => ln.remove()); });
+    });
+    later(t + g, () => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      Object.entries({ class: 'pt', 'data-j': s.j, cx: x2, cy: y2, r: 7.5, stroke: '#fff', 'stroke-width': 1.5 }).forEach(([k, v]) => c.setAttribute(k, v));
+      Object.assign(c.style, { fill: COLS[s.j], opacity: 0, transform: 'scale(0.2)' });
+      ptsG.appendChild(c);
+      c.getBoundingClientRect();
+      set(c, { opacity: 1, transform: 'scale(1)' }, PT);
+      st.pts.push(s);
+      heads();
+    });
+  }
+  function ui() { $('#draw1').disabled = $('#draw20').disabled = st.busy || st.pts.length >= MAX; }
+  function draw(n) {
+    if (st.busy) return;
+    n = Math.min(n, MAX - st.pts.length);
+    if (n <= 0) return;
+    st.busy = true; ui();
+    const wait = st.view === 'model' ? 0 : 450;
+    if (wait) view('model');
+    let end;
+    if (n === 1) { // the label (bar), then its Gaussian, then the line and the point
+      const s = sample();
+      later(wait, () => pick(s.j, 'bars', 250));
+      later(wait + 350, () => pick(s.j, 'gauss', 250));
+      land(s, wait + 700, 350);
+      end = wait + 1500;
+    } else { // the same draw, repeated faster and faster
+      let t = wait + 150;
+      for (let k = 0; k < n; k++) {
+        const s = sample(), d = Math.max(110, 380 * 0.84 ** k), g = Math.max(60, Math.min(200, 0.55 * d));
+        later(t, () => pick(s.j, 'both', 100));
+        land(s, t, g);
+        end = t + g + 300; t += d;
+      }
+    }
+    later(end, () => pick(-1, 'both', 350));
+    later(end + 300, () => { st.busy = false; ui(); });
+  }
+  function clear() {
+    st.timers.forEach(clearTimeout); st.timers = [];
+    ptsG.innerHTML = ''; linesG.innerHTML = '';
+    st.pts = []; st.busy = false;
+    pick(-1, 'both', 200); bars(true); heads(); ui();
+  }
+
+  $('#draw1').addEventListener('click', () => draw(1));
+  $('#draw20').addEventListener('click', () => draw(20));
+  $('#clear1').addEventListener('click', clear);
+  $('#view1').addEventListener('click', e => { const b = e.target.closest('button'); if (b) view(b.dataset.v); });
+  $('#phi1').addEventListener('input', e => {
+    st.phi = +e.target.value; fillRange(e.target);
+    if (st.view !== 'model') view('model'); else bars(false);
+  });
+  fillRange($('#phi1'));
+  view('model'); ui();
+
+  check('q1', 'The labels are hidden. How can we estimate <span style="white-space:nowrap">$\\phi_1$?</span>', [
+    { t: 'Count the points with $x_1 < 0$.', ok: false,
+      fb: 'That uses a boundary we chose, not the model. Points in between can come from either component.' },
+    { t: 'Average the responsibilities: $\\phi_1 = \\frac1n\\sum_i w_1^{(i)}$.', ok: true,
+      fb: 'A soft count: each point adds its probability of coming from component 1. This is the M-step for $\\phi_1$.' },
+    { t: 'It cannot be estimated without the labels.', ok: false,
+      fb: 'EM estimates it, with the responsibilities $w_j^{(i)}$ in place of the labels.' },
+  ]);
+  return st;
+})();
+
+// ==================== 4. EM step by step ====================
+const X2 = [[-2.44,-0.9],[-0.97,0.83],[-0.34,0.78],[-2.34,-0.23],[-1.04,-0.01],[0.25,1.15],[-0.7,0.43],[-1.92,0.25],
+            [1.7,-0.33],[2.34,-1.29],[0.61,-0.32],[1.05,-0.5],[0.83,0.69],[1.5,0.29],[1.02,0.34],[1.5,-1.14],[1.68,-0.6],[1.49,-0.29],[1.07,0.13],[2.02,-1.53],[1.85,-0.76],[1.93,-1.09],[0.12,0.65],[0.7,0.02]];
+const E2 = (() => {
+  const main = $('#f2'), side = $('#g2'), W = 690, H = 470, BOX = [-3.6, 3.6, -2.2, 2.2];
+  const T = mapBox(BOX, 1, 38, W - 2, H - 39, 16), I2 = [1, 0, 1], START = [[-1, -1], [1, 1]], TOL = 1e-4;
+  // F[t]: ϕ, μ, Σ after t iterations; Ws[t]: the responsibilities of the E-step at F[t]; L[t]: ℓ at F[t].
+  // Step s of the bar: 2t is F[t], 2t + 1 the E-step at F[t].
+  const st = { F: [], Ws: [], L: [], s: 0, f: null, W: null, busy: false, drag: -1, ep: 0 };
+  let bar;
+  const last = () => 2 * (st.L.length - 1);
+  function run(mus) { // EM from these means until ℓ stops increasing; keeps every step
+    let f = { mus: mus.map(m => [...m]), Ss: [I2, I2], phis: [0.5, 0.5] };
+    st.F = [f]; st.Ws = []; st.L = [];
+    for (let t = 0; ; t++) {
+      const { W, ll } = estep2(X2, f);
+      st.Ws.push(W); st.L.push(ll);
+      if ((t && ll - st.L[t - 1] < TOL) || t >= 300) break;
+      f = mstep2(X2, W, f, false); st.F.push(f);
+    }
+  }
+  function title() {
+    const s = st.s;
+    if (st.busy || (s && s % 2 === 0 && s < last())) return ['M-step: new $ϕ_j$, $μ_j$, $Σ_j$', 'weighted by $w_j^{(i)}$'];
+    if (s % 2) return ['E-step: responsibilities $w_j^{(i)}$', 'pie slices: $w_1^{(i)}$ and $w_2^{(i)}$'];
+    if (s) return [`Converged after ${s / 2} iterations`, '$ℓ$ stopped increasing'];
+    return ['Initial means', 'drag a mean to move it'];
+  }
+  const knob = (m, j) => `<g class="knob" data-h="${j}" transform="translate(${T.X(m[0]).toFixed(1)} ${T.Y(m[1]).toFixed(1)})">`
+    + `<circle r="22" fill="transparent"/><circle class="disc" r="12" fill="#fff" stroke="${COLS[j]}" stroke-width="3"/>`
+    + `<path d="M-4.5 -4.5L4.5 4.5M-4.5 4.5L4.5 -4.5" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>`;
+
+  function draw(f, fade = false) {
+    const [t, c] = title();
+    let s = heading(W, t, c) + `<defs><clipPath id="clip2"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>` + frameRect(1, 38, W - 2, H - 39);
+    s += '<g clip-path="url(#clip2)">' + f.mus.map((m, j) => gaussianAt(T, m, f.Ss[j], COLS[j])).join('');
+    s += `<g${fade ? ' class="fadein"' : ''}>` + X2.map((p, i) => st.W
+      ? `<g>${pieAt(T.X(p[0]), T.Y(p[1]), 10, st.W[i])}<title>w₁ = ${st.W[i][0].toFixed(2)}, w₂ = ${st.W[i][1].toFixed(2)}</title></g>`
+      : dotAt(T, p, GREY, 10)).join('') + '</g></g>';
+    s += f.mus.map(knob).join('');
+    main.innerHTML = s;
+  }
+  function plot() { // ℓ after each iteration: the whole run in light grey, up to the current t in black
+    const L = 82, R = 436, TOP = 70, BOT = 392, h = st.L, t = st.s >> 1;
+    const tmax = Math.max(10, h.length - 1);
+    let lo = Math.min(...h), hi = Math.max(...h);
+    const pad = 0.08 * (hi - lo || 1); lo -= pad; hi += pad;
+    const px = t => L + t / tmax * (R - L), py = v => BOT - (v - lo) / (hi - lo) * (BOT - TOP), { out, dec } = ticks(lo, hi);
+    const line = a => a.map((v, t) => `${px(t).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    let s = heading(460, 'Log-likelihood $ℓ$', 'after each iteration') + frameRect(1, 38, 458, H - 39);
+    out.forEach(v => { s += `<line x1="${L}" x2="${R}" y1="${py(v)}" y2="${py(v)}" stroke="${GRID}" stroke-width="1.2"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
+    s += `<line x1="${L}" y1="${BOT}" x2="${R}" y2="${BOT}" stroke="${AXIS}" stroke-width="1.5"/>`;
+    const dt = tmax <= 10 ? 1 : tmax <= 20 ? 2 : tmax <= 50 ? 5 : 10;
+    for (let t = 0; t <= tmax; t += dt) s += `<line x1="${px(t)}" x2="${px(t)}" y1="${BOT}" y2="${BOT + 5}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(t), BOT + 26, String(t), { fs: 18, fill: MUTED, anchor: 'middle' });
+    s += label((L + R) / 2, BOT + 56, 'iteration $t$', { fs: 19, fill: MUTED, anchor: 'middle' });
+    s += `<polyline points="${line(h)}" fill="none" stroke="#d2d2d2" stroke-width="1.8" stroke-linejoin="round"/>`;
+    s += `<polyline points="${line(h.slice(0, t + 1))}" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    s += h.slice(0, t + 1).map((v, k) => `<circle cx="${px(k)}" cy="${py(v)}" r="${k === t ? 6.5 : 4}" fill="${INK}" stroke="#fff" stroke-width="1.5"/>`).join('');
+    side.innerHTML = s;
+  }
+  function ui() {
+    const t = st.s >> 1;
+    $('#l2').textContent = num(st.L[t], 2);
+    $('#ph2').textContent = st.F[t].phis.map(v => v.toFixed(2)).join(', ');
+    plot();
+  }
+  function apply(s) {
+    st.s = s; st.f = st.F[s >> 1]; st.W = s ? st.Ws[(s - 1) >> 1] : null; st.busy = false;
+  }
+  function reset(mus) {
+    st.ep++; run(mus); bar.reset(last()); apply(0); draw(st.f); ui();
+  }
+  // Show step s. Across an M-step the Gaussians move from the old ϕ, μ, Σ to the new ones (forward or back).
+  function go(s, anim) {
+    const from = st.s, my = ++st.ep, M = anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0;
+    const fade = anim && s === from + 1 && s % 2 === 1;
+    apply(s);
+    if (!M) { draw(st.f, fade); ui(); return; }
+    const f0 = st.F[from >> 1], f1 = st.f;
+    st.busy = s > from;
+    return tween(450 * pace(s), u => { if (my === st.ep) draw(lerpF(f0, f1, u)); })
+      .then(() => { if (my === st.ep) { st.busy = false; draw(st.f); ui(); } });
+  }
+  bar = stepper($('#s2'), { ...emBar, go, wait: s => (s % 2 ? 650 : 450) * pace(s) });
+
+  main.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-h]');
+    if (!h) return;
+    bar.stop();
+    st.drag = +h.dataset.h; main.classList.add('dragging');
+    main.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  main.addEventListener('pointermove', e => {
+    if (st.drag < 0) return;
+    const p = svgPoint(main, e), m = st.f.mus.map(q => [...q]);
+    m[st.drag] = [clamp(T.IX(p.x), BOX[0] + 0.15, BOX[1] - 0.15), clamp(T.IY(p.y), BOX[2] + 0.15, BOX[3] - 0.15)];
+    reset(m);
+  });
+  const drop = () => { st.drag = -1; main.classList.remove('dragging'); };
+  main.addEventListener('pointerup', drop);
+  main.addEventListener('pointercancel', drop);
+  reset(START);
+
+  check('q2', 'A point has $w_1^{(i)} = 0.5$. How does it enter the M-step update of $\\Sigma_1$?', [
+    { t: 'Not at all: it belongs to neither component.', ok: false,
+      fb: 'Every point enters the update of every component, weighted by its responsibility.' },
+    { t: 'With weight $0.5$, and with weight $0.5$ in $\\Sigma_2$.', ok: true,
+      fb: '$\\Sigma_1 = \\sum_i w_1^{(i)} (x^{(i)} - \\mu_1)(x^{(i)} - \\mu_1)^\\top / \\sum_i w_1^{(i)}$: GDA with soft labels.' },
+    { t: 'With weight $1$ in the component whose mean is closer.', ok: false,
+      fb: 'That would be a hard assignment, as in k-means. EM keeps the soft weights $w_j^{(i)}$.' },
+  ]);
+  return st;
+})();
+
+document.addEventListener('DOMContentLoaded', () => typeset(document.body));
+</script>
+</body>
+</html>
