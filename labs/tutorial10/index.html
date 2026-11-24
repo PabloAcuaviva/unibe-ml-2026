@@ -106,10 +106,10 @@
   #f4 .knob, #f4 .hit { cursor: ew-resize; touch-action: none; }
   #f4 .hit:hover + .ring, #f4 .ring.on { opacity: 1; }
   #f4 .ring { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
-  #g3 .run { cursor: pointer; outline: none; }
-  #g3 .run .hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
-  #g3 .run:hover .line, #g3 .run:focus-visible .line { stroke: #555; stroke-width: 2.6; }
-  #g3 .run:hover .end, #g3 .run:focus-visible .end { fill: #555; }
+  #gk2 .run { cursor: pointer; outline: none; }
+  #gk2 .run .hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
+  #gk2 .run:hover .line, #gk2 .run:focus-visible .line { stroke: #555; stroke-width: 2.6; }
+  #gk2 .run:hover .end, #gk2 .run:focus-visible .end { fill: #555; }
 
   /* Check questions: every option has its own feedback, shown under it once picked. */
   .check { margin-top: 2.2em; }
@@ -189,19 +189,22 @@
 <section id="e2">
   <div class="where">Problem 1(c)</div>
   <h2>2. Several starts</h2>
-  <p class="lead">Five groups of points. Each start picks $k$ random data points as the centroids
-    and runs $k$-means until no point changes its cluster.</p>
+  <p class="lead">Five groups of points. Each start picks $k$ random data points as the first centroids
+    and runs $k$-means until no point changes its cluster. Click a curve on the right to replay that start.</p>
   <div class="toolbar">
-    <div class="grp"><button id="newk2" class="primary">New start</button><button id="tenk2">10 starts</button></div>
+    <div class="grp"><button id="newk2" class="primary">New start</button></div>
     <div class="grp"><span class="lbl">Clusters $k$</span>
       <div class="seg" id="kk2" role="group" aria-label="Number of clusters">
         <button data-k="2" aria-pressed="false">2</button><button data-k="3" aria-pressed="false">3</button><button data-k="4" aria-pressed="false">4</button><button data-k="5" aria-pressed="true">5</button>
       </div><button id="datak2">New data</button></div>
-    <div class="read"><span>this start: $J$ = <span id="jk2" class="v num"></span></span><span>smallest: <span id="bk2" class="num"></span></span></div>
+    <div class="read"><span id="rk2"></span></div>
   </div>
   <div class="views">
-    <svg id="fk2" viewBox="0 0 690 420" role="img" aria-label="One k-means run: the final clusters and the path of each centroid"></svg>
-    <svg id="gk2" viewBox="0 0 460 420" role="img" aria-label="The final J of every start"></svg>
+    <svg id="fk2" viewBox="0 0 690 420" role="img" aria-label="One k-means start: the clusters and the path of each centroid"></svg>
+    <svg id="gk2" viewBox="0 0 460 420" role="img" aria-label="J after every step of every start"></svg>
+  </div>
+  <div class="steps" id="sk2">
+    <div class="read"><span>$J$ = <span id="jk2" class="v num"></span></span></div>
   </div>
   <div class="check" id="qk2"></div>
 </section>
@@ -211,7 +214,8 @@
   <div class="where">Problem 3</div>
   <h2>3. Sample, then hide the labels</h2>
   <p class="lead">Each draw picks a label $j$ with probability $\phi_j$, then a point $x \sim \mathcal N(\mu_j, \Sigma_j)$.
-    Draw some points, then switch to what each model observes.</p>
+    Draw some points, then switch the view. GDA observes the labels and fits one Gaussian to each colour.
+    The mixture observes only the points; EM fits it with the step bar below.</p>
   <div class="toolbar">
     <div class="grp"><button id="draw1" class="primary">Draw one</button><button id="draw20">Draw 20</button><button id="clear1">Clear</button></div>
     <div class="grp"><span class="lbl">$\phi_1$</span>
@@ -226,6 +230,9 @@
   <div class="views">
     <svg id="f1" viewBox="0 0 690 360" role="img" aria-label="Two Gaussians and the sampled points"></svg>
     <svg id="g1" viewBox="0 0 460 360" role="img" aria-label="The mixing weights"></svg>
+  </div>
+  <div class="steps" id="s1" style="display: none">
+    <div class="read"><span>$\ell$ = <span id="l1" class="v num"></span></span></div>
   </div>
   <div class="check" id="q1"></div>
 </section>
@@ -502,7 +509,8 @@ const fx = v => v.toFixed(1);
 const d2 = (p, m) => (p[0] - m[0]) ** 2 + (p[1] - m[1]) ** 2;
 const blobs = (seed, C, per, sd) => { const r = rng(seed); return C.flatMap(c => [...Array(per)].map(() => [c[0] + sd * gauss(r), c[1] + sd * gauss(r)])); };
 // k-means from the centroids M0 until an assignment step changes nothing.
-// Ms[t]: centroids after t centroid steps; Cs[t]: assignment of iteration t + 1; J: the distortion after every half step.
+// Ms[t]: centroids after t centroid steps; Cs[t]: assignment of iteration t + 1; J: the distortion after every step.
+// Step s of the bar: 2t − 1 is the assignment of iteration t, 2t its centroid step; J[s − 1] is J after step s.
 function kmeans(P, M0, maxIt = 100) {
   const Ms = [M0.map(m => [...m])], Cs = [], J = [];
   let c = null;
@@ -524,9 +532,40 @@ function kmeans(P, M0, maxIt = 100) {
   }
   return { Ms, Cs, J };
 }
-const centroidKnob = (T, m, j) => `<g class="knob" data-h="${j}" transform="translate(${fx(T.X(m[0]))} ${fx(T.Y(m[1]))})">`
+const kmAt = (run, s) => ({ M: run.Ms[s >> 1], c: s ? run.Cs[(s - 1) >> 1] : null });
+// The bar of a k-means run: a numbered tick at every assignment step, a small one at every centroid step.
+const kmBar = {
+  kind: i => (i % 2 ? 2 : 1), tick: i => (i + 1) >> 1, name: 'k-means steps',
+  text: s => (s ? `iteration ${(s + 1) >> 1} · ${s % 2 ? 'assign' : 'move the centroids'}` : 'start'),
+};
+function kmTitle(s, last) {
+  if (!s) return ['Initial centroids', ''];
+  if (s % 2 === 0) return ['Centroid step', 'each centroid moves to the mean of its points'];
+  if (s === last && s > 1) return ['Assignment step: no point changes', 'so $k$-means stops'];
+  return ['Assignment step', 'each point joins its nearest centroid'];
+}
+// The points (grey until assigned, then a line to their centroid) and the centroids, white discs with a ×.
+function kmPoints(T, P, M, c, r, fade) {
+  let s = '';
+  if (c) s += `<g${fade ? ' class="fadein"' : ''}>` + P.map((p, i) => `<line x1="${fx(T.X(p[0]))}" y1="${fx(T.Y(p[1]))}" x2="${fx(T.X(M[c[i]][0]))}" y2="${fx(T.Y(M[c[i]][1]))}" stroke="${COLS[c[i]]}" stroke-opacity="0.5" stroke-width="1.8"/>`).join('') + '</g>';
+  return s + P.map((p, i) => dotAt(T, p, c ? COLS[c[i]] : GREY, r)).join('');
+}
+const centroidKnob = (T, m, j, fixed = false) => `<g class="knob${fixed ? ' off' : ''}" data-h="${j}" transform="translate(${fx(T.X(m[0]))} ${fx(T.Y(m[1]))})">`
   + `<circle r="22" fill="transparent"/><circle class="disc" r="12" fill="#fff" stroke="${COLS[j]}" stroke-width="3"/>`
   + `<path d="M-4.5 -4.5L4.5 4.5M-4.5 4.5L4.5 -4.5" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>`;
+// The axes of a J plot: J from lo to hi (from 0, or on a log scale), iterations 1 to n; J after step s sits at iteration (s + 1)/2.
+function jAxes(P, lo, hi, n, log = false) {
+  const px = x => P.L + 14 + (x - 1) / (n - 1) * (P.R - P.L - 28);
+  const py = log ? v => P.BOT - Math.log(v / lo) / Math.log(hi / lo) * (P.BOT - P.TOP) : v => P.BOT - v / hi * (P.BOT - P.TOP);
+  const { out, dec } = log ? { out: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(v => v >= lo && v <= hi), dec: 0 } : ticks(0, hi, 4);
+  let g = log ? `<line x1="${P.L}" x2="${P.R}" y1="${P.BOT}" y2="${P.BOT}" stroke="${AXIS}" stroke-width="1.5"/>` : '';
+  out.forEach(v => { g += `<line x1="${P.L}" x2="${P.R}" y1="${fx(py(v))}" y2="${fx(py(v))}" stroke="${v ? GRID : AXIS}" stroke-width="${v ? 1.2 : 1.5}"/>` + label(P.L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
+  const dt = n <= 10 ? 1 : n <= 20 ? 2 : 5;
+  for (let t = 1; t <= n; t += t === 1 && dt > 1 ? dt - 1 : dt) g += `<line x1="${fx(px(t))}" x2="${fx(px(t))}" y1="${P.BOT}" y2="${P.BOT + 5}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(t), P.BOT + 26, String(t), { fs: 18, fill: MUTED, anchor: 'middle' });
+  g += label((P.L + P.R) / 2, P.BOT + 56, 'iteration', { fs: 19, fill: MUTED, anchor: 'middle' });
+  return { g, px, py, at: (J, upto) => J.slice(0, upto).map((v, k) => [px(1 + k / 2), py(v)]) };
+}
+const poly = p => p.map(q => `${fx(q[0])},${fx(q[1])}`).join(' ');
 
 // ==================== 1. k-means step by step ====================
 const K1 = (() => {
@@ -538,48 +577,34 @@ const K1 = (() => {
   const st = { key: 'blobs', P: null, T: null, run: null, s: 0, drag: -1, ep: 0 };
   let bar;
   const last = () => st.run.J.length;
-  const cAt = s => (s ? st.run.Cs[(s - 1) >> 1] : null), mAt = s => st.run.Ms[s >> 1];
-  function title(s) {
-    if (!s) return ['Initial centroids', 'drag a centroid to move it'];
-    if (s % 2 === 0) return ['Centroid step', 'each centroid moves to the mean of its points'];
-    if (s === last() && s > 1) return ['Assignment step: no point changes', 'so $k$-means stops'];
-    return ['Assignment step', 'each point joins its nearest centroid'];
-  }
   function draw(M, c, fade = false) {
-    const T = st.T, [t, cap] = title(st.s), big = st.key === 'p1';
-    let s = heading(W, t, cap) + `<defs><clipPath id="clipk1"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
-      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk1)">';
-    if (c) s += `<g${fade ? ' class="fadein"' : ''}>` + st.P.map((p, i) => `<line x1="${fx(T.X(p[0]))}" y1="${fx(T.Y(p[1]))}" x2="${fx(T.X(M[c[i]][0]))}" y2="${fx(T.Y(M[c[i]][1]))}" stroke="${COLS[c[i]]}" stroke-opacity="0.5" stroke-width="1.8"/>`).join('') + '</g>';
-    s += st.P.map((p, i) => dotAt(T, p, c ? COLS[c[i]] : GREY, big ? 11 : 8)).join('');
+    const T = st.T, [t, cap] = kmTitle(st.s, last()), big = st.key === 'p1';
+    let s = heading(W, t, st.s ? cap : 'drag a centroid to move it') + `<defs><clipPath id="clipk1"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
+      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk1)">' + kmPoints(T, st.P, M, c, big ? 11 : 8, fade);
     if (big) s += st.P.map((p, i) => label(T.X(p[0]) + 16, T.Y(p[1]) + (p[1] > 1 ? -12 : 26), `$x^{(${i + 1})}$`, { fs: 20, fill: MUTED })).join('');
     s += '</g>' + M.map((m, j) => centroidKnob(T, m, j)).join('');
     main.innerHTML = s;
   }
-  function plot() { // J after every half step: the whole run in light grey, up to the current step in black
-    const L = 82, R = 436, TOP = 92, BOT = 358, J = st.run.J, s = st.s, xmax = Math.max(3, Math.ceil(J.length / 2));
-    const hi = Math.max(...J) * 1.08, px = k => L + (k + 1) / 2 / xmax * (R - L), py = v => BOT - v / hi * (BOT - TOP), { out, dec } = ticks(0, hi, 4);
-    const line = a => a.map((v, k) => `${fx(px(k))},${fx(py(v))}`).join(' ');
-    let g = heading(460, 'Distortion $J$', 'after every step') + frameRect(1, 38, 458, H - 39);
-    out.forEach(v => { g += `<line x1="${L}" x2="${R}" y1="${fx(py(v))}" y2="${fx(py(v))}" stroke="${v ? GRID : AXIS}" stroke-width="${v ? 1.2 : 1.5}"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
-    const dt = xmax <= 10 ? 1 : xmax <= 20 ? 2 : 5;
-    for (let t = 0; t <= xmax; t += dt) g += `<line x1="${fx(px(2 * t - 1))}" x2="${fx(px(2 * t - 1))}" y1="${BOT}" y2="${BOT + 5}" stroke="${AXIS}" stroke-width="1.5"/>` + label(px(2 * t - 1), BOT + 26, String(t), { fs: 18, fill: MUTED, anchor: 'middle' });
-    g += label((L + R) / 2, BOT + 56, 'iteration', { fs: 19, fill: MUTED, anchor: 'middle' });
-    g += `<polyline points="${line(J)}" fill="none" stroke="#d2d2d2" stroke-width="1.8" stroke-linejoin="round"/>`;
+  function plot() { // J after every step: the whole run in light grey, up to the current step in black
+    const J = st.run.J, s = st.s, A = jAxes({ L: 82, R: 436, TOP: 92, BOT: 358 }, 0, Math.max(...J) * 1.08, Math.max(3, st.run.Cs.length));
+    let g = heading(460, 'Distortion $J$', 'after every step') + frameRect(1, 38, 458, H - 39) + A.g;
+    g += `<polyline points="${poly(A.at(J, J.length))}" fill="none" stroke="#d2d2d2" stroke-width="1.8" stroke-linejoin="round"/>`;
     if (s) {
-      g += `<polyline points="${line(J.slice(0, s))}" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
-      g += J.slice(0, s).map((v, k) => `<circle cx="${fx(px(k))}" cy="${fx(py(v))}" r="${k === s - 1 ? 6.5 : 4}" fill="${k % 2 ? INK : '#fff'}" stroke="${INK}" stroke-width="${k % 2 ? 1.5 : 2}"/>`).join('');
+      const p = A.at(J, s);
+      g += `<polyline points="${poly(p)}" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
+      g += p.map((q, k) => `<circle cx="${fx(q[0])}" cy="${fx(q[1])}" r="${k === s - 1 ? 6.5 : 4}" fill="${k % 2 ? INK : '#fff'}" stroke="${INK}" stroke-width="${k % 2 ? 1.5 : 2}"/>`).join('');
     }
-    g += `<circle cx="${R - 250}" cy="62" r="5" fill="#fff" stroke="${INK}" stroke-width="2"/>` + label(R - 238, 68, 'assignment', { fs: 17, fill: MUTED })
-      + `<circle cx="${R - 112}" cy="62" r="5" fill="${INK}"/>` + label(R - 100, 68, 'centroid step', { fs: 17, fill: MUTED });
+    g += `<circle cx="186" cy="62" r="5" fill="#fff" stroke="${INK}" stroke-width="2"/>` + label(198, 68, 'assignment', { fs: 17, fill: MUTED })
+      + `<circle cx="324" cy="62" r="5" fill="${INK}"/>` + label(336, 68, 'centroid step', { fs: 17, fill: MUTED });
     side.innerHTML = g;
     $('#jk1').textContent = s ? num(J[s - 1], 2) : '—';
   }
-  function show(s, fade) { st.s = s; draw(mAt(s), cAt(s), fade); plot(); }
-  function go(s, anim) {
+  function show(s, fade) { st.s = s; const { M, c } = kmAt(st.run, s); draw(M, c, fade); plot(); }
+  function go(s, anim) { // across a centroid step the centroids slide to their new place
     const from = st.s, my = ++st.ep, move = anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0;
     if (!move) return show(s, anim && s === from + 1 && s % 2 === 1);
-    const M0 = mAt(from), M1 = mAt(s), c = cAt(Math.max(s, from));
-    st.s = s;
+    const M0 = kmAt(st.run, from).M, M1 = kmAt(st.run, s).M, { c } = kmAt(st.run, Math.max(s, from));
+    st.s = s; plot();
     return tween(s <= 6 ? 500 : 300, u => { if (my === st.ep) draw(M0.map((m, j) => m.map((v, d) => lerp(v, M1[j][d], u))), c); })
       .then(() => { if (my === st.ep) show(s); });
   }
@@ -589,11 +614,7 @@ const K1 = (() => {
     st.P = D.P; st.T = mapBox(D.box, 1, 38, W - 2, H - 39, 16);
     reset(D.M);
   }
-  bar = stepper($('#sk1'), {
-    go, kind: i => (i % 2 ? 1 : 2), tick: i => i / 2, name: 'k-means steps',
-    text: s => (s ? `iteration ${Math.ceil(s / 2)} · ${s % 2 ? 'assign' : 'move the centroids'}` : 'start'),
-    wait: s => (s <= 6 ? 750 : 380),
-  });
+  bar = stepper($('#sk1'), { ...kmBar, go, wait: s => (s <= 6 ? 750 : 380) });
   $('#datak1').addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
@@ -610,7 +631,7 @@ const K1 = (() => {
   });
   main.addEventListener('pointermove', e => {
     if (st.drag < 0) return;
-    const p = svgPoint(main, e), B = DATA[st.key].box, M = mAt(st.s).map(q => [...q]);
+    const p = svgPoint(main, e), B = DATA[st.key].box, M = kmAt(st.run, st.s).M.map(q => [...q]);
     M[st.drag] = [clamp(st.T.IX(p.x), B[0] + 0.1, B[1] - 0.1), clamp(st.T.IY(p.y), B[2] + 0.1, B[3] - 0.1)];
     reset(M);
   });
@@ -632,77 +653,126 @@ const K1 = (() => {
 
 // ==================== 2. Several starts ====================
 const K2 = (() => {
-  const main = $('#fk2'), side = $('#gk2'), W = 690, H = 420, SW = 460, BOX = [-3.8, 3.8, -2.6, 2.6], MAXR = 40;
+  const main = $('#fk2'), side = $('#gk2'), W = 690, H = 420, BOX = [-3.8, 3.8, -2.6, 2.6], MAXR = 60;
   const LAYOUT = [[-2.5, 1.15], [-2.3, -1.15], [0, 0.1], [2.4, 1.2], [2.3, -1.1]];
   const T = mapBox(BOX, 1, 38, W - 2, H - 39, 16);
-  const st = { seed: 3, k: 5, P: [], runs: [], sel: -1 };
-  function data() {
-    const r = rng(1000 + st.seed), C = LAYOUT.map(c => [c[0] + 0.35 * gauss(r), c[1] + 0.25 * gauss(r)]);
-    st.P = blobs(st.seed, C, 12, 0.36).map(p => [clamp(p[0], BOX[0] + 0.15, BOX[1] - 0.15), clamp(p[1], BOX[2] + 0.15, BOX[3] - 0.15)]);
-    st.runs = []; st.sel = -1;
-  }
-  function start() {
+  // runs: every start so far; sel: the one shown, at step s; live: a new start that has not reached its end yet
+  const st = { k: 5, seed: 3, P: [], runs: [], sel: 0, live: -1, s: 0, ep: 0 };
+  let bar, rnd = Math.random;
+  const last = r => r.J.length, fin = r => r.J[r.J.length - 1];
+  const done = () => { const d = st.runs.filter((_, i) => i !== st.live); return d.length ? d : st.runs; };
+  const best = () => Math.min(...done().map(fin)); // the smallest J of the finished starts
+  const top = r => fin(r) <= best() + 1e-6;
+  function start() { // k different data points as the first centroids
     const idx = [];
-    while (idx.length < st.k) { const i = Math.floor(Math.random() * st.P.length); if (!idx.includes(i)) idx.push(i); }
-    const run = kmeans(st.P, idx.map(i => st.P[i]));
-    st.runs.push({ Ms: run.Ms, c: run.Cs[run.Cs.length - 1], J: run.J[run.J.length - 1] });
-    if (st.runs.length > MAXR) st.runs.shift();
-    st.sel = st.runs.length - 1;
+    while (idx.length < st.k) { const i = Math.floor(rnd() * st.P.length); if (!idx.includes(i)) idx.push(i); }
+    return kmeans(st.P, idx.map(i => st.P[i]));
   }
-  const best = () => Math.min(...st.runs.map(r => r.J));
-  function draw() {
-    const r = st.runs[st.sel], M = r.Ms[r.Ms.length - 1];
-    let s = heading(W, `Start ${st.sel + 1}: $J$ = ${num(r.J, 1)}`, 'circles: starting centroids')
-      + `<defs><clipPath id="clipk2"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
-      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk2)">';
-    s += st.P.map((p, i) => dotAt(T, p, COLS[r.c[i]], 7)).join('');
-    M.forEach((_, j) => {
-      const pts = r.Ms.map(m => `${fx(T.X(m[j][0]))},${fx(T.Y(m[j][1]))}`).join(' ');
-      s += `<polyline points="${pts}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" stroke-opacity="0.7"/>`
-        + `<circle cx="${fx(T.X(r.Ms[0][j][0]))}" cy="${fx(T.Y(r.Ms[0][j][1]))}" r="8" fill="#fff" stroke="${INK}" stroke-width="2"/>`;
+
+  const legend = `<circle cx="${W - 70}" cy="19" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>` + label(W - 57, 26, 'start', { fs: 20, fill: MUTED });
+  function draw(M, c, fade, upto) { // upto: the centroid steps already behind; their path is drawn
+    const r = st.runs[st.sel], s = st.s, i = st.sel + 1;
+    const title = s < last(r) ? `Start ${i}` : `Start ${i}: $J$ = ${num(fin(r), 1)}`
+      + (top(r) ? ', the smallest' : `, larger than start ${st.runs.findIndex((q, k) => k !== st.live && top(q)) + 1}`);
+    let g = heading(W, title) + legend + `<defs><clipPath id="clipk2"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>`
+      + frameRect(1, 38, W - 2, H - 39) + '<g clip-path="url(#clipk2)">' + kmPoints(T, st.P, M, c, 7, fade);
+    M.forEach((m, j) => {
+      const pts = poly(r.Ms.slice(0, upto + 1).map(q => q[j]).concat([m]).map(q => [T.X(q[0]), T.Y(q[1])]));
+      g += `<polyline points="${pts}" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`
+        + `<polyline points="${pts}" fill="none" stroke="${COLS[j]}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
     });
-    s += M.map((m, j) => crossAt(T, m, INK, 8, [5, 3])).join('') + '</g>';
-    main.innerHTML = s;
+    g += r.Ms[0].map((m, j) => `<circle cx="${fx(T.X(m[0]))}" cy="${fx(T.Y(m[1]))}" r="6.5" fill="#fff" stroke="${COLS[j]}" stroke-width="2.5"/>`).join('');
+    g += '</g>' + M.map((m, j) => centroidKnob(T, m, j, true)).join('');
+    main.innerHTML = g;
   }
-  function plot() { // the final J of every start; the smallest in blue
-    const L = 74, R = 436, TOP = 92, BOT = 350, n = st.runs.length, xmax = Math.max(10, n), b = best();
-    const hi = Math.max(...st.runs.map(r => r.J)) * 1.12, px = i => L + 12 + i / Math.max(1, xmax - 1) * (R - L - 24), py = v => BOT - v / hi * (BOT - TOP), { out, dec } = ticks(0, hi, 4);
-    let g = heading(SW, 'Final $J$ of every start', 'click a dot') + frameRect(1, 38, SW - 2, H - 39);
-    out.forEach(v => { g += `<line x1="${L}" x2="${R}" y1="${fx(py(v))}" y2="${fx(py(v))}" stroke="${v ? GRID : AXIS}" stroke-width="${v ? 1.2 : 1.5}"/>` + label(L - 10, py(v) + 6, num(v, dec), { fs: 18, fill: MUTED, anchor: 'end' }); });
-    g += `<line x1="${L}" x2="${R}" y1="${fx(py(b))}" y2="${fx(py(b))}" stroke="${BLUE}" stroke-width="1.5" stroke-dasharray="6 5"/>`;
-    const dt = xmax <= 10 ? 1 : xmax <= 20 ? 5 : 10;
-    for (let i = 1; i <= xmax; i += i === 1 && dt > 1 ? dt - 1 : dt) g += label(px(i - 1), BOT + 26, String(i), { fs: 17, fill: MUTED, anchor: 'middle' });
-    g += label((L + R) / 2, BOT + 54, 'start', { fs: 19, fill: MUTED, anchor: 'middle' });
+  function plot() { // J after every step, one curve per start (log scale); the selected start in black, up to step s
+    const lo = 0.6 * Math.min(...st.runs.map(fin)), hi = 1.15 * Math.max(...st.runs.map(r => r.J[0]));
+    const A = jAxes({ L: 74, R: 436, TOP: 62, BOT: 336 }, lo, hi, Math.max(4, ...st.runs.map(r => r.Cs.length)), true);
+    let g = heading(460, '$J$ of every start', 'click a curve to replay it') + frameRect(1, 38, 458, H - 39) + A.g;
+    const run = (i, inner) => `<g class="run" data-k="${i}" tabindex="0" role="button" aria-label="Replay start ${i + 1}">${inner}</g>`;
     st.runs.forEach((r, i) => {
-      const x = fx(px(i)), y = fx(py(r.J)), top = r.J <= b + 1e-6;
-      if (i === st.sel) g += `<circle cx="${x}" cy="${y}" r="12" fill="none" stroke="${INK}" stroke-width="2"/>`;
-      g += `<circle cx="${x}" cy="${y}" r="6.5" fill="${top ? BLUE : RED}" stroke="#fff" stroke-width="1.5"/>`
-        + `<circle class="pick" data-r="${i}" cx="${x}" cy="${y}" r="13" fill="transparent"><title>start ${i + 1}: J = ${num(r.J, 1)}</title></circle>`;
+      if (i === st.sel) return;
+      const p = A.at(r.J, last(r)), e = p[p.length - 1];
+      g += run(i, `<polyline class="line" points="${poly(p)}" fill="none" stroke="#b5b5b5" stroke-width="1.6" stroke-linejoin="round"/>`
+        + `<circle class="end" cx="${fx(e[0])}" cy="${fx(e[1])}" r="4" fill="#b5b5b5"/><polyline class="hit" points="${poly(p)}"/>`);
     });
-    g += `<circle cx="${R - 250}" cy="62" r="6" fill="${BLUE}"/>` + label(R - 238, 68, 'smallest $J$ so far', { fs: 17, fill: MUTED })
-      + `<circle cx="${R - 70}" cy="62" r="6" fill="${RED}"/>` + label(R - 58, 68, 'larger', { fs: 17, fill: MUTED });
+    const b = A.py(best());
+    g += `<line x1="74" x2="436" y1="${fx(b)}" y2="${fx(b)}" stroke="${INK}" stroke-width="1.3" stroke-dasharray="6 5"/>`;
+    const r = st.runs[st.sel];
+    if (st.s) {
+      const p = A.at(r.J, st.s), e = p[p.length - 1];
+      if (st.s >= last(r)) g += `<line x1="${fx(e[0])}" x2="436" y1="${fx(e[1])}" y2="${fx(e[1])}" stroke="${INK}" stroke-width="2.2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
+      g += run(st.sel, `<polyline points="${poly(p)}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`
+        + `<circle cx="${fx(e[0])}" cy="${fx(e[1])}" r="6" fill="${INK}" stroke="#fff" stroke-width="2"/>`);
+    }
+    g += label(436, b + 22, 'smallest $J$', { fs: 17, fill: MUTED, anchor: 'end', cls: 'halo' }); // below the line: no curve goes there
     side.innerHTML = g;
-    $('#jk2').textContent = num(st.runs[st.sel].J, 1);
-    $('#bk2').textContent = `${num(b, 1)} (${st.runs.filter(r => r.J <= b + 1e-6).length} of ${n} starts)`;
   }
-  const render = () => { draw(); plot(); };
-  $('#newk2').addEventListener('click', () => { start(); render(); });
-  $('#tenk2').addEventListener('click', () => { for (let i = 0; i < 10; i++) start(); render(); });
-  $('#datak2').addEventListener('click', () => { st.seed = 1 + Math.floor(Math.random() * 1e6); data(); start(); render(); });
-  $('#kk2').addEventListener('click', e => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    $('#kk2').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
-    st.k = +b.dataset.k; st.runs = []; start(); render();
+  function readout() {
+    const d = done();
+    $('#rk2').innerHTML = `${d.filter(top).length} of ${d.length} starts reach the smallest $J = ${num(best(), 1)}$`;
+    typeset($('#rk2'));
+    $('#newk2').disabled = st.runs.length >= MAXR;
+  }
+  function render(fade = false) { // a new start counts once it has reached its end
+    const live = st.live, r = st.runs[st.sel], { M, c } = kmAt(r, st.s);
+    if (st.live === st.sel && st.s >= last(r)) st.live = -1;
+    draw(M, c, fade, st.s >> 1); plot();
+    $('#jk2').textContent = st.s ? num(r.J[st.s - 1], 1) : '—';
+    if (live !== st.live) readout();
+  }
+  function go(s, anim) { // as in Experiment 1; the path of each centroid grows behind it
+    const r = st.runs[st.sel], from = st.s, my = ++st.ep, move = anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0;
+    st.s = s;
+    if (!move) return render(anim && s === from + 1 && s % 2 === 1);
+    const M0 = kmAt(r, from).M, M1 = kmAt(r, s).M, { c } = kmAt(r, Math.max(s, from)), upto = Math.min(s, from) >> 1;
+    plot(); $('#jk2').textContent = num(r.J[s - 1], 1);
+    return tween(340, u => { if (my === st.ep) draw(M0.map((m, j) => m.map((v, d) => lerp(v, M1[j][d], u))), c, false, upto); })
+      .then(() => { if (my === st.ep) render(); });
+  }
+  function select(i, replay) { // start i, from its beginning (and play it) or at its end
+    if (i !== st.live) st.live = -1;
+    st.sel = i; st.ep++;
+    st.s = replay ? 0 : last(st.runs[i]);
+    bar.reset(last(st.runs[i]), st.s); render(); readout();
+    if (replay) bar.play();
+  }
+  function load(k, seed) { // new data and five starts: at least one reaches the smallest J and at least one does not, when we can find such
+    st.k = k; st.seed = seed;
+    const r = rng(1000 + seed), C = LAYOUT.map(c => [c[0] + 0.35 * gauss(r), c[1] + 0.25 * gauss(r)]);
+    st.P = blobs(seed, C, 12, 0.36).map(p => [clamp(p[0], BOX[0] + 0.15, BOX[1] - 0.15), clamp(p[1], BOX[2] + 0.15, BOX[3] - 0.15)]);
+    rnd = rng(7 * seed + k);
+    const ref = Math.min(...Array.from({ length: 40 }, () => fin(start())));
+    for (let n = 0; n < 40; n++) {
+      st.runs = Array.from({ length: 5 }, start);
+      const good = st.runs.filter(q => fin(q) <= ref + 1e-6).length;
+      if (good > 0 && good < 5) break;
+    }
+    document.querySelectorAll('#kk2 button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
+    st.live = -1;
+    select(Math.max(0, st.runs.findIndex(q => fin(q) > ref + 1e-6)), false);
+  }
+
+  bar = stepper($('#sk2'), { ...kmBar, go, wait: () => 320 });
+  side.addEventListener('click', e => { const g = e.target.closest('.run'); if (g) select(+g.dataset.k, true); });
+  side.addEventListener('keydown', e => {
+    const g = e.target.closest('.run');
+    if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(+g.dataset.k, true); }
   });
-  side.addEventListener('click', e => { const p = e.target.closest('.pick'); if (p) { st.sel = +p.dataset.r; render(); } });
-  data(); start(); render();
+  $('#newk2').addEventListener('click', () => {
+    if (st.runs.length >= MAXR) return;
+    st.runs.push(start()); st.live = st.runs.length - 1;
+    select(st.live, true);
+  });
+  $('#kk2').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(+b.dataset.k, st.seed); });
+  $('#datak2').addEventListener('click', () => load(st.k, 1 + Math.floor(Math.random() * 1e6)));
+  load(5, 3);
 
   check('qk2', 'Some starts end with a larger $J$ than others. Why?', [
     { t: '$J$ went up during those runs.', ok: false,
-      fb: '$J$ never goes up (Experiment 1). These runs went down too, just into a worse place.' },
+      fb: '$J$ never goes up (Experiment 1). Replay a grey curve: it goes down too, just to a higher level.' },
     { t: '$k$-means stopped at a local minimum: no point wants to switch, yet the clusters are poor.', ok: true,
-      fb: 'Typically two centroids share one cluster while one centroid covers two. Keep the start with the smallest $J$ (Problem 1(c)).' },
+      fb: 'Typically two centroids share one group while one centroid covers two. Keep the start with the smallest $J$ (Problem 1(c)).' },
     { t: 'Those runs stopped too early; more iterations would fix them.', ok: false,
       fb: 'Once no point changes its cluster, further iterations change nothing. Only a new start can help.' },
   ]);
@@ -712,10 +782,13 @@ const K2 = (() => {
 // ==================== 3. Sample, then hide the labels ====================
 const TRUE2 = [{ m: [-1.4, 0.3], S: [0.6, 0.38, 0.35] }, { m: [1.4, -0.2], S: [0.3, -0.22, 0.45] }];
 const E1 = (() => {
-  const main = $('#f1'), side = $('#g1'), W = 690, H = 360, BOX = [-4.05, 3.55, -1.75, 1.55], MAX = 300;
+  const main = $('#f1'), side = $('#g1'), W = 690, H = 360, BOX = [-4.05, 3.55, -1.75, 1.55], MAX = 300, NMIN = 10;
   const T = mapBox(BOX, 1, 38, W - 2, H - 39, 16);
   const B = { L: 78, R: 436, TOP: 92, BOT: 298, w: 72, cx: [198, 328] }, by = v => B.BOT - v * (B.BOT - B.TOP);
-  const st = { phi: 1 / 3, view: 'model', pts: [], busy: false, timers: [], barH: [1 / 3, 2 / 3], bt: 0 };
+  const START = [[-1.0, 1.0], [1.0, -1.0]], I2 = [1, 0, 1], RIDGE = 0.005;
+  // pts: the draws so far ({ j, p }); ver counts changes to them; em: the EM run on them; s: its step on the bar
+  const st = { phi: 1 / 3, view: 'model', pts: [], busy: false, timers: [], barH: [1 / 3, 2 / 3], bt: 0, ver: 0, em: null, s: 0, ep: 0, moving: false };
+  let bar;
   const later = (ms, f) => st.timers.push(setTimeout(f, ms));
   const set = (el, props, trans) => { el.style.transition = trans; Object.assign(el.style, props); };
   const PT = 'fill .35s, opacity .25s, transform .3s cubic-bezier(.2,.8,.2,1)';
@@ -723,63 +796,142 @@ const E1 = (() => {
   main.innerHTML = '<g class="head"></g>'
     + `<defs><clipPath id="clip1"><rect x="1" y="38" width="${W - 2}" height="${H - 39}"/></clipPath></defs>` + frameRect(1, 38, W - 2, H - 39)
     + `<g clip-path="url(#clip1)"><g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${gaussianAt(T, g.m, g.S, COLS[j])}</g>`).join('')}</g>`
-    + '<g class="lines"></g><g class="pts"></g></g>'
-    + `<g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${crossAt(T, g.m, INK)}</g>`).join('')}</g>`;
+    + '<g class="fit"></g><g class="lines"></g><g class="pts"></g><g class="pies"></g></g>'
+    + `<g class="model">${TRUE2.map((g, j) => `<g class="c" data-j="${j}">${crossAt(T, g.m, INK)}</g>`).join('')}</g><g class="fitm"></g>`;
   side.innerHTML = '<g class="head"></g>' + frameRect(1, 38, 458, H - 39)
     + [0.5, 1].map(v => `<line x1="${B.L}" x2="${B.R}" y1="${by(v)}" y2="${by(v)}" stroke="${GRID}" stroke-width="1.2"/>`).join('')
     + [0, 0.5, 1].map(v => label(B.L - 12, by(v) + 6, String(v), { fs: 18, fill: MUTED, anchor: 'end' })).join('')
     + [0, 1].map(j => `<rect class="bar" data-j="${j}" x="${B.cx[j] - B.w / 2}" width="${B.w}" fill="${COLS[j]}"/>`
         + `<line class="ghost" data-j="${j}" x1="${B.cx[j] - B.w / 2 - 9}" x2="${B.cx[j] + B.w / 2 + 9}" stroke="${INK}" stroke-width="2.5" stroke-dasharray="6 4" opacity="0"/>`
-        + `<text class="qm" data-j="${j}" x="${B.cx[j]}" y="${by(0) - 22}" text-anchor="middle" font-size="44" fill="${GREY}" opacity="0">?</text>`
         + `<text class="phv" data-j="${j}" x="${B.cx[j]}" text-anchor="middle" font-size="19" fill="${INK}"></text>`
         + label(B.cx[j], B.BOT + 36, `$ϕ_${j + 1}$`, { fs: 26, anchor: 'middle' })).join('')
     + `<line x1="${B.L}" x2="${B.R}" y1="${B.BOT}" y2="${B.BOT}" stroke="${AXIS}" stroke-width="1.5"/>`
     + `<g class="key" opacity="0"><line x1="${B.R - 122}" x2="${B.R - 92}" y1="63" y2="63" stroke="${INK}" stroke-width="2.5" stroke-dasharray="6 4"/>`
     + label(B.R - 82, 69, 'true $ϕ_j$', { fs: 19, fill: MUTED }) + '</g>';
   const ptsG = $('.pts', main), linesG = $('.lines', main);
+  const n = () => st.pts.length, emOn = () => st.view === 'mix' && n() >= NMIN;
 
-  function heads() {
-    const n = st.pts.length;
-    const [t, c] = { model: ['Both models', 'the generative model'], gda: ['GDA', 'observed: $x^{(i)}$ and $y^{(i)}$'], mix: ['Mixture of Gaussians', 'observed: $x^{(i)}$ only'] }[st.view];
-    $('.head', main).innerHTML = heading(W, t, c);
-    const sc = { model: 'the model', gda: n ? 'counted from the labels' : 'draw some points', mix: 'labels hidden' }[st.view];
-    $('.head', side).innerHTML = heading(460, 'Mixing weights $ϕ_j$', sc);
-    $('#n1').textContent = n;
+  // GDA: the labels are observed, so each colour gets the fraction, mean and covariance of its own points.
+  function gda() {
+    return [0, 1].map(j => {
+      const Q = st.pts.filter(q => q.j === j).map(q => q.p), w = Q.map(() => 1);
+      if (Q.length < 3) return null;
+      const m = wmean(Q, w);
+      return { m, S: wcov(Q, w, m) };
+    });
   }
-  // The bars: the model's ϕ; in GDA the fractions counted from the labels (dashed: the true ϕ); in the mixture nothing to count.
-  function setBars(h) {
+  // The mixture: the labels are hidden, so EM fits ϕ, μ, Σ from the points alone. Step s of the bar as in Experiment 4.
+  function emRun() {
+    const X = st.pts.map(q => q.p);
+    let f = { mus: START.map(m => [...m]), Ss: [I2, I2], phis: [0.5, 0.5] };
+    const F = [f], Ws = [], L = [];
+    for (let t = 0; ; t++) {
+      const { W: R, ll } = estep2(X, f);
+      Ws.push(R); L.push(ll);
+      if ((t && ll - L[t - 1] < 1e-4) || t >= 200) break;
+      f = mstep2(X, R, f, false);
+      f.Ss = f.Ss.map(([a, b, c]) => [a + RIDGE, b, c + RIDGE]); // keeps a Gaussian from collapsing onto a single point
+      F.push(f);
+    }
+    return { F, Ws, L, last: 2 * (L.length - 1), ver: st.ver };
+  }
+  function emTitle() {
+    const s = st.s, last = st.em.last, t = s >> 1;
+    if (st.moving || (s && s % 2 === 0 && s < last)) return ['M-step: GDA with weights $w_j^{(i)}$', 'new $ϕ_j$, $μ_j$, $Σ_j$'];
+    if (s % 2) return ['E-step: responsibilities $w_j^{(i)}$', 'pie slices: $w_1^{(i)}$, $w_2^{(i)}$'];
+    if (s) return [`EM converged after ${t} iteration${t === 1 ? '' : 's'}`, 'compare with GDA'];
+    return ['Mixture: labels hidden', 'EM starts from $ϕ_j = 0.5$, $Σ_j = I$'];
+  }
+  function heads() {
+    const k = n(), G = st.view === 'gda' && gda();
+    const [t, c] = st.view === 'model' ? ['Generative model', 'the same for GDA and the mixture']
+      : st.view === 'gda' ? ['GDA: labels observed', G.every(Boolean) ? 'each colour fitted on its own' : 'draw some points']
+      : emOn() ? emTitle() : ['Mixture: labels hidden', `EM needs at least ${NMIN} points`];
+    $('.head', main).innerHTML = heading(W, t, c);
+    const sc = st.view === 'model' ? 'the model' : st.view === 'gda' ? (k ? 'counted from the labels' : 'draw some points')
+      : emOn() ? (st.s > 1 || st.moving ? 'summed responsibilities' : 'EM starts at 0.5') : 'draw some points';
+    $('.head', side).innerHTML = heading(460, 'Mixing weights $ϕ_j$', sc);
+    $('#n1').textContent = k;
+  }
+  // The bars: the model's ϕ; in GDA the counts of the labels; in the mixture EM's ϕ, the sums of the responsibilities.
+  // The dashed lines show the true ϕ.
+  function target() {
+    const k = n(), c1 = st.pts.filter(q => q.j === 0).length;
+    if (st.view === 'model') return { h: [st.phi, 1 - st.phi], txt: h => h.map(v => v.toFixed(2)) };
+    if (st.view === 'gda') return k ? { h: [c1 / k, 1 - c1 / k], txt: () => [c1, k - c1].map(c => `${c}/${k} = ${(c / k).toFixed(2)}`) } : { h: [0, 0], txt: () => ['', ''] };
+    if (!emOn()) return { h: [0, 0], txt: () => ['', ''] };
+    return { h: st.em.F[st.s >> 1].phis, txt: emText };
+  }
+  const emText = h => h.map(v => (st.s > 1 || st.moving ? `${num(v * n(), 1)}/${n()} = ${v.toFixed(2)}` : v.toFixed(2)));
+  function setBars(h, txt) {
     st.barH = h;
-    const n = st.pts.length, c1 = st.pts.filter(p => p.j === 0).length, gda = st.view === 'gda', truth = [st.phi, 1 - st.phi];
+    const truth = [st.phi, 1 - st.phi], ghost = st.view !== 'model', lab = txt(h);
     h.forEach((v, j) => {
-      const b = $(`.bar[data-j="${j}"]`, side), t = $(`.phv[data-j="${j}"]`, side), g = $(`.ghost[data-j="${j}"]`, side), c = j ? n - c1 : c1;
+      const b = $(`.bar[data-j="${j}"]`, side), t = $(`.phv[data-j="${j}"]`, side), g = $(`.ghost[data-j="${j}"]`, side);
       b.setAttribute('y', by(v)); b.setAttribute('height', by(0) - by(v));
       g.setAttribute('y1', by(truth[j])); g.setAttribute('y2', by(truth[j]));
-      t.setAttribute('y', by(gda ? Math.max(v, truth[j]) : v) - 12);
-      t.textContent = st.view === 'mix' || (gda && !n) ? '' : gda ? `${c}/${n} = ${(c / n).toFixed(2)}` : v.toFixed(2);
+      t.setAttribute('y', by(ghost ? Math.max(v, truth[j]) : v) - 12);
+      t.textContent = lab[j];
     });
   }
   function bars(anim) {
-    const n = st.pts.length, c1 = st.pts.filter(p => p.j === 0).length;
-    const to = st.view === 'mix' ? [0, 0] : st.view === 'gda' ? (n ? [c1 / n, 1 - c1 / n] : [0, 0]) : [st.phi, 1 - st.phi];
-    side.querySelectorAll('.ghost').forEach(g => set(g, { opacity: st.view === 'gda' && n ? 1 : 0 }, 'opacity .3s'));
-    set($('.key', side), { opacity: st.view === 'gda' && n ? 1 : 0 }, 'opacity .3s');
-    side.querySelectorAll('.qm').forEach(q => set(q, { opacity: st.view === 'mix' ? 1 : 0 }, 'opacity .3s'));
+    const { h, txt } = target(), on = (st.view === 'gda' && n() > 0) || emOn();
+    side.querySelectorAll('.ghost').forEach(g => set(g, { opacity: on ? 1 : 0 }, 'opacity .3s'));
+    set($('.key', side), { opacity: on ? 1 : 0 }, 'opacity .3s');
     $('#phi1v').textContent = st.phi.toFixed(2);
     const from = st.barH, my = ++st.bt;
-    if (!anim) return setBars(to);
-    tween(400, u => { if (my === st.bt) setBars(from.map((v, j) => lerp(v, to[j], u))); });
+    if (!anim) return setBars(h, txt);
+    tween(400, u => { if (my === st.bt) setBars(from.map((v, j) => lerp(v, h[j], u)), txt); });
   }
+  // The fitted Gaussians (GDA or EM) and the responsibilities as pies.
+  function fits(F, fade) {
+    const wrap = s => (fade ? `<g class="fadein">${s}</g>` : s);
+    $('.fit', main).innerHTML = wrap(F.map((f, j) => (f ? gaussianAt(T, f.m, f.S, COLS[j]) : '')).join(''));
+    $('.fitm', main).innerHTML = wrap(F.map(f => (f ? crossAt(T, f.m, INK) : '')).join(''));
+  }
+  function pies(R, fade) {
+    $('.pies', main).innerHTML = R ? `<g${fade ? ' class="fadein"' : ''}>` + st.pts.map((q, i) => `<g>${pieAt(T.X(q.p[0]), T.Y(q.p[1]), 7.5, R[i])}`
+      + `<title>w₁ = ${R[i][0].toFixed(2)}, w₂ = ${R[i][1].toFixed(2)}</title></g>`).join('') + '</g>' : '';
+  }
+  const fromEM = f => f.mus.map((m, j) => ({ m, S: f.Ss[j] }));
+  function render(fade = false, fadePies = false) {
+    if (st.view === 'gda') { fits(gda(), fade); pies(null); }
+    else if (emOn()) {
+      fits(fromEM(st.em.F[st.s >> 1]), fade);
+      pies(st.s ? st.em.Ws[(st.s - 1) >> 1] : null, fadePies);
+      $('#l1').textContent = num(st.em.L[st.s >> 1], 2);
+    } else { fits([]); pies(null); }
+  }
+  // Show step s of EM. Across an M-step the Gaussians and the bars move from the old ϕ, μ, Σ to the new ones.
+  function go(s, anim) {
+    const from = st.s, my = ++st.ep, M = anim && Math.abs(s - from) === 1 && Math.max(s, from) % 2 === 0;
+    st.s = s;
+    if (!M) { render(false, anim && s === from + 1 && s % 2 === 1); bars(false); heads(); return; }
+    const f0 = st.em.F[from >> 1], f1 = st.em.F[s >> 1];
+    st.moving = s > from; heads();
+    $('#l1').textContent = num(st.em.L[s >> 1], 2);
+    return tween(450 * pace(s), u => {
+      if (my !== st.ep) return;
+      const f = lerpF(f0, f1, u);
+      fits(fromEM(f)); setBars(f.phis, emText);
+    }).then(() => { if (my === st.ep) { st.moving = false; render(); bars(false); heads(); } });
+  }
+  bar = stepper($('#s1'), { ...emBar, go, wait: s => (s % 2 ? 650 : 450) * pace(s) });
+
   // Highlight component j (its bar, its Gaussian, or both); j < 0 restores the neutral model.
   function pick(j, what = 'both', ms = 200) {
     if (what !== 'gauss') side.querySelectorAll('.bar, .phv').forEach(b => set(b, { opacity: j < 0 || +b.dataset.j === j ? 1 : 0.2 }, `opacity ${ms}ms`));
     if (what !== 'bars') main.querySelectorAll('.model .c').forEach(c => set(c, { opacity: j < 0 || +c.dataset.j === j ? 1 : 0.25 }, `opacity ${ms}ms`));
   }
   function view(v) {
+    bar.stop(); st.ep++; st.moving = false;
     st.view = v;
     document.querySelectorAll('#view1 button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
     main.querySelectorAll('.model').forEach(g => set(g, { opacity: v === 'model' ? 1 : 0 }, 'opacity .4s'));
     ptsG.querySelectorAll('.pt').forEach(c => set(c, { fill: v === 'mix' ? GREY : COLS[+c.dataset.j] }, PT));
-    bars(true); heads();
+    if (emOn() && (!st.em || st.em.ver !== st.ver)) { st.em = emRun(); st.s = 0; bar.reset(st.em.last, 0); }
+    $('#s1').style.display = emOn() ? '' : 'none';
+    render(true); bars(true); heads();
   }
   function sample() { // a draw from the mixture; the rare point that would land outside the frame is drawn again
     const j = Math.random() < st.phi ? 0 : 1, { m, S: [a, b, c] } = TRUE2[j];
@@ -810,20 +962,20 @@ const E1 = (() => {
       ptsG.appendChild(c);
       c.getBoundingClientRect();
       set(c, { opacity: 1, transform: 'scale(1)' }, PT);
-      st.pts.push(s);
+      st.pts.push(s); st.ver++;
       heads();
     });
   }
-  function ui() { $('#draw1').disabled = $('#draw20').disabled = st.busy || st.pts.length >= MAX; }
-  function draw(n) {
+  function ui() { $('#draw1').disabled = $('#draw20').disabled = st.busy || n() >= MAX; }
+  function draw(k) { // new points are drawn in the model view
     if (st.busy) return;
-    n = Math.min(n, MAX - st.pts.length);
-    if (n <= 0) return;
+    k = Math.min(k, MAX - n());
+    if (k <= 0) return;
     st.busy = true; ui();
     const wait = st.view === 'model' ? 0 : 450;
     if (wait) view('model');
     let end;
-    if (n === 1) { // the label (bar), then its Gaussian, then the line and the point
+    if (k === 1) { // the label (bar), then its Gaussian, then the line and the point
       const s = sample();
       later(wait, () => pick(s.j, 'bars', 250));
       later(wait + 350, () => pick(s.j, 'gauss', 250));
@@ -831,8 +983,8 @@ const E1 = (() => {
       end = wait + 1500;
     } else { // the same draw, repeated faster and faster
       let t = wait + 150;
-      for (let k = 0; k < n; k++) {
-        const s = sample(), d = Math.max(110, 380 * 0.84 ** k), g = Math.max(60, Math.min(200, 0.55 * d));
+      for (let i = 0; i < k; i++) {
+        const s = sample(), d = Math.max(110, 380 * 0.84 ** i), g = Math.max(60, Math.min(200, 0.55 * d));
         later(t, () => pick(s.j, 'both', 100));
         land(s, t, g);
         end = t + g + 300; t += d;
@@ -844,17 +996,17 @@ const E1 = (() => {
   function clear() {
     st.timers.forEach(clearTimeout); st.timers = [];
     ptsG.innerHTML = ''; linesG.innerHTML = '';
-    st.pts = []; st.busy = false;
-    pick(-1, 'both', 200); bars(true); heads(); ui();
+    st.pts = []; st.ver++; st.em = null; st.busy = false;
+    pick(-1, 'both', 200); view(st.view); ui();
   }
 
   $('#draw1').addEventListener('click', () => draw(1));
   $('#draw20').addEventListener('click', () => draw(20));
   $('#clear1').addEventListener('click', clear);
   $('#view1').addEventListener('click', e => { const b = e.target.closest('button'); if (b) view(b.dataset.v); });
-  $('#phi1').addEventListener('input', e => {
+  $('#phi1').addEventListener('input', e => { // the points came from the old ϕ, so they go
     st.phi = +e.target.value; fillRange(e.target);
-    if (st.view !== 'model') view('model'); else bars(false);
+    if (n() || st.busy) { st.view = 'model'; clear(); } else if (st.view !== 'model') view('model'); else bars(false);
   });
   fillRange($('#phi1'));
   view('model'); ui();
@@ -863,9 +1015,9 @@ const E1 = (() => {
     { t: 'Count the points with $x_1 < 0$.', ok: false,
       fb: 'That uses a boundary we chose, not the model. Points in between can come from either component.' },
     { t: 'Average the responsibilities: $\\phi_1 = \\frac1n\\sum_i w_1^{(i)}$.', ok: true,
-      fb: 'A soft count: each point adds its probability of coming from component 1. This is the M-step for $\\phi_1$.' },
+      fb: 'A soft count: each point adds its probability of coming from component 1. GDA counts the labels; EM sums the $w_1^{(i)}$.' },
     { t: 'It cannot be estimated without the labels.', ok: false,
-      fb: 'EM estimates it, with the responsibilities $w_j^{(i)}$ in place of the labels.' },
+      fb: 'EM estimates it, with the responsibilities $w_j^{(i)}$ in place of the labels. Run EM in the Mixture view.' },
   ]);
   return st;
 })();

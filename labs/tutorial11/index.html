@@ -167,9 +167,9 @@
   <div class="where">Problem 2(c)</div>
   <h2>1. Several starts</h2>
   <p class="lead">Same data, different starting means. Each run picks $k$ random data points as the starting means
-    and runs EM until $\ell$ stops increasing, with $\Sigma_j = 0.25\,I$ fixed.</p>
+    and runs EM until $\ell$ stops increasing, with $\Sigma_j = 0.25\,I$ fixed. Click a curve on the right to replay that run.</p>
   <div class="toolbar">
-    <div class="grp"><button id="new3" class="primary">New start</button><button id="ten3">10 starts</button></div>
+    <div class="grp"><button id="new3" class="primary">New start</button></div>
     <div class="grp"><span class="lbl">Clusters $k$</span>
       <div class="seg" id="k3" role="group" aria-label="Number of clusters">
         <button data-k="2" aria-pressed="false">2</button><button data-k="3" aria-pressed="true">3</button><button data-k="4" aria-pressed="false">4</button><button data-k="5" aria-pressed="false">5</button>
@@ -613,7 +613,7 @@ const E3 = (() => {
     const d = done(), m = d.filter(top).length;
     $('#r3').innerHTML = `${m} of ${d.length} runs reach the highest $\\ell = ${num(best(), 1)}$`;
     typeset($('#r3'));
-    $('#new3').disabled = $('#ten3').disabled = st.runs.length >= MAXRUNS;
+    $('#new3').disabled = st.runs.length >= MAXRUNS;
   }
   function render() { // a new run counts once it has reached its end
     const live = st.live;
@@ -634,14 +634,10 @@ const E3 = (() => {
     bar.reset(n, st.t); render(); readout();
     if (replay) bar.play();
   }
-  function add(n) {
-    const first = st.runs.length;
-    for (let i = 0; i < n && st.runs.length < MAXRUNS; i++) st.runs.push(em(start()));
-    if (st.runs.length === first) return;
-    if (n === 1) { st.live = first; return select(first, true); }
-    let b = first; // of several new runs, show the one you would keep
-    for (let i = first; i < st.runs.length; i++) if (st.runs[i].ll > st.runs[b].ll) b = i;
-    select(b, false);
+  function add() { // a new run, played from its start
+    if (st.runs.length >= MAXRUNS) return;
+    st.runs.push(em(start())); st.live = st.runs.length - 1;
+    select(st.live, true);
   }
   function load(k, s0) { // new data with five runs; the first data of each k is chosen to show both kinds of run
     st.k = k;
@@ -663,8 +659,7 @@ const E3 = (() => {
     const g = e.target.closest('.run');
     if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(+g.dataset.k, true); }
   });
-  $('#new3').addEventListener('click', () => add(1));
-  $('#ten3').addEventListener('click', () => add(10));
+  $('#new3').addEventListener('click', add);
   $('#k3').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(+b.dataset.k, 1000 * +b.dataset.k); });
   $('#data3').addEventListener('click', () => load(st.k, Math.floor(Math.random() * 999) + 1));
   load(3, 3000);
