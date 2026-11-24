@@ -17,7 +17,7 @@ SITE = pathlib.Path(__file__).resolve().parent
 SRC = SITE.parent
 
 TUTORIALS = [  # number, date of the tutorial, topic
-    (10, '2026-11-18', 'Clustering, <i>k</i>-Means and Mixtures of Gaussians'),
+    (10, '2026-11-25', 'Clustering, <i>k</i>-Means and Mixtures of Gaussians'),
     (11, '2026-11-25', 'EM, MM and Factor Analysis'),
     (12, '2026-12-02', 'Principal Component Analysis'),
     (13, '2026-12-09', 'Markov Decision Processes'),
