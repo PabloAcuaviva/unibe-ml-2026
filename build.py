@@ -18,10 +18,9 @@ SRC = SITE.parent
 
 TUTORIALS = [  # number, date of the tutorial, topic
     (10, '2026-11-25', 'Clustering, <i>k</i>-Means and Mixtures of Gaussians'),
-    (11, '2026-11-25', 'EM, MM and Factor Analysis'),
-    (12, '2026-12-02', 'Principal Component Analysis'),
-    (13, '2026-12-09', 'Markov Decision Processes'),
-    (14, '2026-12-16', 'Model-Free Reinforcement Learning'),
+    (11, '2026-12-02', 'EM, Principal Component Analysis and the SVD'),
+    (12, '2026-12-09', 'Markov Decision Processes'),
+    (13, '2026-12-16', 'Model-Free Reinforcement Learning'),
 ]
 
 PAGE = """<!doctype html>
@@ -79,6 +78,11 @@ ROWS
 def build():
     today = dt.date.today()
     rows = []
+    listed = {f'tutorial{n}' for n, _, _ in TUTORIALS}
+    for kind in ['labs', 'slides']:  # drop pages of tutorials no longer in the list
+        for d in (SITE / kind).glob('tutorial*'):
+            if d.name not in listed:
+                shutil.rmtree(d)
     for n, date, topic in TUTORIALS:
         day = dt.date.fromisoformat(date)
         lab = SITE / f'labs/tutorial{n}/index.html'

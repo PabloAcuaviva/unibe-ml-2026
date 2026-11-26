@@ -89,7 +89,7 @@
   svg text { font-family: inherit; }
   svg .mi { font-family: KaTeX_Math; font-style: italic; }
 
-  /* Things to click: cells in 1, policies in the companion of 1. */
+  /* Things to click: the rewards in 1. */
   svg { -webkit-user-select: none; user-select: none; }
   svg .pick { cursor: pointer; }
   svg .pick:hover { fill: rgba(0, 0, 0, 0.06); }
@@ -136,59 +136,51 @@
 <header>
   <div class="rule"></div>
   <div class="course">Machine Learning · Tutorial 13</div>
-  <h1>Markov Decision Processes</h1>
+  <h1>Model-Free Reinforcement Learning</h1>
   <div class="sub">Interactive lab</div>
   <nav class="toc" aria-label="Experiments">
-    <a href="#e1"><span class="n">1</span>Choose the actions</a>
-    <a href="#e2"><span class="n">2</span>Value iteration</a>
-    <a href="#e3"><span class="n">3</span>Policy iteration</a>
-    <a href="#e4"><span class="n">4</span>Learn the model</a>
+    <a href="#e1"><span class="n">1</span>Monte Carlo or TD</a>
+    <a href="#e2"><span class="n">2</span>TD(0) in the corridor</a>
+    <a href="#e3"><span class="n">3</span>Q-learning</a>
+    <a href="#e4"><span class="n">4</span>Exploration</a>
   </nav>
 </header>
 
 <!-- 1 -->
 <section id="e1">
-  <div class="where">Problems 1 and 2(d)</div>
-  <h2>1. Choose the actions</h2>
-  <p class="lead">The corridor of Problem 1, with rewards $R=(2,0,5)$. A policy $\pi$ picks left or right in every cell, and its values $V^\pi$ solve Bellman's equations.
-    Click a cell to switch its action. The red part of a bar is what $\pi$ loses against the best values $V^*$.</p>
+  <div class="where">Problem 1</div>
+  <h2>1. Monte Carlo or TD</h2>
+  <p class="lead">The five episodes of Problem 1, with $\gamma=1$. Monte Carlo averages the returns seen from each state.
+    Batch TD(0) goes through the six transitions again and again; each sweep adds up their updates, with $\alpha=0.1$, and applies them at once.
+    Click a reward in a box to change the data.</p>
   <div class="toolbar">
-    <div class="grp"><span class="lbl">$\gamma$</span>
-      <input id="g1r" type="range" min="0" max="0.95" step="0.01" value="0.5" aria-label="Discount factor">
-      <span id="g1v" class="num">0.50</span></div>
-    <div class="grp"><button id="best1" class="primary">Best policy</button></div>
-    <div class="read">
-      <span>$V^\pi$ = <span id="v1" class="num"></span></span>
-      <span>$V^*$ = <span id="s1" class="num"></span></span>
-    </div>
+    <div class="grp"><button id="reset1">Problem 1</button></div>
   </div>
   <div class="views">
-    <svg id="f1" viewBox="0 0 690 420" role="img" aria-label="The corridor with the chosen actions, and the values of the policy against the best values"></svg>
-    <svg id="g1" viewBox="0 0 460 420" role="img" aria-label="All eight policies and their values"></svg>
+    <svg id="f1" viewBox="0 0 690 420" role="img" aria-label="The five episodes, and the Monte Carlo and batch TD estimates of V(A) and V(B)"></svg>
+    <svg id="g1" viewBox="0 0 460 420" role="img" aria-label="The batch TD values, sweep by sweep, against the Monte Carlo value of A"></svg>
   </div>
+  <div class="steps" id="s1"></div>
   <div class="check" id="q1"></div>
 </section>
 
 <!-- 2 -->
 <section id="e2">
-  <div class="where">Problem 2, on a larger grid</div>
-  <h2>2. Value iteration</h2>
-  <p class="lead">A grid world. The agent moves up, right, down or left, and a move into the border or a grey block leaves it where it is.
-    Two corner cells give the rewards $+10$ and $+2$, two cells give $-5$, and all others $0$.
-    Each sweep sets $V(s):=R(s)+\gamma\max_a V(s')$, where $s'$ is the cell that $a$ leads to.
-    The arrows show the greedy action; a red arrow is not optimal.</p>
+  <div class="where">Problem 2</div>
+  <h2>2. TD(0) in the corridor</h2>
+  <p class="lead">The corridor with rewards $R=(2,0,5)$ on arrival and $\gamma=\tfrac12$. The agent always moves right, and every episode starts in cell 1: $1\to2\to3\to3\to3$.
+    After each move TD(0) sets $V(s)\leftarrow V(s)+\alpha\,\delta$, with the TD error $\delta=R(s')+\gamma V(s')-V(s)$.</p>
   <div class="toolbar">
-    <div class="grp"><span class="lbl">$\gamma$</span>
-      <input id="g2r" type="range" min="0.1" max="0.95" step="0.01" value="0.7" aria-label="Discount factor">
-      <span id="g2v" class="num">0.70</span></div>
+    <div class="grp"><span class="lbl">$\alpha$</span>
+      <input id="a2r" type="range" min="0.05" max="1" step="0.05" value="0.5" aria-label="Step size">
+      <span id="a2v" class="num">0.50</span></div>
     <div class="read">
-      <span>largest error = <span id="e2v" class="v num"></span></span>
-      <span>not optimal: <span id="w2v" class="num"></span></span>
+      <span>$V$ = <span id="v2v" class="num"></span></span>
     </div>
   </div>
   <div class="views">
-    <svg id="f2" viewBox="0 0 690 450" role="img" aria-label="The grid with the values after k sweeps and the greedy actions"></svg>
-    <svg id="g2" viewBox="0 0 460 450" role="img" aria-label="The largest error and the number of cells without an optimal arrow, for every sweep"></svg>
+    <svg id="f2" viewBox="0 0 690 440" role="img" aria-label="The corridor, the last move and its TD update, and the values against the true values"></svg>
+    <svg id="g2" viewBox="0 0 460 440" role="img" aria-label="The value of every cell, move by move"></svg>
   </div>
   <div class="steps" id="s2"></div>
   <div class="check" id="q2"></div>
@@ -196,27 +188,24 @@
 
 <!-- 3 -->
 <section id="e3">
-  <div class="where">Problem 3, on the same grid</div>
-  <h2>3. Policy iteration</h2>
-  <p class="lead">Each round first evaluates the policy, solving Bellman's equations for $V^\pi$ exactly.
-    Then it improves the policy: every cell takes the greedy action for $V^\pi$, and keeps its action when that is one of the greedy ones.
-    Tinted cells have just changed their action.</p>
+  <div class="where">Problem 3, on the grid of Tutorial 12</div>
+  <h2>3. Q-learning</h2>
+  <p class="lead">The grid world of Tutorial 12, now with rewards on arrival and $\gamma=0.7$. Each episode starts in a random cell and makes 20 moves with an $\epsilon$-greedy policy;
+    after every move Q-learning updates $Q$ with $\alpha=\tfrac12$. The numbers are $\max_a Q(s,a)$, the arrows the greedy actions, and a red arrow is not optimal.</p>
   <div class="toolbar">
-    <div class="grp"><span class="lbl">Start</span>
-      <div class="seg" id="start3" role="group" aria-label="Start policy">
-        <button data-k="left" aria-pressed="true">All left</button><button data-k="rand" aria-pressed="false">Random</button>
+    <div class="grp"><span class="lbl">$\epsilon$</span>
+      <div class="seg" id="eps3" role="group" aria-label="Exploration rate">
+        <button data-k="0.1" aria-pressed="true">0.1</button><button data-k="0.5" aria-pressed="false">0.5</button><button data-k="1" aria-pressed="false">1</button>
       </div></div>
-    <div class="grp"><span class="lbl">$\gamma$</span>
-      <input id="g3r" type="range" min="0.1" max="0.95" step="0.01" value="0.7" aria-label="Discount factor">
-      <span id="g3v" class="num">0.70</span></div>
+    <div class="grp"><button id="new3">New run</button></div>
     <div class="read">
-      <span>rounds: <span id="r3v" class="num"></span></span>
-      <span>value iteration: <span id="k3v" class="num"></span></span>
+      <span>not optimal: <span id="w3v" class="num"></span></span>
+      <span>reward per move: <span id="r3v" class="v num"></span></span>
     </div>
   </div>
   <div class="views">
-    <svg id="f3" viewBox="0 0 690 450" role="img" aria-label="The grid with the current policy and its values"></svg>
-    <svg id="g3" viewBox="0 0 460 450" role="img" aria-label="The value of every cell, round by round"></svg>
+    <svg id="f3" viewBox="0 0 690 450" role="img" aria-label="The grid with the largest Q value and the greedy action in every cell, and the cells of the last episode"></svg>
+    <svg id="g3" viewBox="0 0 460 450" role="img" aria-label="Cells without an optimal arrow, and the reward per move, episode by episode"></svg>
   </div>
   <div class="steps" id="s3"></div>
   <div class="check" id="q3"></div>
@@ -225,24 +214,23 @@
 <!-- 4 -->
 <section id="e4">
   <div class="where">Problem 4</div>
-  <h2>4. Learn the model</h2>
-  <p class="lead">The corridor again, but now a move succeeds only with probability $0.6$ in cell 1, $0.8$ in cell 2 and $0.9$ in cell 3; otherwise the agent stays where it is.
-    The agent does not know these numbers. It acts at random and counts what happens; the smoothed estimate adds $\alpha=1$ to every count.
-    The first ten transitions are the trials of Problem 4. Dashed outlines show the true $P_{sa}$.</p>
+  <h2>4. Exploration</h2>
+  <p class="lead">The corridor again. Each episode starts in cell 1 and makes 10 moves, Q-learning uses $\alpha=\gamma=\tfrac12$, and ties go to the left, as in Problem 4(b).
+    With $\epsilon=1/k$ the agent explores less in every episode $k$.</p>
   <div class="toolbar">
-    <div class="grp"><span class="lbl">Estimate</span>
-      <div class="seg" id="mode4" role="group" aria-label="Estimate">
-        <button data-k="mle" aria-pressed="true">Max. likelihood</button><button data-k="smooth" aria-pressed="false">Smoothed</button>
+    <div class="grp"><span class="lbl">$\epsilon$</span>
+      <div class="seg" id="eps4" role="group" aria-label="Exploration rate">
+        <button data-k="0" aria-pressed="true">0</button><button data-k="0.2" aria-pressed="false">0.2</button><button data-k="glie" aria-pressed="false">$1/k$</button>
       </div></div>
-    <div class="grp"><button id="new4">New data</button></div>
+    <div class="grp"><button id="new4">New run</button></div>
     <div class="read">
-      <span>largest $|\hat P-P|$ = <span id="d4v" class="v num"></span></span>
-      <span>last: <span id="l4v" class="num"></span></span>
+      <span>greedy: <span id="gr4v" class="num"></span></span>
+      <span>reward: <span id="rw4v" class="num"></span></span>
     </div>
   </div>
   <div class="views">
-    <svg id="f4" viewBox="0 0 690 440" role="img" aria-label="For every cell and action, the estimated and the true probabilities of the next cell"></svg>
-    <svg id="g4" viewBox="0 0 460 440" role="img" aria-label="The values and greedy actions from the estimated model, against the true ones"></svg>
+    <svg id="f4" viewBox="0 0 690 450" role="img" aria-label="The corridor with the greedy actions, and Q of every cell and action against the optimal Q"></svg>
+    <svg id="g4" viewBox="0 0 460 450" role="img" aria-label="The moves of this episode, and the reward of every episode"></svg>
   </div>
   <div class="steps" id="s4"></div>
   <div class="check" id="q4"></div>
@@ -251,7 +239,7 @@
 </main>
 
 <script>
-// ---------- Palette and labels (as in the Tutorial 13 presentation) ----------
+// ---------- Palette and labels (as in the presentations) ----------
 // Blue is right and optimal; ochre is left; red is what is lost or wrong.
 const BLUE = '#1d6fa5', RED = '#d6002b', OCHRE = '#c98a00';
 const INK = '#1f1f1f', MUTED = '#555555', HAIR = '#d6d6d6', AXIS = '#b3b3b3', GREY = '#8c8c8c', GRID = '#ececec';
@@ -480,89 +468,171 @@ function segGroup(id, set) { // a row of buttons where one is pressed
   });
 }
 
-// ==================== 1. Choose the actions ====================
-const E1 = (() => {
-  const main = $('#f1'), side = $('#g1'), W = 690, H = 420, SW = 460, RC = [2, 0, 5];
-  const POLS = [...Array(8).keys()].map(p => [2, 1, 0].map(b => ((p >> b) & 1 ? 1 : -1))); // (L,L,L), (L,L,R), …, (R,R,R)
-  const st = { pol: [-1, -1, -1], g: 0.5, ALL: [], VS: [] };
-  const valueOf = pol => evalDet(pol.map((a, s) => clamp(s + a, 0, 2)), RC, st.g);
-  const tup = V => `(${V.map(fr).join(', ')})`;
-  const best = (V, s) => V[s] > st.VS[s] - 1e-9;
-  function compute() { st.ALL = POLS.map(valueOf); st.VS = [0, 1, 2].map(s => Math.max(...st.ALL.map(v => v[s]))); }
+// ---------- Shared: random numbers, keys ----------
+const GREEN = '#2f7a4a';
+function rng(seed) { let x = seed % 2147483647; if (x <= 0) x += 2147483646; return () => (x = (x * 16807) % 2147483647) / 2147483647; }
+const newSeed = () => 1 + Math.floor(Math.random() * 2147483000);
+const swatch = (x, y, col, text, fs = 18) => `<rect x="${x}" y="${y - 13}" width="18" height="14" fill="${col}"/>` + label(x + 26, y, text, { fs });
+const lineKey = (x, y, col, text, { dash = false, w = 3, fs = 18 } = {}) =>
+  seg([x, y - 6, x + 26, y - 6], col, w, dash ? 'stroke-dasharray="6 5" stroke-linecap="butt"' : '') + label(x + 34, y, text, { fs });
+const pathD = pts => pts.map((p, j) => `${j ? 'L' : 'M'}${f1(p[0])} ${f1(p[1])}`).join('');
+const hline = (x1, x2, y, col = GRID, w = 1.2) => seg([x1, y, x2, y], col, w, 'stroke-linecap="butt"');
 
-  const K = { X0: 95, CW: 170, Y0: 54, CH: 92 }, cx = j => K.X0 + (j + 0.5) * K.CW;
-  const B = { BASE: 392, TOP: 248, BW: 66 };
+// ==================== 1. Monte Carlo or TD ====================
+const E1 = (() => {
+  const main = $('#f1'), side = $('#g1'), W = 690, H = 420, SW = 460, A1 = 0.1, NK = 60, P1 = [0, 1, 1, 1, 0];
+  const st = { r: P1.slice(), k: 0, TD: [] };
+  const mc = () => [st.r[0], sum(st.r) / 5]; // from A one return, 0 + r₁; from B five returns
+  function run() { // batch TD(0): each sweep adds up the updates of all six transitions, then applies them at once
+    let A = 0, B = 0;
+    st.TD = [[0, 0]];
+    for (let k = 0; k < NK; k++) {
+      const dA = A1 * (0 + B - A); // episode 1: A → B with reward 0
+      const dB = sum(st.r.map(r => A1 * (r - B))); // B → end in all five episodes
+      A += dA; B += dB;
+      st.TD.push([A, B]);
+    }
+  }
+  const ROW = i => 100 + i * 62, XA = 62, XB = 182, XE = 326, RB = 256;
+  const node = (x, y, L) => `<circle cx="${x}" cy="${y}" r="18" fill="#fff" stroke="${INK}" stroke-width="2"/>` + label(x, y + 7, `$${L}$`, { fs: 21, anchor: 'middle' });
+  const rbox = (x, y, r, on) => `<rect x="${x - 17}" y="${y - 16}" width="34" height="32" rx="4" fill="#fff" stroke="${on ? INK : HAIR}" stroke-width="1.5"/>`
+    + label(x, y + 7, String(r), { fs: 20, anchor: 'middle', fill: on ? INK : MUTED });
+  const BX = { L: 432, R: 676, BASE: 372, TOP: 150 }, by = v => BX.BASE - v * (BX.BASE - BX.TOP);
   function draw() {
-    const V = valueOf(st.pol), hi = Math.max(...st.VS, 1) * 1.15, tk = ticks(0, hi, 4), by = v => B.BASE - v / hi * (B.BASE - B.TOP);
-    let s = heading(W, 'The corridor and $V^π$', 'click a cell to switch its action') + frameRect(1, 38, W - 2, H - 39);
-    for (let j = 0; j < 3; j++) {
-      const x = K.X0 + j * K.CW;
-      s += `<rect class="pick" data-j="${j}" x="${x}" y="${K.Y0}" width="${K.CW}" height="${K.CH}" fill="transparent" stroke="${INK}" stroke-width="2"><title>switch the action in cell ${j + 1}</title></rect>`
-        + '<g pointer-events="none">' + label(x + 9, K.Y0 + 21, String(j + 1), { fs: 17, fill: MUTED })
-        + hArrow(cx(j), K.Y0 + K.CH / 2 + 4, st.pol[j], 46, ACOL[st.pol[j]], 4, 16)
-        + label(cx(j), K.Y0 + K.CH + 30, `$R$ = ${RC[j]}`, { fs: 20, fill: MUTED, anchor: 'middle' }) + '</g>';
-    }
-    s += `<rect x="${K.X0}" y="${B.TOP - 40}" width="18" height="14" fill="${BLUE}"/>` + label(K.X0 + 26, B.TOP - 27, '$V^π$', { fs: 20 })
-      + `<rect x="${K.X0 + 96}" y="${B.TOP - 40}" width="18" height="14" fill="${RED}" fill-opacity="0.16" stroke="${RED}" stroke-width="2"/>`
-      + label(K.X0 + 122, B.TOP - 27, 'lost against $V^*$', { fs: 20 });
-    tk.out.forEach(t => { s += seg([K.X0, by(t), K.X0 + 3 * K.CW, by(t)], GRID, 1.2, 'stroke-linecap="butt"') + label(K.X0 - 12, by(t) + 6, num(t, tk.dec), { fs: 17, fill: MUTED, anchor: 'end' }); });
-    s += seg([K.X0, B.BASE, K.X0 + 3 * K.CW, B.BASE], AXIS, 1.5, 'stroke-linecap="butt"');
-    for (let j = 0; j < 3; j++) {
-      const x = cx(j) - B.BW / 2, v = V[j], w = st.VS[j], gap = by(v) - by(w);
-      s += `<path d="${barPath(x, B.BW, B.BASE, by(v))}" fill="${BLUE}"/>`;
-      if (w - v > 1e-9) s += `<rect x="${x}" y="${f1(by(w))}" width="${B.BW}" height="${f1(gap)}" fill="${RED}" fill-opacity="0.16" stroke="${RED}" stroke-width="2"/>`
-        + label(x + B.BW + 9, Math.max(by(w) + 16, (by(v) + by(w)) / 2 + 7), `−${fr(w - v)}`, { fs: 19, fill: RED });
-      s += label(cx(j), (gap > 34 ? by(v) : by(w)) - 9, fr(v), { fs: 22, anchor: 'middle' });
-    }
+    const [ta, tb] = st.TD[st.k], [ma, mb] = mc();
+    let s = heading(W, 'The episodes and the estimates', 'click a boxed reward') + frameRect(1, 38, W - 2, H - 39)
+      + label(20, 70, 'episode', { fs: 17, fill: MUTED });
+    st.r.forEach((r, i) => {
+      const y = ROW(i);
+      s += label(34, y + 7, String(i + 1), { fs: 18, fill: MUTED, anchor: 'middle' });
+      if (i === 0) s += arrow([XA + 19, y], [XB - 21, y], INK, 2, 10) + rbox((XA + XB) / 2, y, 0, false) + node(XA, y, 'A');
+      s += arrow([XB + 19, y], [XE - 8, y], INK, 2, 10) + rbox(RB, y, r, true) + node(XB, y, 'B') + label(XE, y + 6, 'end', { fs: 18, fill: MUTED })
+        + `<rect class="pick" data-i="${i}" x="${RB - 23}" y="${y - 22}" width="46" height="44" rx="6" fill="transparent"><title>switch this reward between 0 and 1</title></rect>`;
+    });
+    // the estimates: Monte Carlo and batch TD after k sweeps
+    s += swatch(BX.L, 72, OCHRE, 'Monte Carlo') + swatch(BX.L + 140, 72, BLUE, 'batch TD');
+    [0, 0.5, 1].forEach(t => { s += hline(BX.L, BX.R, by(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(BX.L - 10, by(t) + 6, num(t, t % 1 ? 1 : 0), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    [[ma, ta, '$V(A)$'], [mb, tb, '$V(B)$']].forEach(([m, t, name], g) => {
+      const c = BX.L + 62 + g * 124;
+      s += `<path d="${barPath(c - 46, 40, BX.BASE, by(m))}" fill="${OCHRE}"/><path d="${barPath(c + 6, 40, BX.BASE, by(t))}" fill="${BLUE}"/>`
+        + label(c - 26, by(m) - 8, fr(m), { fs: 19, anchor: 'middle' }) + label(c + 26, by(t) - 8, num(t, 2), { fs: 19, anchor: 'middle' })
+        + label(c, BX.BASE + 30, name, { fs: 20, anchor: 'middle' });
+    });
     main.innerHTML = s;
   }
-  // The companion: every policy with its values; in each column the largest value is bold, so π* is the row that is bold throughout.
-  const L = { Y0: 84, RH: 41, MX: 22, MC: 34, VX: [232, 316, 400] };
-  function list() {
-    const cur = POLS.findIndex(p => p.every((a, j) => a === st.pol[j]));
-    let s = heading(SW, 'All 8 policies', 'click one') + frameRect(1, 38, SW - 2, H - 39)
-      + label(L.MX + 1.5 * L.MC, 70, '$π$', { fs: 20, fill: MUTED, anchor: 'middle' })
-      + L.VX.map((x, j) => label(x, 70, `$V$(${j + 1})`, { fs: 20, fill: MUTED, anchor: 'middle' })).join('');
-    POLS.forEach((p, r) => {
-      const y = L.Y0 + r * L.RH, V = st.ALL[r], yy = y + (L.RH - 4) / 2;
-      if (r === cur) s += `<rect x="8" y="${y}" width="${SW - 16}" height="${L.RH - 4}" rx="4" fill="#efefef"/>`;
-      for (let j = 0; j < 3; j++) {
-        const x = L.MX + j * L.MC;
-        s += `<rect x="${x}" y="${y + 5}" width="${L.MC}" height="${L.RH - 14}" fill="#fff" stroke="${INK}" stroke-width="1.3"/>`
-          + hArrow(x + L.MC / 2, yy, p[j], 10, ACOL[p[j]], 2.2, 8)
-          + label(L.VX[j], y + 25, fr(V[j]), { fs: 20, fill: best(V, j) ? INK : MUTED, anchor: 'middle', fw: best(V, j) });
-      }
-      if (V.every((_, j) => best(V, j))) s += label(152, y + 25, '$π^*$', { fs: 21, anchor: 'middle' });
-      s += `<rect class="pick" data-p="${r}" x="8" y="${y}" width="${SW - 16}" height="${L.RH - 4}" rx="4" fill="transparent"><title>choose this policy</title></rect>`;
-    });
+  const C = { L: 64, R: 430, T: 100, B: 352 };
+  function chart() {
+    const k = st.k, X = j => C.L + j / NK * (C.R - C.L), Y = v => C.B - v * (C.B - C.T), ma = mc()[0];
+    const line = (j1, i) => pathD(st.TD.slice(0, j1 + 1).map((v, j) => [X(j), Y(v[i])]));
+    let s = heading(SW, 'Batch TD, sweep by sweep') + frameRect(1, 38, SW - 2, H - 39)
+      + lineKey(C.L - 40, 72, BLUE, 'TD $V(A)$') + lineKey(C.L + 92, 72, GREY, 'TD $V(B)$', { w: 2 }) + lineKey(C.L + 224, 72, OCHRE, 'MC $V(A)$', { dash: true });
+    [0, 0.5, 1].forEach(t => { s += hline(C.L, C.R, Y(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(C.L - 10, Y(t) + 6, num(t, t % 1 ? 1 : 0), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    ticks(0, NK, 6).out.forEach(t => { s += seg([X(t), C.B, X(t), C.B + 6], AXIS, 1.5) + label(X(t), C.B + 26, String(t), { fs: 17, fill: MUTED, anchor: 'middle' }); });
+    s += label((C.L + C.R) / 2, C.B + 54, 'sweep', { fs: 18, fill: MUTED, anchor: 'middle' })
+      + seg([X(0), Y(ma), X(NK), Y(ma)], OCHRE, 2.5, 'stroke-dasharray="7 6" stroke-linecap="butt"')
+      + `<path d="${line(NK, 1)}" fill="none" stroke="${GREY}" stroke-opacity="0.3" stroke-width="2"/><path d="${line(NK, 0)}" fill="none" stroke="${BLUE}" stroke-opacity="0.25" stroke-width="3"/>`
+      + `<path d="${line(k, 1)}" fill="none" stroke="${GREY}" stroke-width="2" stroke-linejoin="round"/><path d="${line(k, 0)}" fill="none" stroke="${BLUE}" stroke-width="3" stroke-linejoin="round"/>`
+      + seg([X(k), C.T - 6, X(k), C.B], INK, 1, 'opacity="0.35" stroke-linecap="butt"') + dotAt([X(k), Y(st.TD[k][0])], BLUE, 6.5);
     side.innerHTML = s;
   }
-  function render() {
-    draw(); list();
-    $('#v1').textContent = tup(valueOf(st.pol));
-    $('#s1').textContent = tup(st.VS);
-  }
-  main.addEventListener('click', e => { const r = e.target.closest('.pick'); if (r) { st.pol[+r.dataset.j] *= -1; render(); } });
-  side.addEventListener('click', e => { const r = e.target.closest('.pick'); if (r) { st.pol = POLS[+r.dataset.p].slice(); render(); } });
-  $('#best1').addEventListener('click', () => {
-    st.pol = POLS[st.ALL.findIndex(V => V.every((_, j) => best(V, j)))].slice();
-    render();
-  });
-  slider('g1r', '#g1v', g => { st.g = g; compute(); render(); });
-  compute(); render();
+  const show = k => { st.k = k; draw(); chart(); };
+  const bar = stepper($('#s1'), { go: show, text: s => `${s} sweep${s === 1 ? '' : 's'}`, wait: s => (s < 10 ? 450 : 110), name: 'Sweeps' });
+  const load = () => { run(); show(bar.s); };
+  main.addEventListener('click', e => { const p = e.target.closest('.pick'); if (p) { st.r[+p.dataset.i] ^= 1; load(); } });
+  $('#reset1').addEventListener('click', () => { st.r = P1.slice(); load(); });
+  run(); bar.reset(NK, 0); show(0);
 
-  check('q1', 'Lower $\\gamma$ to $0.3$. Which policy is best now?', [
-    { t: '$(\\text{right},\\text{right},\\text{right})$, as for $\\gamma=\\tfrac12$.', ok: false,
-      fb: 'In cell 1, staying collects $2$ at every step. For $\\gamma<\\tfrac25$ that is worth more than the trip to cell 3 (Problem 2(d)).' },
-    { t: '$(\\text{left},\\text{right},\\text{right})$, and it is best in every cell.', ok: true,
-      fb: 'Its row is bold in all three columns. A small $\\gamma$ makes the agent impatient, so it keeps the reward $2$ it has.' },
-    { t: 'None: each cell now has a different best policy.', ok: false,
-      fb: 'Look at the companion: one row has the largest value in every column. There is always a policy that is best in all cells at once.' },
+  check('q1', 'Click the rewards to change the data. Which estimate always gives $V(A)=V(B)$ in the end?', [
+    { t: 'Monte Carlo.', ok: false,
+      fb: 'Its $V(A)$ is the single return seen from $A$, which is the last reward of episode 1. Make that reward $1$: Monte Carlo gives $V(A)=1$ but $V(B)=\\tfrac45$.' },
+    { t: 'Batch TD.', ok: true,
+      fb: '$A$ always leads to $B$ with reward $0$, and $\\gamma=1$, so at the end $V(A)=0+V(B)$. TD uses that $A$ is followed by $B$, the Markov structure of the data.' },
+    { t: 'Both, once there are enough sweeps.', ok: false,
+      fb: 'The sweeps only change TD. Monte Carlo has no sweeps: it is a plain mean of the returns, the dashed ochre line.' },
   ]);
   return st;
 })();
 
-// ---------- The grid world of experiments 2 and 3 ----------
+// ==================== 2. TD(0) in the corridor ====================
+const E2 = (() => {
+  const main = $('#f2'), side = $('#g2'), W = 690, H = 440, SW = 460, RC = [2, 0, 5], G2 = 0.5, VP = [5, 10, 10], NE = 15;
+  const CC = [OCHRE, GREEN, BLUE];
+  const MOVES = Array.from({ length: NE }, () => [[0, 1], [1, 2], [2, 2], [2, 2]]).flat(); // 1→2→3→3→3, again and again
+  const st = { a: 0.5, k: 0, Vs: [], d: [] };
+  function run() {
+    let V = [0, 0, 0];
+    st.Vs = [V]; st.d = [0];
+    MOVES.forEach(([s, t]) => { const d = RC[t] + G2 * V[t] - V[s]; V = V.slice(); V[s] += st.a * d; st.Vs.push(V); st.d.push(d); });
+  }
+  const K = { X0: 95, CW: 170, Y0: 54, CH: 86 }, cx = j => K.X0 + (j + 0.5) * K.CW, CY = K.Y0 + K.CH / 2 - 6, WALL = K.X0 + 3 * K.CW;
+  const B = { BASE: 388, TOP: 236, MAX: 11, BW: 66 }, by = v => B.BASE - v / B.MAX * (B.BASE - B.TOP);
+  function draw(k, u = 1) {
+    const mv = k ? MOVES[k - 1] : null, V0 = st.Vs[Math.max(0, k - 1)], V1 = st.Vs[k], V = V1.map((v, j) => lerp(V0[j], v, u));
+    let s = heading(W, k ? `Move ${k}: cell ${mv[0] + 1} → cell ${mv[1] + 1}` : 'Start: $V$ = 0', 'dashed: $V^π$') + frameRect(1, 38, W - 2, H - 39);
+    for (let j = 0; j < 3; j++) {
+      const x = K.X0 + j * K.CW;
+      s += `<rect x="${x}" y="${K.Y0}" width="${K.CW}" height="${K.CH}" fill="#fff" stroke="${INK}" stroke-width="2"/>`
+        + label(x + 9, K.Y0 + 21, String(j + 1), { fs: 17, fill: MUTED })
+        + label(cx(j), K.Y0 + K.CH + 28, `$R$ = ${RC[j]}`, { fs: 20, fill: MUTED, anchor: 'middle' });
+    }
+    let ax = cx(0);
+    if (mv) {
+      const [a, b] = mv, end = a === b ? WALL - 8 : cx(b) - 16;
+      s += arrow([cx(a) + 16, CY + 30], [end, CY + 30], GREY, 2, 9);
+      ax = a === b ? lerp(cx(a), WALL - 14, u < 0.5 ? 2 * u : 2 - 2 * u) : lerp(cx(a), cx(b), u);
+      const [S, T] = [a, b], d = st.d[k];
+      s += label(cx(1), 208, `$δ$ = ${RC[T]} + ½ · ${fr(V0[T])} − ${fr(V0[S])} = ${fr(d)},   $V$(${S + 1}): ${fr(V0[S])} → ${fr(V1[S])}`, { fs: 21, anchor: 'middle' });
+    } else s += label(cx(1), 208, 'Press play, or step forward one move', { fs: 20, fill: MUTED, anchor: 'middle' });
+    s += `<circle cx="${f1(ax)}" cy="${CY}" r="11" fill="${INK}"/>`;
+    [0, 5, 10].forEach(t => { s += hline(K.X0, WALL, by(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(K.X0 - 12, by(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    for (let j = 0; j < 3; j++) {
+      const x = cx(j) - B.BW / 2, hit = mv && mv[0] === j;
+      s += `<path d="${barPath(x, B.BW, B.BASE, by(V[j]))}" fill="${CC[j]}"/>`
+        + `<rect x="${x}" y="${f1(by(VP[j]))}" width="${B.BW}" height="${f1(B.BASE - by(VP[j]))}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-dasharray="6 5"/>`
+        + label(cx(j), B.BASE + 32, `$V$(${j + 1}) = ${fr(V[j])}`, { fs: 20, anchor: 'middle', fw: hit ? 1 : 0 });
+    }
+    main.innerHTML = s;
+  }
+  const C = { L: 64, R: 430, T: 100, B: 360 };
+  function chart(k) {
+    const n = MOVES.length, X = j => C.L + j / n * (C.R - C.L), Y = v => C.B - v / B.MAX * (C.B - C.T);
+    let s = heading(SW, 'Every cell’s $V$, move by move', 'dashed: $V^π$') + frameRect(1, 38, SW - 2, H - 39)
+      + CC.map((c, j) => lineKey(C.L - 30 + j * 118, 72, c, `cell ${j + 1}`)).join('');
+    [0, 5, 10].forEach(t => { s += hline(C.L, C.R, Y(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(C.L - 10, Y(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    [5, 10].forEach(t => { s += seg([C.L, Y(t), C.R, Y(t)], INK, 1.5, 'stroke-dasharray="6 5" stroke-linecap="butt"'); });
+    ticks(0, n, 6).out.forEach(t => { s += seg([X(t), C.B, X(t), C.B + 6], AXIS, 1.5) + label(X(t), C.B + 26, String(t), { fs: 17, fill: MUTED, anchor: 'middle' }); });
+    s += label((C.L + C.R) / 2, C.B + 54, 'move', { fs: 18, fill: MUTED, anchor: 'middle' });
+    for (let j = 2; j >= 0; j--) {
+      const pts = upto => st.Vs.slice(0, upto + 1).map((V, i) => [X(i), Y(V[j])]);
+      s += `<path d="${pathD(pts(n))}" fill="none" stroke="${CC[j]}" stroke-opacity="0.25" stroke-width="3"/>`
+        + `<path d="${pathD(pts(k))}" fill="none" stroke="${CC[j]}" stroke-width="3" stroke-linejoin="round"/>` + dotAt([X(k), Y(st.Vs[k][j])], CC[j], 6);
+    }
+    s += seg([X(k), C.T - 6, X(k), C.B], INK, 1, 'opacity="0.35" stroke-linecap="butt"');
+    side.innerHTML = s;
+    $('#v2v').textContent = `(${st.Vs[k].map(fr).join(', ')})`;
+  }
+  function show(k, anim) {
+    st.k = k; chart(k);
+    if (anim && k > 0) return tween(520, u => draw(k, u));
+    draw(k);
+  }
+  const bar = stepper($('#s2'), { go: show, text: s => (s ? `move ${s} of ${MOVES.length}` : 'start'),
+    kind: i => (i % 4 ? 1 : 2), wait: s => (s < 12 ? 900 : 220), name: 'Moves' });
+  slider('a2r', '#a2v', a => { st.a = a; run(); show(bar.s); });
+  run(); bar.reset(MOVES.length, 0); show(0);
+
+  check('q2', 'Step through the first episode and on into the second. When does $V(1)$ first become positive?', [
+    { t: 'At move 1, the first move $1\\to2$.', ok: false,
+      fb: 'Then $V(2)$ was still $0$, so $\\delta=0+\\tfrac12\\cdot0-0=0$ and nothing changes.' },
+    { t: 'At move 5, the next visit of cell 1.', ok: true,
+      fb: 'By then $V(2)=\\tfrac52$, so $\\delta=\\tfrac54$ and $V(1)=\\tfrac58$ with $\\alpha=\\tfrac12$ (Problem 2(c)). The reward travels back by one cell per visit.' },
+    { t: 'Only once $V(2)$ has reached $10$.', ok: false,
+      fb: 'TD does not wait: every visit moves $V(1)$ towards $0+\\tfrac12V(2)$ with the current $V(2)$.' },
+  ]);
+  return st;
+})();
+
+// ---------- The grid world of Tutorial 12, with rewards on arrival ----------
 const MAP = ['. . . . . 10', '. # . -5 . .', '. # . . # .', '2 . . -5 . .'].map(r => r.split(' '));
 const GS = [], GID = {};
 MAP.forEach((row, y) => row.forEach((c, x) => { if (c !== '#') { GID[`${x},${y}`] = GS.length; GS.push({ x, y, R: c === '.' ? 0 : +c }); } }));
@@ -570,298 +640,192 @@ const GR = GS.map(p => p.R), NG = GS.length;
 const MOV = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // up, right, down, left
 const PREF = [1, 0, 2, 3]; // among tied actions, draw right, then up, down, left
 const GN = GS.map((p, s) => MOV.map(([dx, dy]) => GID[`${p.x + dx},${p.y + dy}`] ?? s)); // the cell each action leads to
-const sweep = (V, g) => GS.map((_, s) => GR[s] + g * Math.max(...GN[s].map(t => V[t])));
-const greedySet = (V, s) => { const q = GN[s].map(t => V[t]), m = Math.max(...q); return q.map(v => v > m - 1e-9); };
-const greedyAct = (V, s) => { const b = greedySet(V, s); return b.every(Boolean) ? -1 : PREF.find(a => b[a]); }; // −1: all tie
-function solveGrid(g) { // V* by value iteration run to the end, and the optimal actions in every cell
-  let V = GR.map(() => 0);
-  for (let k = 0; k < 20000; k++) { const N = sweep(V, g), d = Math.max(...N.map((v, i) => Math.abs(v - V[i]))); V = N; if (d < 1e-12) break; }
-  return { V, opt: GS.map((_, s) => greedySet(V, s)) };
-}
-const notOptimal = (V, opt) => GS.filter((_, s) => { const a = greedyAct(V, s); return a < 0 || !opt[s][a]; }).length;
-function sweepsToOptimal(g, opt) { // the first sweep after which every greedy arrow stays optimal
-  let V = GR.map(() => 0), last = 0;
-  for (let k = 0; k < 20000; k++) {
-    if (notOptimal(V, opt)) last = k + 1;
-    const N = sweep(V, g), d = Math.max(...N.map((v, i) => Math.abs(v - V[i])));
-    V = N;
-    if (d < 1e-10) break;
-  }
-  return last;
-}
+const greedySet = q => { const m = Math.max(...q); return q.map(v => v > m - 1e-9); };
+const greedyAct = q => { const b = greedySet(q); return b.every(Boolean) ? -1 : PREF.find(a => b[a]); }; // −1: all tie
 const GC = 100, GX0 = 45, GY0 = 46;
 const gfmt = v => (Math.abs(v) >= 99.95 ? num(v, 0) : num(v, 1).replace(/\.0$/, ''));
-function gridSVG(V, act, opt, tint = null) { // values, arrows (blue optimal, red not), tinted cells
-  let s = '';
-  MAP.forEach((row, y) => row.forEach((c, x) => {
-    const at = `x="${GX0 + x * GC}" y="${GY0 + y * GC}" width="${GC}" height="${GC}"`;
-    if (c === '#') s += `<rect ${at} fill="#d9d9d9"/>`;
-    else if (tint && tint[GID[`${x},${y}`]]) s += `<rect ${at} fill="#e3eef6"/>`;
-  }));
-  for (let x = 1; x < 6; x++) s += seg([GX0 + x * GC, GY0, GX0 + x * GC, GY0 + 4 * GC], AXIS, 1.2, 'stroke-linecap="butt"');
-  for (let y = 1; y < 4; y++) s += seg([GX0, GY0 + y * GC, GX0 + 6 * GC, GY0 + y * GC], AXIS, 1.2, 'stroke-linecap="butt"');
-  s += `<rect x="${GX0}" y="${GY0}" width="${6 * GC}" height="${4 * GC}" fill="none" stroke="${INK}" stroke-width="2"/>`;
-  GS.forEach((p, i) => {
-    const X = GX0 + p.x * GC, Y = GY0 + p.y * GC, c = X + GC / 2, a = act[i];
-    if (p.R) s += label(X + 8, Y + 22, p.R > 0 ? `+${p.R}` : `−${-p.R}`, { fs: 18, fw: 1 });
-    s += label(c, Y + 50, gfmt(V[i]), { fs: 26, anchor: 'middle' });
-    if (a >= 0) {
-      const [dx, dy] = MOV[a], h = dx ? 22 : 15, yc = Y + 75;
-      s += arrow([c - dx * h, yc - dy * h], [c + dx * h, yc + dy * h], opt[i][a] ? BLUE : RED, 3, 11);
-    }
-  });
-  return s;
-}
 
-// ==================== 2. Value iteration ====================
-const E2 = (() => {
-  const main = $('#f2'), side = $('#g2'), W = 690, H = 450, SW = 460;
-  const st = { g: 0.7, k: 0, VS: null, opt: null, Vs: [], err: [], wrong: [] };
+// ==================== 3. Q-learning ====================
+const E3 = (() => {
+  const main = $('#f3'), side = $('#g3'), W = 690, H = 450, SW = 460, G3 = 0.7, A3 = 0.5, NE = 400, T = 20, MA = 20;
+  let QS = GS.map(() => [0, 0, 0, 0]); // Q* by value iteration: Q*(s,a) = R(s′) + γ max Q*(s′,·)
+  for (let k = 0; k < 2000; k++) QS = GS.map((_, s) => GN[s].map(t => GR[t] + G3 * Math.max(...QS[t])));
+  const OPT = QS.map(greedySet);
+  const REF = (() => { // reward per move of the optimal policy, from a random start
+    let tot = 0;
+    GS.forEach((_, s0) => { let s = s0; for (let t = 0; t < T; t++) { s = GN[s][OPT[s].indexOf(true)]; tot += GR[s]; } });
+    return tot / NG / T;
+  })();
+  const st = { eps: 0.1, seed: 12, k: 0, Qs: [], paths: [], rew: [], ma: [], wrong: [] };
+  const wrongOf = Q => Q.filter((q, s) => { const a = greedyAct(q); return a < 0 || !OPT[s][a]; }).length;
   function run() {
-    const sol = solveGrid(st.g), E = V => Math.max(...V.map((v, i) => Math.abs(v - sol.V[i])));
-    st.VS = sol.V; st.opt = sol.opt; st.Vs = [GR.map(() => 0)]; st.err = [E(st.Vs[0])];
-    while (st.err[st.err.length - 1] >= 0.01 && st.Vs.length <= 200) { st.Vs.push(sweep(st.Vs[st.Vs.length - 1], st.g)); st.err.push(E(st.Vs[st.Vs.length - 1])); }
-    st.wrong = st.Vs.map(V => notOptimal(V, st.opt));
+    const rnd = rng(st.seed), Q = GS.map(() => [0, 0, 0, 0]);
+    st.Qs = [Q.map(q => q.slice())]; st.paths = [null]; st.rew = [0]; st.wrong = [wrongOf(Q)];
+    for (let e = 1; e <= NE; e++) {
+      let s = Math.floor(rnd() * NG), tot = 0;
+      const path = [s];
+      for (let t = 0; t < T; t++) {
+        const best = [0, 1, 2, 3].filter((_, a) => greedySet(Q[s])[a]);
+        const a = rnd() < st.eps ? Math.floor(rnd() * 4) : best[Math.floor(rnd() * best.length)];
+        const s2 = GN[s][a];
+        Q[s][a] += A3 * (GR[s2] + G3 * Math.max(...Q[s2]) - Q[s][a]);
+        tot += GR[s2]; s = s2; path.push(s);
+      }
+      st.Qs.push(Q.map(q => q.slice())); st.paths.push(path); st.rew.push(tot / T); st.wrong.push(wrongOf(Q));
+    }
+    st.ma = st.rew.map((_, e) => (e ? sum(st.rew.slice(Math.max(1, e - MA + 1), e + 1)) / Math.min(e, MA) : 0));
   }
-  function draw() {
-    const k = st.k, V = st.Vs[k];
-    main.innerHTML = heading(W, `$V_k$ after $k$ = ${k} sweep${k === 1 ? '' : 's'}`, 'red arrows are not optimal')
-      + gridSVG(V, GS.map((_, s) => greedyAct(V, s)), st.opt);
+  function draw(k) {
+    const Q = st.Qs[k], path = st.paths[k], seen = new Set(path || []);
+    let s = heading(W, k ? `After episode ${k}` : 'Before the first episode', k ? 'tinted: this episode (○ start, ● end)' : '');
+    MAP.forEach((row, y) => row.forEach((c, x) => {
+      const at = `x="${GX0 + x * GC}" y="${GY0 + y * GC}" width="${GC}" height="${GC}"`;
+      if (c === '#') s += `<rect ${at} fill="#d9d9d9"/>`;
+      else if (seen.has(GID[`${x},${y}`])) s += `<rect ${at} fill="#e3eef6"/>`;
+    }));
+    for (let x = 1; x < 6; x++) s += seg([GX0 + x * GC, GY0, GX0 + x * GC, GY0 + 4 * GC], AXIS, 1.2, 'stroke-linecap="butt"');
+    for (let y = 1; y < 4; y++) s += seg([GX0, GY0 + y * GC, GX0 + 6 * GC, GY0 + y * GC], AXIS, 1.2, 'stroke-linecap="butt"');
+    s += `<rect x="${GX0}" y="${GY0}" width="${6 * GC}" height="${4 * GC}" fill="none" stroke="${INK}" stroke-width="2"/>`;
+    GS.forEach((p, i) => {
+      const X = GX0 + p.x * GC, Y = GY0 + p.y * GC, c = X + GC / 2, a = greedyAct(Q[i]);
+      if (p.R) s += label(X + 8, Y + 22, p.R > 0 ? `+${p.R}` : `−${-p.R}`, { fs: 18, fw: 1 });
+      s += label(c, Y + 50, gfmt(Math.max(...Q[i])), { fs: 26, anchor: 'middle' });
+      if (a >= 0) {
+        const [dx, dy] = MOV[a], h = dx ? 22 : 15, yc = Y + 75;
+        s += arrow([c - dx * h, yc - dy * h], [c + dx * h, yc + dy * h], OPT[i][a] ? BLUE : RED, 3, 11);
+      }
+    });
+    if (path) {
+      const at = i => [GX0 + (GS[i].x + 1) * GC - 15, GY0 + GS[i].y * GC + 16];
+      const [a, b] = [at(path[0]), at(path[path.length - 1])];
+      s += `<circle cx="${a[0]}" cy="${a[1]}" r="${path[0] === path[path.length - 1] ? 10 : 7}" fill="#fff" stroke="${INK}" stroke-width="2"/>`
+        + `<circle cx="${b[0]}" cy="${b[1]}" r="6" fill="${INK}"/>`;
+    }
+    main.innerHTML = s;
   }
-  // The companion: the largest error on a log scale, with the bound γ^k times the first error; below, the cells without an optimal arrow.
-  const C = { L: 74, R: 438, T1: 92, B1: 252, T2: 318, B2: 390 };
-  function chart() {
-    const K = st.Vs.length - 1, k = st.k, err = st.err, X = j => C.L + j / K * (C.R - C.L);
-    const hiE = Math.ceil(Math.log10(err[0])), loE = Math.floor(Math.log10(Math.max(err[K], 1e-6)));
-    const Y = e => C.T1 + (hiE - Math.log10(Math.max(e, 1e-12))) / (hiE - loE) * (C.B1 - C.T1);
-    const path = j1 => err.slice(0, j1 + 1).map((e, j) => `${j ? 'L' : 'M'}${f1(X(j))} ${f1(Y(e))}`).join('');
-    let s = heading(SW, 'Error after $k$ sweeps', 'log scale') + frameRect(1, 38, SW - 2, H - 39)
-      + `<defs><clipPath id="clip2"><rect x="${C.L - 6}" y="${C.T1 - 6}" width="${C.R - C.L + 12}" height="${C.B1 - C.T1 + 12}"/></clipPath></defs>`
-      + seg([C.L, 62, C.L + 26, 62], RED, 3) + label(C.L + 34, 68, 'largest error', { fs: 18 })
-      + seg([C.L + 172, 62, C.L + 198, 62], INK, 1.5, 'stroke-dasharray="6 5" stroke-linecap="butt"') + label(C.L + 206, 68, '$γ^k$ × first error', { fs: 18 });
-    for (let d = loE; d <= hiE; d++) s += seg([C.L, Y(10 ** d), C.R, Y(10 ** d)], GRID, 1.2, 'stroke-linecap="butt"') + label(C.L - 10, Y(10 ** d) + 6, d >= 0 ? String(10 ** d) : (10 ** d).toFixed(-d), { fs: 17, fill: MUTED, anchor: 'end' });
-    s += '<g clip-path="url(#clip2)">'
-      + `<path d="${path(K)}" fill="none" stroke="${RED}" stroke-opacity="0.25" stroke-width="3" stroke-linejoin="round"/>`
-      + `<path d="${path(k)}" fill="none" stroke="${RED}" stroke-width="3" stroke-linejoin="round"/>`
-      + seg([X(0), Y(err[0]), X(K), Y(err[0] * st.g ** K)], INK, 1.5, 'stroke-dasharray="6 5" stroke-linecap="butt"') + '</g>'
-      + dotAt([X(k), Y(err[k])], RED, 6.5);
-    // below: how many cells have no optimal arrow yet
-    const Y2 = c => C.B2 - c / NG * (C.B2 - C.T2), bw = clamp((C.R - C.L) / K * 0.7, 1.2, 16);
-    s += label(C.L, C.T2 - 16, 'cells without an optimal arrow', { fs: 18, fill: MUTED });
-    [0, NG].forEach(c => { s += seg([C.L, Y2(c), C.R, Y2(c)], c ? GRID : AXIS, c ? 1.2 : 1.5, 'stroke-linecap="butt"') + label(C.L - 10, Y2(c) + 6, String(c), { fs: 17, fill: MUTED, anchor: 'end' }); });
-    st.wrong.forEach((c, j) => { if (c) s += `<rect x="${f1(X(j) - bw / 2)}" y="${f1(Y2(c))}" width="${f1(bw)}" height="${f1(C.B2 - Y2(c))}" fill="${j <= k ? RED : '#e4e4e4'}"/>`; });
-    const tk = ticks(0, K, 5);
-    tk.out.forEach(t => { s += seg([X(t), C.B2, X(t), C.B2 + 6], AXIS, 1.5) + label(X(t), C.B2 + 26, String(t), { fs: 17, fill: MUTED, anchor: 'middle' }); });
-    s += label((C.L + C.R) / 2, C.B2 + 52, 'sweep $k$', { fs: 18, fill: MUTED, anchor: 'middle' })
-      + seg([X(k), C.T1 - 4, X(k), C.B1 + 4], INK, 1, 'opacity="0.35" stroke-linecap="butt"')
+  const C = { L: 64, R: 438, T1: 96, B1: 206, T2: 282, B2: 380, LO: -2, HI: 10 };
+  function chart(k) {
+    const X = j => C.L + j / NE * (C.R - C.L), Y1 = c => C.B1 - c / NG * (C.B1 - C.T1), Y2 = v => C.B2 - (v - C.LO) / (C.HI - C.LO) * (C.B2 - C.T2);
+    let s = heading(SW, 'Learning and earning') + frameRect(1, 38, SW - 2, H - 39)
+      + label(C.L, C.T1 - 16, 'cells without an optimal arrow', { fs: 18, fill: MUTED });
+    [0, NG].forEach(c => { s += hline(C.L, C.R, Y1(c), c ? GRID : AXIS, c ? 1.2 : 1.5) + label(C.L - 10, Y1(c) + 6, String(c), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    const bw = Math.max(1.3, (C.R - C.L) / NE);
+    let past = '', future = '';
+    st.wrong.forEach((c, j) => { if (c) { const r = `M${f1(X(j) - bw / 2)} ${f1(Y1(c))}h${f1(bw)}V${C.B1}h${f1(-bw)}Z`; if (j <= k) past += r; else future += r; } });
+    s += `<path d="${future}" fill="#e4e4e4"/><path d="${past}" fill="${RED}"/>`;
+    // below: the reward per move, a running mean over the last 20 episodes
+    s += label(C.L, C.T2 - 16, `reward per move, mean of the last ${MA} episodes`, { fs: 18, fill: MUTED });
+    [0, 5, 10].forEach(t => { s += hline(C.L, C.R, Y2(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(C.L - 10, Y2(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    s += seg([C.L, Y2(REF), C.R, Y2(REF)], INK, 1.5, 'stroke-dasharray="6 5" stroke-linecap="butt"')
+      + label(C.R - 2, Y2(REF) - 8, 'acting optimally', { fs: 17, fill: MUTED, anchor: 'end' });
+    const pts = upto => st.ma.slice(1, upto + 1).map((v, j) => [X(j + 1), Y2(v)]);
+    s += `<path d="${pathD(pts(NE))}" fill="none" stroke="${BLUE}" stroke-opacity="0.25" stroke-width="2.5"/>`;
+    if (k) s += `<path d="${pathD(pts(k))}" fill="none" stroke="${BLUE}" stroke-width="2.5" stroke-linejoin="round"/>` + dotAt([X(k), Y2(st.ma[k])], BLUE, 6);
+    ticks(0, NE, 4).out.forEach(t => { s += seg([X(t), C.B2, X(t), C.B2 + 6], AXIS, 1.5) + label(X(t), C.B2 + 26, String(t), { fs: 17, fill: MUTED, anchor: 'middle' }); });
+    s += label((C.L + C.R) / 2, C.B2 + 54, 'episode', { fs: 18, fill: MUTED, anchor: 'middle' })
+      + seg([X(k), C.T1 - 4, X(k), C.B1], INK, 1, 'opacity="0.35" stroke-linecap="butt"')
       + seg([X(k), C.T2 - 4, X(k), C.B2], INK, 1, 'opacity="0.35" stroke-linecap="butt"');
     side.innerHTML = s;
-    const e = err[k];
-    $('#e2v').textContent = num(e, e >= 10 ? 1 : e >= 0.1 ? 2 : 3);
-    $('#w2v').textContent = `${st.wrong[k]} of ${NG} cells`;
+    $('#w3v').textContent = `${st.wrong[k]} of ${NG} cells`;
+    $('#r3v').textContent = k ? num(st.ma[k], 2) : '–';
   }
-  const show = k => { st.k = k; draw(); chart(); };
-  const bar = stepper($('#s2'), { go: show, text: s => `<span class="mi">k</span> = ${s} of ${st.Vs.length - 1}`, wait: s => (s < 8 ? 650 : s < 30 ? 200 : 60), name: 'Sweeps' });
-  function load() { run(); const K = st.Vs.length - 1; bar.reset(K, Math.min(bar.s, K)); show(bar.s); }
-  slider('g2r', '#g2v', g => { st.g = g; load(); });
-  load();
+  const show = k => { st.k = k; draw(k); chart(k); };
+  const bar = stepper($('#s3'), { go: show, text: s => `episode ${s} of ${NE}`, wait: s => (s < 6 ? 800 : s < 30 ? 160 : 35), name: 'Episodes' });
+  const load = () => { run(); show(bar.s); };
+  segGroup('eps3', k => { st.eps = +k; load(); });
+  $('#new3').addEventListener('click', () => { st.seed = newSeed(); load(); });
+  run(); bar.reset(NE, 0); show(0);
 
-  check('q2', 'Each sweep shrinks the largest error $\\max_s|V_k(s)-V^*(s)|$ by at least which factor?', [
-    { t: 'By $\\tfrac12$, as in Problem 2.', ok: false,
-      fb: 'That was the factor for $\\gamma=\\tfrac12$. Set $\\gamma=0.9$ and watch how slowly the red curve falls.' },
-    { t: 'By $\\gamma$.', ok: true,
-      fb: 'The red curve never rises above the dashed line $\\gamma^k$ times the first error; on this grid it even lies on it. So a $\\gamma$ close to 1 needs many sweeps.' },
-    { t: 'It depends on the number of cells.', ok: false,
-      fb: 'A sweep takes a max over moves and then multiplies by $\\gamma$, whatever the size of the grid. That bounds the error by $\\gamma$ times the old one.' },
+  check('q3', 'Set $\\epsilon=1$: the agent moves completely at random. What happens?', [
+    { t: 'It never finds the optimal arrows, because it never follows its arrows.', ok: false,
+      fb: 'Watch the red bars: they reach zero sooner than for any other $\\epsilon$. The update uses $\\max_{a\'}Q(s\',a\')$, whatever the agent does next.' },
+    { t: 'It finds all optimal arrows soonest, but earns almost nothing while learning.', ok: true,
+      fb: 'Q-learning is off-policy: it learns $Q^*$ from any behaviour that keeps trying every action. Moving at random tries them all, but collects little reward. Exploring and exploiting pull in opposite directions.' },
+    { t: 'It learns the values of moving at random.', ok: false,
+      fb: 'The numbers become the optimal values, those of acting greedily, not those of the random walk. SARSA would learn the values of the policy it follows (Problem 3(c)).' },
   ]);
   return st;
 })();
 
-// ==================== 3. Policy iteration ====================
-const E3 = (() => {
-  const main = $('#f3'), side = $('#g3'), W = 690, H = 450, SW = 460;
-  const st = { g: 0.7, start: 'left', seed: 4242, rounds: [], opt: null };
-  function startPol() {
-    if (st.start === 'left') return GS.map(() => 3);
-    let seed = st.seed;
-    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    return GS.map(() => Math.floor(rnd() * 4));
-  }
-  function run() {
-    st.opt = solveGrid(st.g).opt;
-    const rounds = [];
-    let pol = startPol();
-    for (let r = 0; r < 60; r++) {
-      const V = evalDet(pol.map((a, s) => GN[s][a]), GR, st.g);
-      rounds.push({ pol, V });
-      const np = pol.map((a, s) => { const b = greedySet(V, s); return b[a] ? a : PREF.find(c => b[c]); });
-      if (np.every((a, s) => a === pol[s])) break;
-      pol = np;
-    }
-    st.rounds = rounds;
-    $('#r3v').textContent = rounds.length;
-    $('#k3v').textContent = `${sweepsToOptimal(st.g, st.opt)} sweeps`;
-  }
-  // step 2r: round r+1 evaluates π_r; step 2r+1: it improves π_r
-  function draw(s) {
-    const r = Math.floor(s / 2), imp = s % 2 === 1, cur = st.rounds[r], pol = imp ? (st.rounds[r + 1] || cur).pol : cur.pol;
-    const changed = imp ? pol.map((a, i) => a !== cur.pol[i]) : null, n = changed ? changed.filter(Boolean).length : 0;
-    main.innerHTML = heading(W, `Round ${r + 1}: ${imp ? 'improve' : 'evaluate'}`,
-      imp ? (n ? `${n} cell${n === 1 ? '' : 's'} change${n === 1 ? 's' : ''}` : 'no change, so stop') : 'values $V^π$ of these arrows')
-      + gridSVG(cur.V, pol, st.opt, changed);
-  }
-  // The companion: V^π of every cell after every round; no line ever goes down.
-  const C = { L: 74, R: 430, T: 64, B: 372 };
-  function chart(s) {
-    const R = st.rounds.length, upto = Math.floor(s / 2), all = st.rounds.flatMap(x => x.V);
-    const lo = Math.min(0, ...all), hi = Math.max(...all), pad = (hi - lo) * 0.06, y0 = lo - pad, y1 = hi + pad, tk = ticks(y0, y1, 5);
-    const X = j => (R === 1 ? (C.L + C.R) / 2 : C.L + j / (R - 1) * (C.R - C.L)), Y = v => C.B - (v - y0) / (y1 - y0) * (C.B - C.T);
-    let out = heading(SW, 'Every cell’s $V^π$, round by round') + frameRect(1, 38, SW - 2, H - 39);
-    tk.out.forEach(t => { out += seg([C.L, Y(t), C.R, Y(t)], Math.abs(t) < 1e-9 ? AXIS : GRID, Math.abs(t) < 1e-9 ? 1.5 : 1.2, 'stroke-linecap="butt"') + label(C.L - 10, Y(t) + 6, num(t, tk.dec), { fs: 17, fill: MUTED, anchor: 'end' }); });
-    for (let j = 0; j < R; j++) out += label(X(j), C.B + 28, String(j + 1), { fs: 17, fill: j <= upto ? INK : MUTED, anchor: 'middle' });
-    out += label((C.L + C.R) / 2, C.B + 56, 'round', { fs: 18, fill: MUTED, anchor: 'middle' })
-      + seg([X(upto), C.T - 6, X(upto), C.B], INK, 1, 'opacity="0.35" stroke-linecap="butt"');
-    GS.forEach((_, i) => {
-      const pts = st.rounds.slice(0, upto + 1).map((x, j) => [X(j), Y(x.V[i])]);
-      out += `<path d="${pts.map((p, j) => `${j ? 'L' : 'M'}${f1(p[0])} ${f1(p[1])}`).join('')}" fill="none" stroke="${BLUE}" stroke-opacity="0.5" stroke-width="2" stroke-linejoin="round"/>`
-        + pts.map(p => `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3.5" fill="${BLUE}"/>`).join('');
-    });
-    side.innerHTML = out;
-  }
-  const show = s => { draw(s); chart(s); };
-  const bar = stepper($('#s3'), { go: show, text: s => `round ${Math.floor(s / 2) + 1} · ${s % 2 ? 'improve' : 'evaluate'}`,
-    kind: s => (s % 2 ? 1 : 2), tick: s => s / 2 + 1, wait: () => 950, name: 'Policy iteration steps' });
-  function load(keep = true) { run(); const n = 2 * st.rounds.length - 1; bar.reset(n, keep ? Math.min(bar.s, n) : 0); show(bar.s); }
-  slider('g3r', '#g3v', g => { st.g = g; load(); });
-  segGroup('start3', k => { if (k === 'rand') st.seed = 1 + Math.floor(Math.random() * 2147483000); st.start = k; load(false); });
-  load(false);
-
-  check('q3', 'Can the value of a cell go down from one round of policy iteration to the next?', [
-    { t: 'Yes, in the cells whose action changes.', ok: false,
-      fb: 'A cell changes its action only to one that does better against $V^\\pi$. Follow the lines in the companion: none goes down.' },
-    { t: 'No: the improved policy is at least as good in every cell.', ok: true,
-      fb: 'So no policy can come back, and with finitely many policies the rounds must stop (Problem 3(b)).' },
-    { t: 'Yes, when $\\gamma$ is close to 1.', ok: false,
-      fb: 'Try $\\gamma=0.95$: the lines climb higher, but they still never go down.' },
-  ]);
-  return st;
-})();
-
-// ==================== 4. Learn the model ====================
+// ==================== 4. Exploration ====================
 const E4 = (() => {
-  const main = $('#f4'), side = $('#g4'), W = 690, H = 440, SW = 460, RC = [2, 0, 5], G4 = 0.5;
-  const Q = [0.6, 0.8, 0.9]; // the chance that a move succeeds in cells 1, 2, 3
-  const KEYS = [[0, -1], [1, -1], [2, -1], [0, 1], [1, 1], [2, 1]]; // (s, a), cells counted from 0
-  const TRUE = (s, a) => { const t = clamp(s + a, 0, 2), p = [0, 0, 0]; if (t === s) p[s] = 1; else { p[t] = Q[s]; p[s] = 1 - Q[s]; } return p; };
-  // the three trials of Problem 4, as (s, a, s′)
-  const SHEET = [[0, 1, 1], [1, 1, 2], [2, 1, 2], [0, 1, 0], [0, 1, 1], [1, 1, 1], [1, 1, 2], [1, 1, 2], [2, -1, 1], [1, 1, 2]];
-  const NS = [...Array(13).keys(), 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 500], MAJ = new Set([0, 10, 100, 500]);
-  const st = { seed: 20261209, data: [], mode: 'mle', i: 0 };
-  function gen() { // after the trials, the agent keeps acting at random from cell 3
-    let seed = st.seed;
-    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const d = SHEET.slice();
-    let s = 2;
-    while (d.length < 500) {
-      const a = rnd() < 0.5 ? -1 : 1, p = TRUE(s, a), u = rnd(), t = u < p[0] ? 0 : u < p[0] + p[1] ? 1 : 2;
-      d.push([s, a, t]); s = t;
+  const main = $('#f4'), side = $('#g4'), W = 690, H = 450, SW = 460, RC = [2, 0, 5], G4 = 0.5, A4 = 0.5, NE = 50, T = 10;
+  const QS = [[4.5, 5], [4.5, 10], [5, 10]], BEST = 45; // Q*(s,left), Q*(s,right); the best episode: 0 + 9 × 5
+  const st = { mode: '0', seed: 47, k: 0, Qs: [], moves: [], rets: [] };
+  const greedy = q => (q[1] > q[0] ? 1 : 0); // ties go to the left
+  function run() {
+    const rnd = rng(st.seed), Q = [[0, 0], [0, 0], [0, 0]];
+    st.Qs = [Q.map(q => q.slice())]; st.moves = [[]]; st.rets = [0];
+    for (let k = 1; k <= NE; k++) {
+      const eps = st.mode === 'glie' ? 1 / k : +st.mode, mv = [];
+      let s = 0, tot = 0;
+      for (let t = 0; t < T; t++) {
+        const rand = eps > 0 && rnd() < eps, a = rand ? (rnd() < 0.5 ? 0 : 1) : greedy(Q[s]), s2 = clamp(s + (a ? 1 : -1), 0, 2);
+        Q[s][a] += A4 * (RC[s2] + G4 * Math.max(...Q[s2]) - Q[s][a]);
+        mv.push({ a, r: RC[s2], rand }); tot += RC[s2]; s = s2;
+      }
+      st.Qs.push(Q.map(q => q.slice())); st.moves.push(mv); st.rets.push(tot);
     }
-    st.data = d;
   }
-  const key = (s, a) => `${s}${a}`;
-  function counts(n) {
-    const C = {};
-    KEYS.forEach(([s, a]) => { C[key(s, a)] = [0, 0, 0]; });
-    for (let i = 0; i < n; i++) { const [s, a, t] = st.data[i]; C[key(s, a)][t]++; }
-    return C;
-  }
-  const alpha = () => (st.mode === 'mle' ? 0 : 1);
-  function estimate(C) { // P̂(· | s, a) for every pair; null where it is not defined (never tried, no smoothing)
-    const P = {}, al = alpha();
-    KEYS.forEach(([s, a]) => { const c = C[key(s, a)], N = sum(c); P[key(s, a)] = N + 3 * al ? c.map(x => (x + al) / (N + 3 * al)) : null; });
-    return P;
-  }
-  function plan(P) { // value iteration on a model; null if some pair has no estimate
-    if (KEYS.some(([s, a]) => !P[key(s, a)])) return null;
-    const q = (V, s) => [-1, 1].map(a => dotv(P[key(s, a)], V));
-    let V = [0, 0, 0];
-    for (let k = 0; k < 200; k++) V = [0, 1, 2].map(s => RC[s] + G4 * Math.max(...q(V, s)));
-    return { V, act: [0, 1, 2].map(s => { const [l, r] = q(V, s); return Math.abs(l - r) < 1e-9 ? 0 : r > l ? 1 : -1; }) };
-  }
-  const TP = {};
-  KEYS.forEach(([s, a]) => { TP[key(s, a)] = TRUE(s, a); });
-  const TV = plan(TP);
-
-  const px = s => 96 + s * 198, py = a => (a < 0 ? 76 : 256), PW = 186, PH = 168, BW = 32, H1 = 76;
-  const bx = (s, i) => px(s) + 48 + i * 46;
-  function draw(n) {
-    const C = counts(n), P = estimate(C), last = n ? st.data[n - 1] : null, al = alpha();
-    let s = heading(W, 'Estimated $P_{sa}(s′)$', 'dashed: the true $P_{sa}$') + frameRect(1, 38, W - 2, H - 39)
-      + [0, 1, 2].map(c => label(px(c) + PW / 2, 64, `$s$ = ${c + 1}`, { fs: 20, anchor: 'middle' })).join('')
-      + label(14, py(-1) + PH / 2 + 6, 'left', { fs: 20 }) + label(14, py(1) + PH / 2 + 6, 'right', { fs: 20 });
-    KEYS.forEach(([c, a]) => {
-      const k = key(c, a), x0 = px(c), y0 = py(a), base = y0 + 106, N = sum(C[k]), p = P[k], tp = TP[k];
-      const isLast = last && last[0] === c && last[1] === a;
-      s += `<rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" fill="#fff" stroke="${isLast ? INK : p ? HAIR : AXIS}" stroke-width="${isLast ? 2.5 : 1.5}"${p ? '' : ' stroke-dasharray="6 5"'}/>`
-        + seg([x0 + 26, base, x0 + PW - 10, base], AXIS, 1.4, 'stroke-linecap="butt"')
-        + label(x0 + 8, base + 22, '$s′$', { fs: 18, fill: MUTED })
-        + [0, 1, 2].map(i => label(bx(c, i), base + 22, String(i + 1), { fs: 18, fill: MUTED, anchor: 'middle' })).join('')
-        + label(x0 + PW / 2, y0 + PH - 14, `$N$ = ${N}`, { fs: 18, fill: MUTED, anchor: 'middle' });
-      [0, 1, 2].forEach(i => {
-        const X = bx(c, i) - BW / 2, tTop = base - tp[i] * H1;
-        if (p) s += `<path d="${barPath(X, BW, base, base - p[i] * H1)}" fill="${ACOL[a]}"/>`;
-        if (tp[i] > 0) s += `<rect x="${X}" y="${f1(tTop)}" width="${BW}" height="${f1(base - tTop)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-dasharray="4 4"/>`;
-        if (p) s += label(bx(c, i), Math.min(base - p[i] * H1, tTop) - 7, ratio(C[k][i] + al, N + 3 * al), { fs: 17, fill: p[i] ? INK : MUTED, anchor: 'middle' });
-      });
-      if (!p) s += label(x0 + PW / 2, y0 + 24, 'not tried', { fs: 18, fill: MUTED, anchor: 'middle' });
+  const K = { X0: 95, CW: 170, Y0: 54, CH: 80 }, cx = j => K.X0 + (j + 0.5) * K.CW, WALL = K.X0 + 3 * K.CW;
+  const B = { BASE: 398, TOP: 246, MAX: 11, BW: 50 }, by = v => B.BASE - v / B.MAX * (B.BASE - B.TOP);
+  const qfmt = v => (Math.abs(v - Math.round(v * 8) / 8) < 1e-9 ? fr(v) : num(v, 2));
+  function draw(k) {
+    const Q = st.Qs[k];
+    let s = heading(W, k ? `After episode ${k}` : 'Before the first episode', 'dashed: $Q^*$') + frameRect(1, 38, W - 2, H - 39);
+    for (let j = 0; j < 3; j++) {
+      const x = K.X0 + j * K.CW, g = greedy(Q[j]) ? 1 : -1;
+      s += `<rect x="${x}" y="${K.Y0}" width="${K.CW}" height="${K.CH}" fill="#fff" stroke="${INK}" stroke-width="2"/>`
+        + label(x + 9, K.Y0 + 21, String(j + 1), { fs: 17, fill: MUTED })
+        + hArrow(cx(j), K.Y0 + K.CH / 2 + 4, g, 40, ACOL[g], 4, 15)
+        + label(cx(j), K.Y0 + K.CH + 28, `$R$ = ${RC[j]}`, { fs: 20, fill: MUTED, anchor: 'middle' });
+    }
+    s += swatch(K.X0, 206, OCHRE, '$Q$($s$, left)', 19) + swatch(K.X0 + 170, 206, BLUE, '$Q$($s$, right)', 19);
+    [0, 5, 10].forEach(t => { s += hline(K.X0, WALL, by(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(K.X0 - 12, by(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    for (let j = 0; j < 3; j++) [0, 1].forEach(a => {
+      const x = cx(j) + (a ? 4 : -4 - B.BW), v = Q[j][a], q = QS[j][a];
+      s += `<path d="${barPath(x, B.BW, B.BASE, by(v))}" fill="${a ? BLUE : OCHRE}"/>`
+        + `<rect x="${x}" y="${f1(by(q))}" width="${B.BW}" height="${f1(B.BASE - by(q))}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-dasharray="6 5"/>`
+        + label(x + B.BW / 2, B.BASE + 28, qfmt(v), { fs: 19, anchor: 'middle' });
     });
     main.innerHTML = s;
-    const errs = KEYS.filter(([c, a]) => P[key(c, a)]).flatMap(([c, a]) => P[key(c, a)].map((v, i) => Math.abs(v - TP[key(c, a)][i])));
-    $('#d4v').textContent = errs.length ? num(Math.max(...errs), 2) : '—';
-    $('#l4v').textContent = last ? `(${last[0] + 1}, ${last[1] < 0 ? 'left' : 'right'}) → ${last[2] + 1}` : '—';
   }
-  // The companion: V̂ and the greedy actions from value iteration on the estimate, against the true V* and π*.
-  const CX = [112, 232, 352], V0 = 300, VT = 96, VMAX = 12, VY = v => V0 - v / VMAX * (V0 - VT);
-  function values(n) {
-    const P = estimate(counts(n)), est = plan(P);
-    let s = heading(SW, 'Values from the estimate', 'dashed: the true $V^*$') + frameRect(1, 38, SW - 2, H - 39);
-    [0, 4, 8, 12].forEach(t => { s += seg([52, VY(t), 412, VY(t)], t ? GRID : AXIS, t ? 1.2 : 1.5, 'stroke-linecap="butt"') + label(44, VY(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
-    CX.forEach((c, j) => {
-      if (est) s += `<path d="${barPath(c - 30, 60, V0, VY(est.V[j]))}" fill="${BLUE}"/>`;
-      s += `<rect x="${c - 30}" y="${f1(VY(TV.V[j]))}" width="60" height="${f1(V0 - VY(TV.V[j]))}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-dasharray="4 4"/>`;
-      if (est) s += label(c, Math.min(VY(est.V[j]), VY(TV.V[j])) - 8, num(est.V[j], 2), { fs: 19, anchor: 'middle' });
-      const x = c - 60, a = est ? est.act[j] : 0, wrong = est && a !== TV.act[j];
-      s += `<rect x="${x}" y="326" width="120" height="50" fill="#fff" stroke="${INK}" stroke-width="2"/>`
-        + label(x + 7, 344, String(j + 1), { fs: 15, fill: MUTED });
-      if (a) s += hArrow(c, 352, a, 26, ACOL[a], 3.5, 13);
-      else s += label(c, 359, est ? 'tie' : '?', { fs: 19, fill: MUTED, anchor: 'middle' });
-      if (wrong) s += `<rect x="${x + 20}" y="332" width="80" height="38" rx="6" fill="none" stroke="${RED}" stroke-width="2.5"/>`;
-    });
-    s += label(52, 404, 'greedy action; red: not the true best one', { fs: 17, fill: MUTED });
-    if (!est) {
-      const miss = KEYS.filter(([c, a]) => !P[key(c, a)]).map(([c, a]) => `(${c + 1}, ${a < 0 ? 'left' : 'right'})`);
-      s += `<rect x="70" y="146" width="320" height="76" fill="#fff" fill-opacity="0.9"/>`
-        + label(230, 176, 'Not defined yet: never tried', { fs: 19, fill: MUTED, anchor: 'middle' })
-        + label(230, 204, miss.length > 3 ? `${miss.length} of the 6 pairs` : miss.join(', '), { fs: 19, fill: MUTED, anchor: 'middle' });
+  const C = { L: 64, R: 438, T: 210, B: 372 };
+  function chart(k) {
+    const mv = st.moves[k], X = j => C.L + (j - 0.5) / NE * (C.R - C.L), Y = v => C.B - v / 50 * (C.B - C.T);
+    let s = heading(SW, k ? `Moves of episode ${k}` : 'No moves yet', k ? 'grey: random move' : '') + frameRect(1, 38, SW - 2, H - 39);
+    for (let t = 0; t < T; t++) {
+      const x = 26 + t * 41, m = mv[t];
+      s += `<rect x="${x}" y="58" width="35" height="34" rx="3" fill="${m && m.rand ? '#e6e6e6' : '#fff'}" stroke="${HAIR}" stroke-width="1.5"/>`;
+      if (m) s += hArrow(x + 17.5, 75, m.a ? 1 : -1, 10, ACOL[m.a ? 1 : -1], 2.5, 9) + label(x + 17.5, 116, String(m.r), { fs: 18, fill: MUTED, anchor: 'middle' });
     }
+    if (k) s += label(26, 150, `reward in this episode: ${st.rets[k]}`, { fs: 18 });
+    s += label(C.L, C.T - 16, 'reward per episode', { fs: 18, fill: MUTED });
+    [0, 25, 50].forEach(t => { s += hline(C.L, C.R, Y(t), t ? GRID : AXIS, t ? 1.2 : 1.5) + label(C.L - 10, Y(t) + 6, String(t), { fs: 17, fill: MUTED, anchor: 'end' }); });
+    const bw = (C.R - C.L) / NE * 0.68;
+    st.rets.forEach((r, j) => { if (j) s += `<path d="${barPath(X(j) - bw / 2, bw, C.B, Y(r), 2)}" fill="${j <= k ? BLUE : '#e4e4e4'}"/>`; });
+    s += seg([C.L, Y(BEST), C.R, Y(BEST)], INK, 1.5, 'stroke-dasharray="6 5" stroke-linecap="butt"')
+      + label(C.R - 2, Y(BEST) - 8, `best: ${BEST}`, { fs: 17, fill: MUTED, anchor: 'end' });
+    [1, 10, 20, 30, 40, 50].forEach(t => { s += seg([X(t), C.B, X(t), C.B + 6], AXIS, 1.5) + label(X(t), C.B + 26, String(t), { fs: 17, fill: MUTED, anchor: 'middle' }); });
+    s += label((C.L + C.R) / 2, C.B + 54, 'episode', { fs: 18, fill: MUTED, anchor: 'middle' });
     side.innerHTML = s;
+    $('#gr4v').textContent = `(${st.Qs[k].map(q => (greedy(q) ? '→' : '←')).join(', ')})`;
+    $('#rw4v').textContent = k ? `${st.rets[k]} of ${BEST}` : '–';
   }
-  const show = i => { st.i = i; draw(NS[i]); values(NS[i]); };
-  const bar = stepper($('#s4'), {
-    go: show, text: i => `<span class="mi">n</span> = ${NS[i]} transition${NS[i] === 1 ? '' : 's'}`,
-    kind: i => (MAJ.has(NS[i]) ? 2 : 1), tick: i => NS[i], wait: i => (NS[i] <= 12 ? 750 : 450), name: 'Transitions observed',
-  });
-  segGroup('mode4', k => { st.mode = k; show(st.i); });
-  $('#new4').addEventListener('click', () => { st.seed = 1 + Math.floor(Math.random() * 2147483000); gen(); show(st.i); });
-  gen(); bar.reset(NS.length - 1, 0); show(0);
+  const show = k => { st.k = k; draw(k); chart(k); };
+  const bar = stepper($('#s4'), { go: show, text: s => `episode ${s} of ${NE}`, wait: s => (s < 10 ? 700 : 220), name: 'Episodes' });
+  const load = () => { run(); show(bar.s); };
+  segGroup('eps4', k => { st.mode = k; load(); });
+  $('#new4').addEventListener('click', () => { st.seed = newSeed(); load(); });
+  run(); bar.reset(NE, 0); show(0);
 
-  check('q4', 'Move to $n=500$ and switch between the two estimates. What does smoothing change now?', [
-    { t: 'It still puts $\\tfrac13$ on every next cell.', ok: false,
-      fb: 'That is the smoothed estimate only for a pair with $N(s,a)=0$. With many counts, the $+1$ hardly matters.' },
-    { t: 'Almost nothing: adding $\\alpha=1$ is small next to $N(s,a)$.', ok: true,
-      fb: 'The estimate is $\\frac{N(s,a,s\')+1}{N(s,a)+3}$, which approaches $\\frac{N(s,a,s\')}{N(s,a)}$ as the counts grow. Smoothing matters only while data are scarce.' },
-    { t: 'It makes every estimate uniform.', ok: false,
-      fb: 'Compare the bars: both estimates are close to the dashed true probabilities, and those are far from uniform.' },
+  check('q4', 'Choose $\\epsilon=0$. Which value does $Q(1,\\text{left})$ approach?', [
+    { t: '$4=\\frac{2}{1-\\gamma}$.', ok: true,
+      fb: 'The agent collects $2$ forever and never tries right in cell 1, so $Q(1,\\text{right})$ stays $0$ and the target is $2+\\tfrac12Q(1,\\text{left})$ (Problem 4(b)).' },
+    { t: '$\\tfrac92=Q^*(1,\\text{left})$.', ok: false,
+      fb: '$Q^*(1,\\text{left})$ assumes that the agent then acts optimally and moves right. The greedy agent never finds out that right is better.' },
+    { t: '$5$, the best value in cell 1.', ok: false,
+      fb: '$5$ is $Q^*(1,\\text{right})$, but with $\\epsilon=0$ right is never tried in cell 1: its bar stays at $0$.' },
   ]);
   return st;
 })();
